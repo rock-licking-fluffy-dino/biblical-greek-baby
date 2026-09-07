@@ -59,14 +59,8 @@
   }
 
   /* generic layered glass panel */
-  .glass {
-    position: relative;
-  }
-  .glass-fill, .glass-edge {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
+  .glass { position: relative; }
+  .glass-fill, .glass-edge { position: absolute; inset: 0; pointer-events: none; }
   .glass-fill {
     backdrop-filter: blur(18px) saturate(160%);
     -webkit-backdrop-filter: blur(18px) saturate(160%);
@@ -79,171 +73,90 @@
   .glass-content { position: relative; z-index: 1; }
 
   /* header */
-  .header-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 18px;
-  }
-  .app-title {
-    font-weight: 800;
-    font-size: 21px;
-    letter-spacing: -0.01em;
-    margin: 0;
-  }
-  .app-subtitle {
-    font-size: 12px;
-    margin-top: 1px;
-  }
-  .pill {
-    position: relative;
-    border-radius: 9999px;
-  }
+  .header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .app-title { font-weight: 800; font-size: 21px; letter-spacing: -0.01em; margin: 0; }
+  .app-subtitle { font-size: 12px; margin-top: 1px; }
+  .pill { position: relative; border-radius: 9999px; }
   .pill .glass-fill { border-radius: 9999px; backdrop-filter: blur(14px) saturate(180%); -webkit-backdrop-filter: blur(14px) saturate(180%); background: rgba(255,255,255,0.55); }
   .pill .glass-edge { border-radius: 9999px; box-shadow: inset 1px 1px 1px rgba(255,255,255,0.85), inset -1px -1px 1px rgba(255,255,255,0.3); border: 0.5px solid rgba(0,0,0,0.06); }
-  .pill .glass-content {
-    padding: 7px 14px;
-    font-size: 12px;
-    color: var(--green-text);
-    font-weight: 600;
-    white-space: nowrap;
-  }
+  .pill .glass-content { padding: 7px 14px; font-size: 12px; color: var(--green-text); font-weight: 600; white-space: nowrap; }
 
   /* home: continue card */
-  .continue-card {
-    border-radius: 24px;
-    padding: 20px;
-    margin-bottom: 14px;
-    box-shadow: 0 12px 32px rgba(32,30,29,0.1);
-  }
+  .continue-card { border-radius: 24px; padding: 20px; margin-bottom: 14px; box-shadow: 0 12px 32px rgba(32,30,29,0.1); }
   .continue-card .glass-fill { border-radius: 24px; backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); background: rgba(255,255,255,0.6); }
   .continue-card .glass-edge { border-radius: 24px; }
-  .continue-card h2 {
-    margin: 0 0 6px;
-    font-weight: 800;
-    font-size: 25px;
-  }
-  .continue-words {
-    margin: 0 0 16px;
-    font-size: 13px;
-  }
-  .resume-btn {
-    position: relative;
-    width: 100%;
-    border: none;
-    border-radius: 16px;
-    padding: 13px 0;
-    overflow: hidden;
-    cursor: pointer;
-  }
+  .continue-card h2 { margin: 0 0 6px; font-weight: 800; font-size: 25px; }
+  .continue-words { margin: 0 0 16px; font-size: 13px; }
+  .resume-btn { position: relative; width: 100%; border: none; border-radius: 16px; padding: 13px 0; overflow: hidden; cursor: pointer; }
   .resume-btn .resume-fill { position: absolute; inset: 0; background: rgba(79,122,92,0.88); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
   .resume-btn .resume-edge { position: absolute; inset: 0; box-shadow: inset 1px 1px 1px rgba(255,255,255,0.3); }
-  .resume-btn span {
-    position: relative;
-    z-index: 1;
-    color: #fff;
-    font-weight: 800;
-    font-size: 14px;
-  }
+  .resume-btn span { position: relative; z-index: 1; color: #fff; font-weight: 800; font-size: 14px; }
+  .resume-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
   /* stats row */
   .stats-row { display: flex; gap: 8px; margin-bottom: 14px; }
-  .stat-chip {
-    flex: 1;
-    border-radius: 18px;
-    padding: 12px 6px;
-    text-align: center;
-  }
+  .stat-chip { flex: 1; border-radius: 18px; padding: 12px 6px; text-align: center; }
   .stat-chip .glass-fill { border-radius: 18px; background: rgba(255,255,255,0.5); }
   .stat-chip .glass-edge { border-radius: 18px; box-shadow: none; border: 0.5px solid rgba(255,255,255,0.5); }
   .stat-value { font-weight: 800; font-size: 19px; }
   .stat-label { font-size: 10px; margin-top: 2px; }
 
-  /* chapters grid */
-  .chapters-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 6px;
-  }
+  /* chapters grid (shared: home display grid + setup multi-select grid) */
+  .chapters-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
   .chapter-chip {
-    text-align: center;
-    padding: 8px 0;
-    border-radius: 10px;
-    font-size: 11px;
-    cursor: pointer;
-    user-select: none;
-    border: none;
-    font-family: var(--font-sans);
+    text-align: center; padding: 8px 0; border-radius: 10px; font-size: 11px;
+    cursor: pointer; user-select: none; border: none; font-family: var(--font-sans);
   }
-  .chapter-chip.done {
-    background: var(--green);
-    color: #fff;
-    font-weight: 600;
+  .chapter-chip.done { background: var(--green); color: #fff; font-weight: 600; }
+  .chapter-chip.not-done { background: rgba(255,255,255,0.5); color: var(--muted); border: 0.5px solid rgba(32,30,29,0.08); }
+  .chapter-chip.selectable { background: rgba(255,255,255,0.5); color: var(--ink); border: 0.5px solid rgba(32,30,29,0.1); font-weight: 600; }
+  .chapter-chip.selected { background: var(--green); color: #fff; }
+
+  /* setup screen */
+  .setup-panel { border-radius: 20px; padding: 16px; margin-bottom: 14px; }
+  .setup-panel .glass-fill { border-radius: 20px; background: rgba(255,255,255,0.55); }
+  .setup-panel .glass-edge { border-radius: 20px; box-shadow: none; border: 0.5px solid rgba(255,255,255,0.5); }
+  .setup-section + .setup-section { margin-top: 16px; }
+  .setup-label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .link-btn {
+    background: none; border: none; color: var(--green-text); font-size: 12px; font-weight: 600;
+    cursor: pointer; padding: 0; font-family: var(--font-sans); text-decoration: underline; text-underline-offset: 2px;
   }
-  .chapter-chip.not-done {
-    background: rgba(255,255,255,0.5);
-    color: var(--muted);
-    border: 0.5px solid rgba(32,30,29,0.08);
+  .segmented { display: flex; gap: 6px; flex-wrap: wrap; }
+  .seg-btn {
+    flex: 1 1 auto; border: 0.5px solid rgba(32,30,29,0.1); background: rgba(255,255,255,0.5);
+    color: var(--ink); border-radius: 12px; padding: 10px 8px; font-size: 12.5px; font-weight: 600;
+    cursor: pointer; font-family: var(--font-sans); text-align: center; white-space: nowrap;
   }
+  .seg-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+  .seg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .setup-note { font-size: 11.5px; margin-top: 8px; line-height: 1.4; }
+  .start-btn {
+    position: relative; width: 100%; border: none; border-radius: 16px; padding: 14px 0;
+    overflow: hidden; cursor: pointer; margin-top: 16px;
+  }
+  .start-btn .resume-fill { position: absolute; inset: 0; background: rgba(79,122,92,0.88); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .start-btn .resume-edge { position: absolute; inset: 0; box-shadow: inset 1px 1px 1px rgba(255,255,255,0.3); }
+  .start-btn span { position: relative; z-index: 1; color: #fff; font-weight: 800; font-size: 14px; }
+  .start-btn:disabled .resume-fill { background: rgba(32,30,29,0.15); }
+  .start-btn:disabled span { color: rgba(32,30,29,0.4); }
+  .start-btn:disabled { cursor: not-allowed; }
 
   /* flashcard */
-  .progress-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    color: rgba(32,30,29,0.55);
-    margin-bottom: 10px;
-  }
-  .progress-track {
-    height: 6px;
-    background: rgba(32,30,29,0.08);
-    border-radius: 9999px;
-    margin-bottom: 28px;
-    overflow: hidden;
-  }
-  .progress-fill {
-    height: 6px;
-    background: var(--green);
-    border-radius: 9999px;
-    transition: width 0.25s ease;
-  }
-  .prompt-panel {
-    border-radius: 28px;
-    padding: 34px 20px;
-    margin-bottom: 22px;
-    box-shadow: 0 16px 40px rgba(32,30,29,0.12);
-    text-align: center;
-  }
+  .progress-row { display: flex; justify-content: space-between; font-size: 12px; color: rgba(32,30,29,0.55); margin-bottom: 10px; }
+  .progress-track { height: 6px; background: rgba(32,30,29,0.08); border-radius: 9999px; margin-bottom: 28px; overflow: hidden; }
+  .progress-fill { height: 6px; background: var(--green); border-radius: 9999px; transition: width 0.25s ease; }
+  .prompt-panel { border-radius: 28px; padding: 34px 20px; margin-bottom: 22px; box-shadow: 0 16px 40px rgba(32,30,29,0.12); text-align: center; }
   .prompt-panel .glass-fill { border-radius: 28px; backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); background: rgba(255,255,255,0.62); }
   .prompt-panel .glass-edge { border-radius: 28px; box-shadow: inset 1px 1px 1px rgba(255,255,255,0.9); }
-  .prompt-word {
-    font-weight: 800;
-    font-size: 44px;
-    word-break: break-word;
-  }
+  .prompt-word { font-weight: 800; font-size: 44px; word-break: break-word; }
+  .prompt-word.is-english { font-size: 26px; line-height: 1.3; }
   .options { display: flex; flex-direction: column; gap: 10px; }
-  .option-btn {
-    position: relative;
-    border: none;
-    border-radius: 16px;
-    padding: 15px 16px;
-    text-align: left;
-    cursor: pointer;
-    font-family: var(--font-sans);
-  }
+  .option-btn { position: relative; border: none; border-radius: 16px; padding: 15px 16px; text-align: left; cursor: pointer; font-family: var(--font-sans); }
   .option-btn:disabled { cursor: default; }
   .option-fill { position: absolute; inset: 0; border-radius: 16px; background: rgba(255,255,255,0.4); }
   .option-edge { position: absolute; inset: 0; border-radius: 16px; border: 0.5px solid rgba(255,255,255,0.5); }
-  .option-content {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 15px;
-    color: var(--ink);
-    gap: 10px;
-  }
+  .option-content { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; font-size: 15px; color: var(--ink); gap: 10px; }
   .option-btn.is-correct .option-fill { background: var(--green-tint); }
   .option-btn.is-correct .option-content { color: var(--green-text); }
   .option-btn.is-wrong .option-fill { background: rgba(32,30,29,0.06); }
@@ -251,77 +164,52 @@
   .option-btn.is-faded .option-content { color: var(--muted); }
   .option-icon { flex-shrink: 0; display: flex; }
 
-  /* progress screen */
-  .ring-panel {
-    border-radius: 24px;
-    padding: 26px 20px;
-    margin-bottom: 16px;
-    box-shadow: 0 12px 32px rgba(32,30,29,0.1);
-    text-align: center;
+  /* typed answer */
+  .typed-row { display: flex; gap: 8px; }
+  .typed-input-wrap { position: relative; flex: 1; border-radius: 16px; overflow: hidden; }
+  .typed-input-wrap .glass-fill { border-radius: 16px; background: rgba(255,255,255,0.4); }
+  .typed-input-wrap .glass-edge { border-radius: 16px; border: 0.5px solid rgba(255,255,255,0.5); }
+  .typed-input {
+    position: relative; z-index: 1; width: 100%; border: none; background: transparent;
+    padding: 15px 16px; font-size: 15px; font-family: var(--font-sans); color: var(--ink); outline: none;
   }
+  .typed-input-wrap.is-correct .glass-fill { background: var(--green-tint); }
+  .typed-input-wrap.is-correct .typed-input { color: var(--green-text); }
+  .typed-input-wrap.is-wrong .glass-fill { background: rgba(32,30,29,0.06); }
+  .typed-input-wrap.is-wrong .typed-input { color: var(--muted); }
+  .typed-submit {
+    position: relative; border: none; border-radius: 16px; padding: 0 20px; overflow: hidden; cursor: pointer;
+  }
+  .typed-submit .resume-fill { position: absolute; inset: 0; background: rgba(79,122,92,0.88); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .typed-submit span { position: relative; z-index: 1; color: #fff; font-weight: 800; font-size: 13px; }
+  .typed-submit:disabled { cursor: not-allowed; opacity: 0.5; }
+  .typed-feedback { text-align: center; font-size: 12.5px; margin-top: 14px; min-height: 16px; }
+
+  /* progress screen */
+  .ring-panel { border-radius: 24px; padding: 26px 20px; margin-bottom: 16px; box-shadow: 0 12px 32px rgba(32,30,29,0.1); text-align: center; }
   .ring-panel .glass-fill { border-radius: 24px; backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); background: rgba(255,255,255,0.6); }
   .ring-panel .glass-edge { border-radius: 24px; box-shadow: none; border: 0.5px solid rgba(255,255,255,0.5); }
   .ring-label { font-size: 12px; margin-top: 6px; }
-  .list-panel {
-    border-radius: 20px;
-    padding: 6px 16px;
-    margin-bottom: 16px;
-  }
+  .ring-caption { font-size: 11.5px; margin-top: 2px; line-height: 1.4; }
+  .list-panel { border-radius: 20px; padding: 6px 16px; margin-bottom: 16px; }
   .list-panel .glass-fill { border-radius: 20px; background: rgba(255,255,255,0.5); }
   .list-panel .glass-edge { border-radius: 20px; box-shadow: none; border: 0.5px solid rgba(255,255,255,0.5); }
-  .chapter-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 0;
-  }
+  .chapter-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; }
   .chapter-row .ch-num { width: 20px; font-size: 12px; color: rgba(32,30,29,0.55); }
   .chapter-row .ch-track { flex: 1; height: 6px; background: rgba(32,30,29,0.08); border-radius: 9999px; }
   .chapter-row .ch-fill { height: 6px; background: var(--green); border-radius: 9999px; }
   .chapter-row .ch-pct { width: 32px; text-align: right; font-size: 12px; color: rgba(32,30,29,0.55); }
-  .missed-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 11px 0;
-    font-size: 14px;
-  }
+  .missed-row { display: flex; justify-content: space-between; gap: 10px; padding: 11px 0; font-size: 14px; }
   .missed-greek { font-weight: 600; }
   .missed-english { text-align: right; }
   .empty-note { text-align: center; font-size: 13px; padding: 14px 0; }
 
   /* nav bar */
-  .tab-bar-wrap {
-    position: fixed;
-    left: 50%;
-    bottom: calc(env(safe-area-inset-bottom) + 16px);
-    transform: translateX(-50%);
-    z-index: 30;
-  }
-  .tab-bar {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 9px;
-    border-radius: 9999px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.16);
-  }
+  .tab-bar-wrap { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 16px); transform: translateX(-50%); z-index: 30; }
+  .tab-bar { position: relative; display: flex; align-items: center; gap: 6px; padding: 9px; border-radius: 9999px; box-shadow: 0 6px 20px rgba(0,0,0,0.16); }
   .tab-bar .glass-fill { border-radius: 9999px; backdrop-filter: blur(16px) saturate(180%); -webkit-backdrop-filter: blur(16px) saturate(180%); background: rgba(255,255,255,0.6); }
   .tab-bar .glass-edge { border-radius: 9999px; box-shadow: inset 1px 1px 1px rgba(255,255,255,0.85), inset -1px -1px 1px rgba(255,255,255,0.3); border: 0.5px solid rgba(0,0,0,0.06); }
-  .tab-btn {
-    position: relative;
-    z-index: 1;
-    width: 52px;
-    height: 52px;
-    border: none;
-    background: transparent;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: var(--muted);
-  }
+  .tab-btn { position: relative; z-index: 1; width: 52px; height: 52px; border: none; background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--muted); }
   .tab-btn.active { color: var(--green); }
   .tab-btn svg { width: 26px; height: 26px; }
 
@@ -381,15 +269,19 @@ const STATS_KEY = 'koine-drill-word-stats';
 const STREAK_KEY = 'oikos-streak';
 
 let state = {
-  screen: 'home',            // 'home' | 'flashcard' | 'progress'
+  screen: 'home',            // 'home' | 'reviewSetup' | 'flashcard' | 'progress'
   stats: {},                 // wordKey -> { seen, correct }
   streak: { count: 0, lastDate: null },
-  quiz: null,                // { chapter, items: [{item, options}], index, score, selectedOpt, answered }
+  setup: {
+    selectedChapters: new Set(),
+    count: 20,                // 10 | 20 | 30
+    direction: 'gtoe',        // 'gtoe' | 'etog' | 'mixed'
+    mode: 'mc'                // 'mc' | 'typed'
+  },
+  quiz: null,                 // { settings, pool, items, index, score, answered, selectedOpt, typedValue, typedCorrect }
 };
 
-function wordKey(chapter, greek) {
-  return chapter + '::' + greek;
-}
+function wordKey(chapter, greek) { return chapter + '::' + greek; }
 
 function todayStr() {
   const d = new Date();
@@ -437,6 +329,15 @@ function chapterMastery(ch) {
   return Math.round((correct / seen) * 100);
 }
 
+/*
+ * "accuracy" measures how often you answer correctly among the questions
+ * you've actually been asked so far -- it is NOT the same as how much of
+ * the 23-chapter syllabus you have covered. Two words attempted with one
+ * mistake is already 50% accuracy; twenty words attempted with two
+ * mistakes is 90% accuracy -- both are possible after "finishing" only a
+ * couple of chapters. Coverage of the syllabus is shown separately, as
+ * "{wordsSeen} of {totalWords} words" and "chapters mastered".
+ */
 function overallStats() {
   let totalSeenWords = 0, totalWords = 0, sumSeen = 0, sumCorrect = 0;
   CHAPTERS.forEach(ch => {
@@ -483,48 +384,184 @@ function shuffle(arr) {
   return a;
 }
 
-function pickDistractors(correct, pool, n) {
-  const others = shuffle(pool.filter(w => w.english !== correct.english));
-  const seen = new Set([correct.english]);
+function buildPool(chapters) {
+  const pool = [];
+  chapters.forEach(ch => {
+    (VOCAB[ch] || []).forEach(w => pool.push({ chapter: ch, greek: w.greek.trim(), english: w.english.trim() }));
+  });
+  return pool;
+}
+
+function pickDistractors(correctItem, pool, field, n) {
+  const others = shuffle(pool.filter(w => w[field] !== correctItem[field]));
+  const seenVals = new Set([correctItem[field]]);
   const out = [];
   for (const w of others) {
     if (out.length >= n) break;
-    if (seen.has(w.english)) continue;
-    seen.add(w.english);
-    out.push(w.english);
+    if (seenVals.has(w[field])) continue;
+    seenVals.add(w[field]);
+    out.push(w[field]);
   }
   return out;
 }
 
-function buildQuiz(chapter) {
-  let pool = (VOCAB[chapter] || []).slice();
-  if (pool.length < 4) {
-    // borrow distractors from the full vocabulary if a chapter is too small
-    pool = pool.concat(Object.values(VOCAB).flat());
-  }
-  const items = shuffle(VOCAB[chapter] || []).map(item => {
-    const distractors = pickDistractors(item, pool, 3);
-    return { item, options: shuffle([item.english, ...distractors]) };
+/* ---------- generous grading for typed answers ---------- */
+function extractAlternatives(englishStr) {
+  let alts = [];
+  const parenRegex = /\(([^)]+)\)/g;
+  let m;
+  while ((m = parenRegex.exec(englishStr)) !== null) alts.push(m[1]);
+  const cleaned = englishStr.replace(parenRegex, '');
+  cleaned.split(/[,;]/).forEach(seg => {
+    seg.split('/').forEach(sub => {
+      const t = sub.trim();
+      if (t) alts.push(t);
+    });
   });
-  state.quiz = { chapter, items, index: 0, score: 0, selectedOpt: null, answered: false };
+  return alts.filter(Boolean);
+}
+
+function normalizeAnswer(s) {
+  return s.toLowerCase().trim()
+    .replace(/^i\s+/, '')
+    .replace(/^(a|an|the)\s+/, '')
+    .replace(/[.!?]+$/, '')
+    .replace(/\s+/g, ' ');
+}
+
+function wordBoundaryMatch(haystack, needle) {
+  if (!needle) return false;
+  const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp('\\b' + escaped + '\\b').test(haystack);
+}
+
+function checkTypedAnswer(userInput, correctEnglish) {
+  const user = normalizeAnswer(userInput);
+  if (!user) return false;
+  const alts = extractAlternatives(correctEnglish).map(normalizeAnswer);
+  return alts.some(alt => {
+    if (!alt) return false;
+    if (user === alt) return true;
+    if (alt.split(' ').length === 1) {
+      return wordBoundaryMatch(user, alt) || wordBoundaryMatch(alt, user);
+    }
+    return user.includes(alt) || alt.includes(user);
+  });
+}
+
+/* ---------- quiz construction ---------- */
+function makeQuizItems(sourceItems, pool, settings) {
+  return sourceItems.map(item => {
+    let dir = settings.mode === 'typed' ? 'gtoe' : settings.direction;
+    if (dir === 'mixed') dir = Math.random() < 0.5 ? 'gtoe' : 'etog';
+    const answerField = dir === 'gtoe' ? 'english' : 'greek';
+    const promptField = dir === 'gtoe' ? 'greek' : 'english';
+    const q = {
+      item, dir, promptField, answerField,
+      prompt: item[promptField],
+      correctAnswer: item[answerField]
+    };
+    if (settings.mode === 'mc') {
+      const distractors = pickDistractors(item, pool, answerField, 3);
+      q.options = shuffle([item[answerField], ...distractors]);
+    }
+    return q;
+  });
+}
+
+function startQuiz(settings) {
+  const chapters = [...settings.selectedChapters].sort((a, b) => a - b);
+  const pool = buildPool(chapters);
+  const n = Math.min(settings.count, pool.length);
+  const chosen = shuffle(pool).slice(0, n);
+  state.quiz = {
+    settings: { ...settings, selectedChapters: chapters },
+    pool,
+    items: makeQuizItems(chosen, pool, settings),
+    index: 0,
+    score: 0,
+    answered: false,
+    selectedOpt: null,
+    typedValue: '',
+    typedCorrect: null
+  };
+  state.screen = 'flashcard';
+  render();
+}
+
+function quickResume() {
+  const ch = continueChapter();
+  startQuiz({
+    selectedChapters: new Set([ch]),
+    count: (VOCAB[ch] || []).length,
+    direction: 'gtoe',
+    mode: 'mc'
+  });
+}
+
+function startChapterReview(ch) {
+  startQuiz({
+    selectedChapters: new Set([ch]),
+    count: (VOCAB[ch] || []).length,
+    direction: 'gtoe',
+    mode: 'mc'
+  });
+}
+
+function quizInProgress() {
+  return !!(state.quiz && state.quiz.index < state.quiz.items.length);
 }
 
 function goHome() { state.screen = 'home'; render(); }
 
-function goReview() {
-  if (!(state.screen === 'flashcard' && state.quiz && state.quiz.index < state.quiz.items.length)) {
-    buildQuiz(continueChapter());
-  }
-  state.screen = 'flashcard';
+function goReviewTab() {
+  state.screen = quizInProgress() ? 'flashcard' : 'reviewSetup';
   render();
 }
 
 function goProgress() { state.screen = 'progress'; render(); }
 
-function startChapterReview(ch) {
-  buildQuiz(ch);
-  state.screen = 'flashcard';
+/* ---------- quiz setup screen actions ---------- */
+function toggleSetupChapter(ch) {
+  if (state.setup.selectedChapters.has(ch)) state.setup.selectedChapters.delete(ch);
+  else state.setup.selectedChapters.add(ch);
   render();
+}
+function setupSelectAll() { CHAPTERS.forEach(c => state.setup.selectedChapters.add(c)); render(); }
+function setupSelectNone() { state.setup.selectedChapters.clear(); render(); }
+function setSetupMode(m) {
+  state.setup.mode = m;
+  if (m === 'typed') state.setup.direction = 'gtoe';
+  render();
+}
+function setSetupDirection(d) { state.setup.direction = d; render(); }
+function setSetupCount(n) { state.setup.count = n; render(); }
+
+function launchSetupQuiz() {
+  const pool = buildPool([...state.setup.selectedChapters]);
+  const minNeeded = state.setup.mode === 'typed' ? 1 : 4;
+  if (pool.length < minNeeded) return;
+  startQuiz({
+    selectedChapters: new Set(state.setup.selectedChapters),
+    count: state.setup.count,
+    direction: state.setup.direction,
+    mode: state.setup.mode
+  });
+}
+
+/* ---------- answering ---------- */
+function goNextQuestion(q) {
+  if (q.index < q.items.length - 1) {
+    q.index += 1;
+    q.answered = false;
+    q.selectedOpt = null;
+    q.typedValue = '';
+    q.typedCorrect = null;
+    render();
+  } else {
+    state.screen = 'home';
+    render();
+  }
 }
 
 function selectOption(opt) {
@@ -533,29 +570,33 @@ function selectOption(opt) {
   q.answered = true;
   q.selectedOpt = opt;
   const current = q.items[q.index];
-  const correct = opt === current.item.english;
+  const correct = opt === current.correctAnswer;
   if (correct) q.score += 1;
   bumpStreak();
-  recordAttempt(q.chapter, current.item.greek, correct);
+  recordAttempt(current.item.chapter, current.item.greek, correct);
   render();
-  setTimeout(() => {
-    if (!state.quiz || state.quiz !== q) return;
-    if (q.index < q.items.length - 1) {
-      q.index += 1;
-      q.answered = false;
-      q.selectedOpt = null;
-      render();
-    } else {
-      state.screen = 'home';
-      render();
-    }
-  }, correct ? 650 : 1500);
+  setTimeout(() => { if (state.quiz === q) goNextQuestion(q); }, correct ? 650 : 1500);
+}
+
+function submitTyped() {
+  const q = state.quiz;
+  if (!q || q.answered) return;
+  const input = document.getElementById('typed-input');
+  const val = input ? input.value : '';
+  const current = q.items[q.index];
+  const correct = checkTypedAnswer(val, current.correctAnswer);
+  q.answered = true;
+  q.typedValue = val;
+  q.typedCorrect = correct;
+  if (correct) q.score += 1;
+  bumpStreak();
+  recordAttempt(current.item.chapter, current.item.greek, correct);
+  render();
+  setTimeout(() => { if (state.quiz === q) goNextQuestion(q); }, correct ? 650 : 1800);
 }
 
 /* ---------- rendering ---------- */
-function glassLayer() {
-  return '<div class="glass-fill"></div><div class="glass-edge"></div>';
-}
+function glassLayer() { return '<div class="glass-fill"></div><div class="glass-edge"></div>'; }
 
 function greeting() {
   const h = new Date().getHours();
@@ -564,7 +605,7 @@ function greeting() {
   return 'Good evening';
 }
 
-function renderHeader(isHome, sectionTitle, streakOrTitle) {
+function renderHeader(isHome, pillLabel) {
   return `
     <div class="header-row">
       <div>
@@ -573,7 +614,7 @@ function renderHeader(isHome, sectionTitle, streakOrTitle) {
       </div>
       <div class="pill glass">
         ${glassLayer()}
-        <div class="glass-content">${streakOrTitle}</div>
+        <div class="glass-content">${pillLabel}</div>
       </div>
     </div>
   `;
@@ -592,7 +633,7 @@ function renderHome() {
 
   document.getElementById('screen').innerHTML = `
     <div class="fade-in">
-      ${renderHeader(true, 'Home', `${state.streak.count}-day streak`)}
+      ${renderHeader(true, `${state.streak.count}-day streak`)}
 
       <div class="continue-card glass">
         ${glassLayer()}
@@ -619,10 +660,100 @@ function renderHome() {
     </div>
   `;
 
-  document.getElementById('btn-resume').addEventListener('click', goReview);
+  document.getElementById('btn-resume').addEventListener('click', quickResume);
   document.querySelectorAll('.chapter-chip').forEach(el => {
     el.addEventListener('click', () => startChapterReview(Number(el.dataset.ch)));
   });
+}
+
+function renderReviewSetup() {
+  const s = state.setup;
+  const chapterChips = CHAPTERS.map(c => {
+    const sel = s.selectedChapters.has(c) ? 'selected' : '';
+    return `<button class="chapter-chip selectable ${sel}" data-ch="${c}">${c}</button>`;
+  }).join('');
+
+  const modeOptions = [{ id: 'mc', label: 'Multiple choice' }, { id: 'typed', label: 'Type answer' }];
+  const modeHtml = modeOptions.map(o =>
+    `<button class="seg-btn ${s.mode === o.id ? 'active' : ''}" data-mode="${o.id}">${o.label}</button>`
+  ).join('');
+
+  const dirOptions = [{ id: 'gtoe', label: 'Greek → English' }, { id: 'etog', label: 'English → Greek' }, { id: 'mixed', label: 'Mixed' }];
+  const typedActive = s.mode === 'typed';
+  const dirHtml = dirOptions.map(o =>
+    `<button class="seg-btn ${(s.direction === o.id && !typedActive) ? 'active' : ''}" data-dir="${o.id}" ${typedActive ? 'disabled' : ''}>${o.label}</button>`
+  ).join('');
+
+  const counts = [10, 20, 30];
+  const countHtml = counts.map(c =>
+    `<button class="seg-btn ${s.count === c ? 'active' : ''}" data-count="${c}">${c}</button>`
+  ).join('');
+
+  const poolSize = buildPool([...s.selectedChapters]).length;
+  const minNeeded = s.mode === 'typed' ? 1 : 4;
+  const canStart = poolSize >= minNeeded;
+  const startLabel = poolSize === 0
+    ? 'Select at least one chapter'
+    : (poolSize < minNeeded ? 'Select more chapters' : `Start quiz — ${Math.min(s.count, poolSize)} words`);
+
+  document.getElementById('screen').innerHTML = `
+    <div class="fade-in">
+      ${renderHeader(false, 'New quiz')}
+
+      <div class="setup-panel glass">
+        ${glassLayer()}
+        <div class="glass-content">
+
+          <div class="setup-section">
+            <div class="setup-label-row">
+              <span class="kicker">CHAPTERS</span>
+              <span>
+                <button class="link-btn" id="btn-sel-all">Select all</button>
+                &nbsp;&nbsp;
+                <button class="link-btn" id="btn-sel-none">Clear</button>
+              </span>
+            </div>
+            <div class="chapters-grid">${chapterChips}</div>
+          </div>
+
+          <div class="setup-section">
+            <div class="kicker" style="margin-bottom:10px">ANSWER TYPE</div>
+            <div class="segmented">${modeHtml}</div>
+          </div>
+
+          <div class="setup-section">
+            <div class="kicker" style="margin-bottom:10px">DIRECTION</div>
+            <div class="segmented">${dirHtml}</div>
+            ${typedActive ? '<div class="setup-note text-muted">Type-answer mode always quizzes Greek → English, and accepts any one correct English meaning.</div>' : ''}
+          </div>
+
+          <div class="setup-section">
+            <div class="kicker" style="margin-bottom:10px">NUMBER OF WORDS</div>
+            <div class="segmented">${countHtml}</div>
+          </div>
+
+          <button class="start-btn" id="btn-start" ${canStart ? '' : 'disabled'}>
+            <div class="resume-fill"></div>
+            <div class="resume-edge"></div>
+            <span>${startLabel}</span>
+          </button>
+
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.querySelectorAll('.chapter-chip').forEach(el => {
+    el.addEventListener('click', () => toggleSetupChapter(Number(el.dataset.ch)));
+  });
+  document.getElementById('btn-sel-all').addEventListener('click', setupSelectAll);
+  document.getElementById('btn-sel-none').addEventListener('click', setupSelectNone);
+  document.querySelectorAll('[data-mode]').forEach(el => el.addEventListener('click', () => setSetupMode(el.dataset.mode)));
+  document.querySelectorAll('[data-dir]').forEach(el => {
+    if (!typedActive) el.addEventListener('click', () => setSetupDirection(el.dataset.dir));
+  });
+  document.querySelectorAll('[data-count]').forEach(el => el.addEventListener('click', () => setSetupCount(Number(el.dataset.count))));
+  if (canStart) document.getElementById('btn-start').addEventListener('click', launchSetupQuiz);
 }
 
 function renderFlashcard() {
@@ -630,33 +761,57 @@ function renderFlashcard() {
   const total = q.items.length;
   const current = q.items[q.index];
   const pct = Math.round((q.index / total) * 100);
+  const isEnglishPrompt = current.promptField === 'english';
+  const tag = current.dir === 'gtoe' ? 'GIVE THE ENGLISH MEANING' : 'GIVE THE GREEK WORD';
 
-  const optionsHtml = current.options.map(opt => {
-    let cls = '';
-    let icon = '';
-    if (q.answered) {
-      if (opt === current.item.english) {
-        cls = 'is-correct';
-        icon = '<span class="option-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5 6.5 12 13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
-      } else if (opt === q.selectedOpt) {
-        cls = 'is-wrong';
-        icon = '<span class="option-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2 2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>';
-      } else {
-        cls = 'is-faded';
+  let bodyHtml;
+  if (q.settings.mode === 'mc') {
+    const optionsHtml = current.options.map(opt => {
+      let cls = '', icon = '';
+      if (q.answered) {
+        if (opt === current.correctAnswer) {
+          cls = 'is-correct';
+          icon = '<span class="option-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5 6.5 12 13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+        } else if (opt === q.selectedOpt) {
+          cls = 'is-wrong';
+          icon = '<span class="option-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2 2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>';
+        } else {
+          cls = 'is-faded';
+        }
       }
-    }
-    return `
-      <button class="option-btn ${cls}" data-opt="${opt.replace(/"/g, '&quot;')}" ${q.answered ? 'disabled' : ''}>
-        <div class="option-fill"></div>
-        <div class="option-edge"></div>
-        <div class="option-content"><span>${opt}</span>${icon}</div>
-      </button>
+      return `
+        <button class="option-btn ${cls}" data-opt="${opt.replace(/"/g, '&quot;')}" ${q.answered ? 'disabled' : ''}>
+          <div class="option-fill"></div>
+          <div class="option-edge"></div>
+          <div class="option-content"><span>${opt}</span>${icon}</div>
+        </button>
+      `;
+    }).join('');
+    bodyHtml = `<div class="options">${optionsHtml}</div>`;
+  } else {
+    const wrapCls = q.answered ? (q.typedCorrect ? 'is-correct' : 'is-wrong') : '';
+    const feedback = q.answered
+      ? (q.typedCorrect ? 'Correct.' : `Accepted answer: ${current.correctAnswer}`)
+      : '';
+    bodyHtml = `
+      <div class="typed-row">
+        <div class="typed-input-wrap glass ${wrapCls}">
+          ${glassLayer()}
+          <input class="typed-input" id="typed-input" type="text" autocomplete="off" autocapitalize="off"
+            autocorrect="off" spellcheck="false" placeholder="Type the English meaning…" ${q.answered ? 'disabled' : ''}>
+        </div>
+        <button class="typed-submit" id="typed-submit" ${q.answered ? 'disabled' : ''}>
+          <div class="resume-fill"></div>
+          <span>Check</span>
+        </button>
+      </div>
+      <div class="typed-feedback text-muted">${feedback}</div>
     `;
-  }).join('');
+  }
 
   document.getElementById('screen').innerHTML = `
     <div class="fade-in">
-      ${renderHeader(false, 'Review', 'Review')}
+      ${renderHeader(false, 'Review')}
 
       <div class="progress-row">
         <span>Question ${q.index + 1} of ${total}</span>
@@ -667,19 +822,31 @@ function renderFlashcard() {
       <div class="prompt-panel glass">
         ${glassLayer()}
         <div class="glass-content">
-          <div class="kicker">GIVE THE ENGLISH MEANING</div>
-          <div class="prompt-word" style="margin-top:12px">${current.item.greek}</div>
+          <div class="kicker">${tag}</div>
+          <div class="prompt-word ${isEnglishPrompt ? 'is-english' : ''}" style="margin-top:12px">${current.prompt}</div>
         </div>
       </div>
 
-      <div class="options">${optionsHtml}</div>
+      ${bodyHtml}
     </div>
   `;
 
-  if (!q.answered) {
-    document.querySelectorAll('.option-btn').forEach(btn => {
-      btn.addEventListener('click', () => selectOption(btn.dataset.opt));
-    });
+  if (q.settings.mode === 'mc') {
+    if (!q.answered) {
+      document.querySelectorAll('.option-btn').forEach(btn => {
+        btn.addEventListener('click', () => selectOption(btn.dataset.opt));
+      });
+    }
+  } else {
+    const input = document.getElementById('typed-input');
+    const submitBtn = document.getElementById('typed-submit');
+    if (!q.answered) {
+      input.focus();
+      submitBtn.addEventListener('click', submitTyped);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); submitTyped(); }
+      });
+    }
   }
 }
 
@@ -711,7 +878,7 @@ function renderProgress() {
 
   document.getElementById('screen').innerHTML = `
     <div class="fade-in">
-      ${renderHeader(false, 'Progress', 'Progress')}
+      ${renderHeader(false, 'Progress')}
 
       <div class="ring-panel glass">
         ${glassLayer()}
@@ -723,6 +890,7 @@ function renderProgress() {
             <text x="64" y="70" text-anchor="middle" font-family="Archivo" font-weight="800" font-size="26" fill="#201e1d">${stats.accuracy}%</text>
           </svg>
           <div class="ring-label text-muted">${stats.wordsSeen} of ${stats.totalWords} words</div>
+          <div class="ring-caption text-muted">Accuracy is correct ÷ answered so far — not how much of the syllabus you've covered. See "words" and "chapters" on Home, and the chapter bars below, for coverage.</div>
         </div>
       </div>
 
@@ -737,21 +905,22 @@ function renderProgress() {
 
 function renderTabBar() {
   document.getElementById('tab-home').classList.toggle('active', state.screen === 'home');
-  document.getElementById('tab-review').classList.toggle('active', state.screen === 'flashcard');
+  document.getElementById('tab-review').classList.toggle('active', state.screen === 'flashcard' || state.screen === 'reviewSetup');
   document.getElementById('tab-progress').classList.toggle('active', state.screen === 'progress');
 }
 
 function render() {
   if (state.screen === 'home') renderHome();
+  else if (state.screen === 'reviewSetup') renderReviewSetup();
   else if (state.screen === 'flashcard') {
-    if (!state.quiz) buildQuiz(continueChapter());
+    if (!quizInProgress()) { state.screen = 'reviewSetup'; renderReviewSetup(); renderTabBar(); return; }
     renderFlashcard();
   } else if (state.screen === 'progress') renderProgress();
   renderTabBar();
 }
 
 document.getElementById('tab-home').addEventListener('click', goHome);
-document.getElementById('tab-review').addEventListener('click', goReview);
+document.getElementById('tab-review').addEventListener('click', goReviewTab);
 document.getElementById('tab-progress').addEventListener('click', goProgress);
 
 (async function init() {
