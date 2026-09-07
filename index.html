@@ -3,379 +3,356 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
-<title>Koine Drill</title>
+<title>Oikos</title>
 
 <!-- iOS home-screen app behaviour -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Koine Drill">
+<meta name="apple-mobile-web-app-title" content="Oikos">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#2f6f4e">
+<meta name="theme-color" content="#f2f0ea">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&display=swap" rel="stylesheet">
 
 <style>
   :root {
-    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif;
-    --serif: Cambria, 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+    --font-sans: 'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --ink: #201e1d;
+    --green: #4f7a5c;
+    --green-text: #2d4a36;
+    --green-tint: rgba(79,122,92,0.16);
+    --muted: rgba(32,30,29,0.4);
   }
-  html[data-theme="light"] {
-    --bg: #ffffff;
-    --surface: #f2f8f4;
-    --surface-2: #e6f1ea;
-    --border: #cfe3d6;
-    --text: #16261d;
-    --text-dim: #4c6156;
-    --accent: #2f6f4e;
-    --accent-bright: #256143;
-    --on-accent: #ffffff;
-    --correct-bg: #dcefdf;
-    --correct-text: #205a32;
-    --wrong-bg: #f8dedb;
-    --wrong-text: #8c2c22;
-  }
-  html[data-theme="dark"] {
-    --bg: #0f1a14;
-    --surface: #16241c;
-    --surface-2: #1e3226;
-    --border: #2b4536;
-    --text: #eaf3ec;
-    --text-dim: #9ab5a5;
-    --accent: #4fae7c;
-    --accent-bright: #63c491;
-    --on-accent: #0f1a14;
-    --correct-bg: #204a30;
-    --correct-text: #a9e8bd;
-    --wrong-bg: #4a2320;
-    --wrong-text: #f3b3ac;
-  }
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body {
     margin: 0; padding: 0;
-    background: var(--bg);
-    font-family: var(--sans);
-    color: var(--text);
+    height: 100%;
+    font-family: var(--font-sans);
+    color: var(--ink);
+    background: linear-gradient(180deg,#fbfaf7,#f2f0ea);
+  }
+  body {
+    background:
+      radial-gradient(circle at 88% -8%, rgba(79,122,92,0.22), transparent 55%),
+      linear-gradient(180deg,#fbfaf7,#f2f0ea);
+    min-height: 100vh;
   }
   #app {
     max-width: 480px;
     margin: 0 auto;
-    padding: 20px 16px 40px;
+    position: relative;
     min-height: 100vh;
   }
-  .topbar {
+  #screen {
+    padding: calc(env(safe-area-inset-top) + 24px) 18px 116px;
+  }
+  .text-muted { color: var(--muted); }
+  .kicker {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--green-text);
+    font-weight: 600;
+  }
+
+  /* generic layered glass panel */
+  .glass {
+    position: relative;
+  }
+  .glass-fill, .glass-edge {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .glass-fill {
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    background: rgba(255,255,255,0.55);
+  }
+  .glass-edge {
+    box-shadow: inset 1px 1px 1px rgba(255,255,255,0.9), inset -1px -1px 1px rgba(255,255,255,0.3);
+    border: 0.5px solid rgba(255,255,255,0.5);
+  }
+  .glass-content { position: relative; z-index: 1; }
+
+  /* header */
+  .header-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 14px;
+    margin-bottom: 18px;
   }
-  .topbar h1 {
-    font-family: var(--serif);
-    font-size: 1.4rem;
-    font-weight: 600;
+  .app-title {
+    font-weight: 800;
+    font-size: 21px;
+    letter-spacing: -0.01em;
     margin: 0;
-    color: var(--text);
   }
-  .theme-toggle {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    border-radius: 20px;
-    padding: 6px 12px;
-    font-size: 0.78rem;
-    cursor: pointer;
-    font-family: var(--sans);
+  .app-subtitle {
+    font-size: 12px;
+    margin-top: 1px;
   }
-  .theme-toggle:hover { border-color: var(--accent); }
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 22px 20px;
+  .pill {
+    position: relative;
+    border-radius: 9999px;
   }
-  .subhead {
-    font-size: 0.85rem;
-    color: var(--text-dim);
-    margin: 0 0 20px;
-    line-height: 1.5;
+  .pill .glass-fill { border-radius: 9999px; backdrop-filter: blur(14px) saturate(180%); -webkit-backdrop-filter: blur(14px) saturate(180%); background: rgba(255,255,255,0.55); }
+  .pill .glass-edge { border-radius: 9999px; box-shadow: inset 1px 1px 1px rgba(255,255,255,0.85), inset -1px -1px 1px rgba(255,255,255,0.3); border: 0.5px solid rgba(0,0,0,0.06); }
+  .pill .glass-content {
+    padding: 7px 14px;
+    font-size: 12px;
+    color: var(--green-text);
+    font-weight: 600;
+    white-space: nowrap;
   }
-  .rule {
+
+  /* home: continue card */
+  .continue-card {
+    border-radius: 24px;
+    padding: 20px;
+    margin-bottom: 14px;
+    box-shadow: 0 12px 32px rgba(32,30,29,0.1);
+  }
+  .continue-card .glass-fill { border-radius: 24px; backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); background: rgba(255,255,255,0.6); }
+  .continue-card .glass-edge { border-radius: 24px; }
+  .continue-card h2 {
+    margin: 0 0 6px;
+    font-weight: 800;
+    font-size: 25px;
+  }
+  .continue-words {
+    margin: 0 0 16px;
+    font-size: 13px;
+  }
+  .resume-btn {
+    position: relative;
+    width: 100%;
     border: none;
-    border-top: 1px solid var(--border);
-    margin: 18px 0;
+    border-radius: 16px;
+    padding: 13px 0;
+    overflow: hidden;
+    cursor: pointer;
   }
-  label.section-label {
-    display: block;
-    font-size: 0.78rem;
-    color: var(--accent);
-    margin-bottom: 10px;
-    font-weight: 700;
+  .resume-btn .resume-fill { position: absolute; inset: 0; background: rgba(79,122,92,0.88); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .resume-btn .resume-edge { position: absolute; inset: 0; box-shadow: inset 1px 1px 1px rgba(255,255,255,0.3); }
+  .resume-btn span {
+    position: relative;
+    z-index: 1;
+    color: #fff;
+    font-weight: 800;
+    font-size: 14px;
   }
-  .chapter-grid {
+
+  /* stats row */
+  .stats-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .stat-chip {
+    flex: 1;
+    border-radius: 18px;
+    padding: 12px 6px;
+    text-align: center;
+  }
+  .stat-chip .glass-fill { border-radius: 18px; background: rgba(255,255,255,0.5); }
+  .stat-chip .glass-edge { border-radius: 18px; box-shadow: none; border: 0.5px solid rgba(255,255,255,0.5); }
+  .stat-value { font-weight: 800; font-size: 19px; }
+  .stat-label { font-size: 10px; margin-top: 2px; }
+
+  /* chapters grid */
+  .chapters-grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: 6px;
-    margin-bottom: 6px;
   }
-  .chip {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    color: var(--text-dim);
-    border-radius: 6px;
-    padding: 8px 0;
+  .chapter-chip {
     text-align: center;
-    font-size: 0.85rem;
+    padding: 8px 0;
+    border-radius: 10px;
+    font-size: 11px;
     cursor: pointer;
     user-select: none;
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
-  }
-  .chip:hover { border-color: var(--accent); }
-  .chip.selected {
-    background: var(--accent);
-    color: var(--on-accent);
-    border-color: var(--accent);
-    font-weight: 700;
-  }
-  .row-buttons {
-    display: flex;
-    gap: 8px;
-    margin: 10px 0 4px;
-  }
-  .link-btn {
-    background: none;
     border: none;
-    color: var(--accent);
-    font-size: 0.8rem;
-    cursor: pointer;
-    padding: 4px 0;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    font-family: var(--sans);
+    font-family: var(--font-sans);
   }
-  .option-group {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
+  .chapter-chip.done {
+    background: var(--green);
+    color: #fff;
+    font-weight: 600;
   }
-  .opt-btn {
-    flex: 1 1 auto;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    border-radius: 6px;
-    padding: 10px 12px;
-    font-size: 0.88rem;
-    cursor: pointer;
-    font-family: var(--sans);
-    transition: background 0.15s, border-color 0.15s;
+  .chapter-chip.not-done {
+    background: rgba(255,255,255,0.5);
+    color: var(--muted);
+    border: 0.5px solid rgba(32,30,29,0.08);
   }
-  .opt-btn.active {
-    background: var(--accent);
-    color: var(--on-accent);
-    border-color: var(--accent);
-    font-weight: 700;
-  }
-  .opt-btn:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-  }
-  .note-line {
-    font-size: 0.76rem;
-    color: var(--text-dim);
-    margin-top: 8px;
-  }
-  .count-row {
-    display: flex;
-    gap: 8px;
-  }
-  .primary-btn {
-    width: 100%;
-    background: var(--accent);
-    color: var(--on-accent);
-    border: none;
-    border-radius: 8px;
-    padding: 14px 0;
-    font-size: 1rem;
-    font-weight: 700;
-    font-family: var(--sans);
-    cursor: pointer;
-    margin-top: 18px;
-    transition: background 0.15s, transform 0.1s;
-  }
-  .primary-btn:hover { background: var(--accent-bright); }
-  .primary-btn:active { transform: scale(0.98); }
-  .primary-btn:disabled {
-    background: var(--surface-2);
-    color: var(--text-dim);
-    cursor: not-allowed;
-  }
-  .ghost-btn {
-    width: 100%;
-    background: transparent;
-    color: var(--text-dim);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 0;
-    font-size: 0.9rem;
-    font-family: var(--sans);
-    cursor: pointer;
-    margin-top: 10px;
-  }
-  .ghost-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-  /* quiz screen */
+  /* flashcard */
   .progress-row {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    font-size: 0.78rem;
-    color: var(--text-dim);
-    margin-bottom: 14px;
+    font-size: 12px;
+    color: rgba(32,30,29,0.55);
+    margin-bottom: 10px;
   }
-  .progress-bar {
-    height: 4px;
-    background: var(--surface-2);
-    border-radius: 2px;
+  .progress-track {
+    height: 6px;
+    background: rgba(32,30,29,0.08);
+    border-radius: 9999px;
+    margin-bottom: 28px;
     overflow: hidden;
-    margin-bottom: 22px;
   }
   .progress-fill {
-    height: 100%;
-    background: var(--accent);
+    height: 6px;
+    background: var(--green);
+    border-radius: 9999px;
     transition: width 0.25s ease;
   }
-  .prompt-word {
-    font-family: var(--serif);
-    font-size: 2.1rem;
+  .prompt-panel {
+    border-radius: 28px;
+    padding: 34px 20px;
+    margin-bottom: 22px;
+    box-shadow: 0 16px 40px rgba(32,30,29,0.12);
     text-align: center;
-    color: var(--text);
-    line-height: 1.25;
-    margin: 6px 0 4px;
+  }
+  .prompt-panel .glass-fill { border-radius: 28px; backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); background: rgba(255,255,255,0.62); }
+  .prompt-panel .glass-edge { border-radius: 28px; box-shadow: inset 1px 1px 1px rgba(255,255,255,0.9); }
+  .prompt-word {
+    font-weight: 800;
+    font-size: 44px;
     word-break: break-word;
   }
-  .prompt-lang-tag {
-    text-align: center;
-    font-size: 0.7rem;
-    color: var(--accent);
-    margin-bottom: 26px;
-    letter-spacing: 0.04em;
-    font-weight: 700;
-  }
-  .answer-btn {
-    display: block;
-    width: 100%;
-    text-align: left;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    border-radius: 8px;
-    padding: 13px 16px;
-    font-size: 0.95rem;
-    font-family: var(--sans);
-    cursor: pointer;
-    margin-bottom: 10px;
-    transition: background 0.15s, border-color 0.15s;
-  }
-  .answer-btn:hover:not(:disabled) { border-color: var(--accent); }
-  .answer-btn:disabled { cursor: default; }
-  .answer-btn.correct { background: var(--correct-bg); color: var(--correct-text); border-color: var(--correct-text); font-weight: 700; }
-  .answer-btn.wrong { background: var(--wrong-bg); color: var(--wrong-text); border-color: var(--wrong-text); font-weight: 700; }
-
-  .typed-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 6px;
-  }
-  .typed-input {
-    flex: 1;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    border-radius: 8px;
-    padding: 12px 14px;
-    font-size: 1rem;
-    font-family: var(--sans);
-  }
-  .typed-input:focus {
-    outline: none;
-    border-color: var(--accent);
-  }
-  .typed-input.correct { border-color: var(--correct-text); background: var(--correct-bg); color: var(--correct-text); }
-  .typed-input.wrong { border-color: var(--wrong-text); background: var(--wrong-bg); color: var(--wrong-text); }
-  .typed-submit {
-    background: var(--accent);
-    color: var(--on-accent);
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    position: relative;
     border: none;
-    border-radius: 8px;
-    padding: 0 18px;
-    font-size: 0.9rem;
-    font-weight: 700;
+    border-radius: 16px;
+    padding: 15px 16px;
+    text-align: left;
     cursor: pointer;
-    font-family: var(--sans);
+    font-family: var(--font-sans);
   }
-  .typed-submit:disabled { background: var(--surface-2); color: var(--text-dim); cursor: not-allowed; }
+  .option-btn:disabled { cursor: default; }
+  .option-fill { position: absolute; inset: 0; border-radius: 16px; background: rgba(255,255,255,0.4); }
+  .option-edge { position: absolute; inset: 0; border-radius: 16px; border: 0.5px solid rgba(255,255,255,0.5); }
+  .option-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    color: var(--ink);
+    gap: 10px;
+  }
+  .option-btn.is-correct .option-fill { background: var(--green-tint); }
+  .option-btn.is-correct .option-content { color: var(--green-text); }
+  .option-btn.is-wrong .option-fill { background: rgba(32,30,29,0.06); }
+  .option-btn.is-wrong .option-content { color: var(--muted); }
+  .option-btn.is-faded .option-content { color: var(--muted); }
+  .option-icon { flex-shrink: 0; display: flex; }
 
-  .feedback-note {
+  /* progress screen */
+  .ring-panel {
+    border-radius: 24px;
+    padding: 26px 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 12px 32px rgba(32,30,29,0.1);
     text-align: center;
-    font-size: 0.85rem;
-    color: var(--text-dim);
-    min-height: 20px;
-    margin: 4px 0 14px;
   }
-
-  /* results screen */
-  .score-display {
-    text-align: center;
-    margin: 8px 0 20px;
+  .ring-panel .glass-fill { border-radius: 24px; backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); background: rgba(255,255,255,0.6); }
+  .ring-panel .glass-edge { border-radius: 24px; box-shadow: none; border: 0.5px solid rgba(255,255,255,0.5); }
+  .ring-label { font-size: 12px; margin-top: 6px; }
+  .list-panel {
+    border-radius: 20px;
+    padding: 6px 16px;
+    margin-bottom: 16px;
   }
-  .score-num {
-    font-family: var(--serif);
-    font-size: 3rem;
-    color: var(--accent);
-    line-height: 1;
+  .list-panel .glass-fill { border-radius: 20px; background: rgba(255,255,255,0.5); }
+  .list-panel .glass-edge { border-radius: 20px; box-shadow: none; border: 0.5px solid rgba(255,255,255,0.5); }
+  .chapter-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
   }
-  .score-label {
-    font-size: 0.85rem;
-    color: var(--text-dim);
-    margin-top: 4px;
-  }
-  .missed-list {
-    margin-top: 6px;
-  }
-  .missed-item {
+  .chapter-row .ch-num { width: 20px; font-size: 12px; color: rgba(32,30,29,0.55); }
+  .chapter-row .ch-track { flex: 1; height: 6px; background: rgba(32,30,29,0.08); border-radius: 9999px; }
+  .chapter-row .ch-fill { height: 6px; background: var(--green); border-radius: 9999px; }
+  .chapter-row .ch-pct { width: 32px; text-align: right; font-size: 12px; color: rgba(32,30,29,0.55); }
+  .missed-row {
     display: flex;
     justify-content: space-between;
     gap: 10px;
-    padding: 9px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.88rem;
+    padding: 11px 0;
+    font-size: 14px;
   }
-  .missed-item:last-child { border-bottom: none; }
-  .missed-greek { font-family: var(--serif); color: var(--text); }
-  .missed-eng { color: var(--text-dim); text-align: right; }
-  .empty-note {
-    text-align: center;
-    color: var(--text-dim);
-    font-size: 0.88rem;
-    padding: 10px 0;
+  .missed-greek { font-weight: 600; }
+  .missed-english { text-align: right; }
+  .empty-note { text-align: center; font-size: 13px; padding: 14px 0; }
+
+  /* nav bar */
+  .tab-bar-wrap {
+    position: fixed;
+    left: 50%;
+    bottom: calc(env(safe-area-inset-bottom) + 16px);
+    transform: translateX(-50%);
+    z-index: 30;
   }
-  .stat-pill {
-    display: inline-block;
-    background: var(--surface-2);
-    color: var(--text-dim);
-    font-size: 0.72rem;
-    padding: 3px 9px;
-    border-radius: 20px;
-    margin-top: 8px;
+  .tab-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px;
+    border-radius: 9999px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.16);
   }
-  .hidden { display: none !important; }
+  .tab-bar .glass-fill { border-radius: 9999px; backdrop-filter: blur(16px) saturate(180%); -webkit-backdrop-filter: blur(16px) saturate(180%); background: rgba(255,255,255,0.6); }
+  .tab-bar .glass-edge { border-radius: 9999px; box-shadow: inset 1px 1px 1px rgba(255,255,255,0.85), inset -1px -1px 1px rgba(255,255,255,0.3); border: 0.5px solid rgba(0,0,0,0.06); }
+  .tab-btn {
+    position: relative;
+    z-index: 1;
+    width: 52px;
+    height: 52px;
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--muted);
+  }
+  .tab-btn.active { color: var(--green); }
+  .tab-btn svg { width: 26px; height: 26px; }
+
+  .fade-in { animation: oikos-fade 0.18s ease; }
+  @keyframes oikos-fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
 <body>
-<div id="app"></div>
+<div id="app">
+  <div id="screen"></div>
+  <div class="tab-bar-wrap">
+    <div class="tab-bar">
+      <div class="glass-fill"></div>
+      <div class="glass-edge"></div>
+      <button class="tab-btn" id="tab-home" title="Home">
+        <svg viewBox="0 0 20 20" fill="none"><path d="M2.5 8.5 10 2l7.5 6.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 8v8.5h4.5V12h3v4.5H16V8" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="tab-btn" id="tab-review" title="Review">
+        <svg viewBox="0 0 20 20" fill="none"><rect x="2.5" y="5.5" width="12" height="9" rx="1.5" transform="rotate(-6 8.5 10)" stroke="currentColor" stroke-width="1.5"/><rect x="5.5" y="4" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.9"/></svg>
+      </button>
+      <button class="tab-btn" id="tab-progress" title="Progress">
+        <svg viewBox="0 0 20 20" fill="none"><path d="M3 17V10M9 17V4.5M15 17V12.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
 
 <script>
 const VOCAB = {"1":[{"greek":"ἀγάπη, ἡ","english":"love"},{"greek":"γῆ, ἡ","english":"earth, land, ground"},{"greek":"ζωή, ἡ","english":"life"},{"greek":"φωνή, ἡ","english":"voice, sound"},{"greek":"ἀλήθεια, ἡ","english":"truth"},{"greek":"ἁμαρτία, ἡ","english":"sin"},{"greek":"βασιλεία, ἡ","english":"kingdom, reign"},{"greek":"δόξα, ἡ","english":"glory, majesty"},{"greek":"ἐκκλησία, ἡ","english":"congregation, assembly, church"},{"greek":"ἡμέρα, ἡ","english":"day"},{"greek":"καρδία, ἡ","english":"heart"},{"greek":"δέ","english":"and, but, now"},{"greek":"καί","english":"and, even, also"},{"greek":"μέν","english":"on the one hand, indeed"},{"greek":"ὁ, ἡ, τό","english":"the"}],"2":[{"greek":"ἀδελφός, ὁ","english":"brother (and sister)"},{"greek":"ἄνθρωπος, ὁ","english":"man, human being, husband"},{"greek":"θεός, ὁ","english":"God"},{"greek":"κόσμος, ὁ","english":"world, universe; adornment"},{"greek":"κύριος, ὁ","english":"Lord, master, sir"},{"greek":"λόγος, ὁ","english":"word, message, account"},{"greek":"νόμος, ὁ","english":"law, principle"},{"greek":"οὐρανός, ὁ","english":"heaven, sky"},{"greek":"υἱός, ὁ","english":"son, descendant"},{"greek":"Χριστός, ὁ","english":"Christ, Messiah, Anointed One"},{"greek":"ἔργον, τό","english":"work, deed"},{"greek":"εὐαγγέλιον, τό","english":"good news, gospel"},{"greek":"ἱερόν, τό","english":"temple, sanctuary"},{"greek":"σημεῖον , τό","english":"sign"},{"greek":"τέκνον, τό","english":"child, son, descendant"}],"3":[{"greek":"εἰμί","english":"I am, exist"},{"greek":"ἀκούω","english":"I hear, listen to, obey"},{"greek":"γινώσκω","english":"I know, understand, acknowledge"},{"greek":"γράφω","english":"I write"},{"greek":"ἔχω","english":"I have, hold"},{"greek":"λέγω","english":"I say, speak"},{"greek":"λαμβάνω","english":"I take, receive"},{"greek":"λύω","english":"I loose, destroy"},{"greek":"πιστεύω","english":"I believe, have faith/trust in"},{"greek":"ἀποκρίνομαι","english":"I answer, reply"},{"greek":"γίνομαι","english":"I become, come, exist, am born"},{"greek":"ἔρχομαι","english":"I come, go"},{"greek":"πορεύομαι","english":"I go, travel"},{"greek":"ἀλλά","english":"but, yet, nevertheless"},{"greek":"ὅτι","english":"that, because"}],"4":[{"greek":"ἄγω","english":"I lead, bring"},{"greek":"βλέπω","english":"I see, look at"},{"greek":"διδάσκω","english":"I teach"},{"greek":"ἐγείρω","english":"I raise up"},{"greek":"κρίνω","english":"I judge, condemn"},{"greek":"μένω","english":"I remain, abide, dwell"},{"greek":"ὑπάγω","english":"I go away, depart"},{"greek":"δοῦλος, ὁ","english":"slave"},{"greek":"θάνατος, ὁ","english":"death"},{"greek":"ψυχή, ἡ","english":"soul, life, living being"},{"greek":"ὥρα, ἡ","english":"hour"},{"greek":"εἰ","english":"if, whether"},{"greek":"εἴτε","english":"if, whether"},{"greek":"καθώς","english":"as, just as, even as"},{"greek":"ὡς","english":"as, like"}],"5":[{"greek":"βαπτίζω","english":"I baptize, immerse, dip"},{"greek":"θεραπεύω","english":"I heal"},{"greek":"κράζω","english":"I cry out"},{"greek":"ἄγγελος, ὁ","english":"angel, messenger"},{"greek":"μαθητής, ὁ","english":"disciple, follower"},{"greek":"ὄχλος, ὁ","english":"crowd"},{"greek":"προφήτης, ὁ","english":"prophet"},{"greek":"γάρ","english":"for, because"},{"greek":"ἐκεῖ","english":"there, in that place"},{"greek":"κἀγώ","english":"and I (καί + ἐγώ)"},{"greek":"οὖν","english":"then, so, therefore"},{"greek":"οὕτως","english":"in this manner, thus, so"},{"greek":"τέ","english":"and, but"},{"greek":"οὐ, οὐκ, οὐχ","english":"no, not"},{"greek":"οὐχί","english":"no! (emphatic)"}],"6":[{"greek":"ἀγαπάω","english":"I love"},{"greek":"γεννάω","english":"I give birth to, bear, beget"},{"greek":"ἐπερωτάω","english":"I ask"},{"greek":"ἐρωτάω","english":"I ask, question, request"},{"greek":"αἰτέω","english":"I ask, demand"},{"greek":"ἀκολουθέω","english":"I follow"},{"greek":"ζητέω","english":"I seek, look for"},{"greek":"καλέω","english":"I call, invite, name"},{"greek":"λαλέω","english":"I speak, say"},{"greek":"μαρτυρέω","english":"I testify, bear witness"},{"greek":"παρακαλέω","english":"I call, urge, comfort"},{"greek":"περιπατέω","english":"I walk, live"},{"greek":"ποιέω","english":"I do, make"},{"greek":"φοβέομαι","english":"I am afraid, fear, respect"},{"greek":"πληρόω","english":"I fill, fulfill, complete"}],"7":[{"greek":"ἀπό","english":"from, away from (gen)"},{"greek":"διά","english":"through (gen); because of (acc)"},{"greek":"εἰς","english":"into, among, for (acc)"},{"greek":"ἐκ","english":"from, out of (gen)"},{"greek":"ἐν","english":"in, on, at, by, with (dat)"},{"greek":"ἐπί","english":"on, over (gen); on, at, in (dat); on, to, for (acc)"},{"greek":"κατά","english":"down, against (gen); according to (acc)"},{"greek":"μετά","english":"with, among (gen); after (acc)"},{"greek":"παρά","english":"from (gen); beside (dat); on, at (acc)"},{"greek":"περί","english":"about, concerning (gen); around (acc)"},{"greek":"πρός","english":"to, toward (acc)"},{"greek":"σύν","english":"with (dat)"},{"greek":"ὑπέρ","english":"for (gen); above, beyond (acc)"},{"greek":"ὑπό","english":"by (gen); under, below (acc)"},{"greek":"ἐνώπιον","english":"before, in the presence of"}],"8":[{"greek":"αὐτός, -ή, -ό","english":"he, she, it; self, same"},{"greek":"ἐγώ, ἡμεῖς","english":"I; we"},{"greek":"ὅς, ἥ, ὅ","english":"who, which, that"},{"greek":"σύ, ὑμεῖς","english":"you (sg); you (pl)"},{"greek":"ἄρτος, ὁ","english":"bread, food"},{"greek":"δικαιοσύνη, ἡ","english":"righteousness, justice"},{"greek":"εἰρήνη, ἡ","english":"peace"},{"greek":"ἐξουσία , ἡ","english":"authority, right, power"},{"greek":"θάλασσα, ἡ","english":"lake, sea"},{"greek":"λαός, ὁ","english":"people, crowd"},{"greek":"ὁδός, ἡ","english":"way, road"},{"greek":"οἰκία, ἡ","english":"home, dwelling, family"},{"greek":"οἶκος, ὁ","english":"house, household, family"},{"greek":"ὀφθαλμός, ὁ","english":"eye"},{"greek":"τόπος, ὁ","english":"place"}],"9":[{"greek":"διώκω","english":"I pursue, persecute"},{"greek":"δοξάζω","english":"I glorify, praise"},{"greek":"πέμπω","english":"I send"},{"greek":"πράσσω","english":"I do, practice"},{"greek":"σῴζω","english":"I save, rescue, heal"},{"greek":"τηρέω","english":"I keep, guard, obey"},{"greek":"ἀπόστολος, ὁ","english":"apostle, messenger"},{"greek":"ἐντολή, ἡ","english":"command"},{"greek":"καιρός, ὁ","english":"time, season"},{"greek":"κεφαλή, ἡ","english":"head"},{"greek":"πρόσωπον, τό","english":"face, appearance"},{"greek":"σάββατον, τό","english":"Sabbath, week"},{"greek":"ἔτι","english":"still, yet, more"},{"greek":"μᾶλλον","english":"more, rather"},{"greek":"οὐκέτι","english":"no longer"}],"10":[{"greek":"ἀνοίγω","english":"I open"},{"greek":"ἀπολύω","english":"I set free, dismiss, divorce"},{"greek":"ἄρχω","english":"I rule, begin (mid)"},{"greek":"προσεύχομαι","english":"I pray"},{"greek":"προσκυνέω","english":"I worship"},{"greek":"συνάγω","english":"I gather, bring together"},{"greek":"ἀρχή, ἡ","english":"beginning"},{"greek":"δαιμόνιον, τό","english":"demon"},{"greek":"διδάσκαλος, ὁ","english":"teacher"},{"greek":"θρόνος, ὁ","english":"throne"},{"greek":"ἱμάτιον, τό","english":"clothing, garment"},{"greek":"καρπός, ὁ","english":"fruit, crop"},{"greek":"πλοῖον, τό","english":"ship, boat"},{"greek":"συναγωγή, ἡ","english":"synagogue, assembly"},{"greek":"χαρά, ἡ","english":"joy"}],"11":[{"greek":"ἀναβαίνω","english":"I go up, ascend"},{"greek":"ἀπέρχομαι","english":"I go away, depart"},{"greek":"ἀποθνῄσκω","english":"I die"},{"greek":"βάλλω","english":"I throw, cast out"},{"greek":"εἰσέρχομαι","english":"I go in, enter"},{"greek":"ἐκβάλλω","english":"I drive/send out"},{"greek":"ἐσθίω","english":"I eat"},{"greek":"ἐξέρχομαι","english":"I go out, depart, leave"},{"greek":"εὑρίσκω","english":"I find, discover"},{"greek":"καταβαίνω","english":"I go down, descend"},{"greek":"πίνω","english":"I drink"},{"greek":"πίπτω","english":"I fall"},{"greek":"προσέρχομαι","english":"I go to, approach"},{"greek":"φέρω","english":"I bear, carry"},{"greek":"ἐπαγγελία, ἡ","english":"promise"}],"12":[{"greek":"αἴρω","english":"I take up/away"},{"greek":"ἀπαγγέλλω","english":"I announce, report"},{"greek":"ἀποκτείνω","english":"I kill, put to death"},{"greek":"ἀποστέλλω","english":"I send out"},{"greek":"σπείρω","english":"I sow, plant"},{"greek":"γλῶσσα, ἡ","english":"language, tongue"},{"greek":"γραφή, ἡ","english":"writing, Scripture"},{"greek":"λίθος, ὁ","english":"stone"},{"greek":"ναός, ὁ","english":"temple, sanctuary"},{"greek":"παραβολή, ἡ","english":"parable"},{"greek":"σοφία, ἡ","english":"wisdom"},{"greek":"σωτηρία, ἡ","english":"salvation, deliverance"},{"greek":"χρόνος, ὁ","english":"time"},{"greek":"διό","english":"therefore, for this reason"},{"greek":"εὐθύς","english":"immediately"}],"13":[{"greek":"αἰών, -ῶνος, ὁ","english":"eternity, age, world"},{"greek":"ἀνήρ, ἀνδρός, ὁ","english":"man, husband"},{"greek":"ἀρχιερεύς, -έως, ὁ","english":"high priest"},{"greek":"βασιλεύς, -έως, ὁ","english":"king"},{"greek":"πατήρ, πατρός, ὁ","english":"father, ancestor"},{"greek":"γυνή, γυναικός, ἡ","english":"woman, wife"},{"greek":"μήτηρ, -τρός, ἡ","english":"mother"},{"greek":"πίστις, -εως, ἡ","english":"faith, trust"},{"greek":"πόλις, -εως, ἡ","english":"city, town"},{"greek":"σάρξ, σαρκός, ἡ","english":"flesh, body, mortal nature"},{"greek":"χάρις, -ιτος, ἡ","english":"grace, thanks"},{"greek":"ἔθνος, -ους, τό","english":"nation, people; Gentiles (pl)"},{"greek":"ὄνομα, -ατος, τό","english":"name"},{"greek":"πνεῦμα, -ατος, τό","english":"Spirit, spirit, wind"},{"greek":"σῶμα, -ατος, τό","english":"body"}],"14":[{"greek":"ἐγγίζω","english":"I approach, draw near"},{"greek":"ζάω","english":"I live"},{"greek":"οἶδα","english":"I know, understand"},{"greek":"ὁράω","english":"I see, perceive"},{"greek":"πείθω","english":"I persuade, convince"},{"greek":"αἷμα, -ατος, τό","english":"blood"},{"greek":"γραμματεύς, -εως, ὁ","english":"scribe"},{"greek":"δύναμις, -εως, ἡ","english":"power, miracle"},{"greek":"πούς, ποδός, ὁ","english":"foot"},{"greek":"πῦρ, -ός, τό","english":"fire"},{"greek":"ῥῆμα, -ατος, τό","english":"word, saying"},{"greek":"στόμα, -ατος, ἡ","english":"mouth"},{"greek":"ὕδωρ, -ατος, τό","english":"water"},{"greek":"φῶς, φωτός, τό","english":"light"},{"greek":"χείρ, χειρός, ἡ","english":"hand"}],"15":[{"greek":"ἀγαθός, -ή, -όν","english":"good"},{"greek":"ἅγιος, -α, -ον","english":"holy; saints (pl  subst)"},{"greek":"ἄλλος, -η, -ο","english":"other, another, different"},{"greek":"δίκαιος, -α, -ον","english":"righteous, just"},{"greek":"ἕτερος, -α, -ον","english":"other, another, different"},{"greek":"καλός, -ή, -όν","english":"good, beautiful"},{"greek":"μέγας, μεγάλη, μέγα","english":"large, great"},{"greek":"νεκρός, -ά, -όν","english":"dead"},{"greek":"πᾶς, πᾶσα, πᾶν","english":"every, all"},{"greek":"πιστός, -ή, -όν","english":"faithful, believing"},{"greek":"πολύς, πολλή, πολύ","english":"much, many, large, great"},{"greek":"πονηρός, -ά, -όν","english":"evil, wicked"},{"greek":"νῦν","english":"now, at present"},{"greek":"πάλιν","english":"again"},{"greek":"ἤ","english":"or, than"}],"16":[{"greek":"εὐαγγελίζω","english":"I announce good news, preach"},{"greek":"θεωρέω","english":"I gaze, behold, look at"},{"greek":"κάθημαι","english":"I sit"},{"greek":"κηρύσσω","english":"I herald, proclaim, preach"},{"greek":"ὑπάρχω","english":"I exist, am"},{"greek":"αἰώνιος, -α, -ον","english":"eternal"},{"greek":"ἕκαστος, -η, -ον","english":"each"},{"greek":"οὐδείς, οὐδεμία, οὐδέν","english":"no one, nothing (subst)"},{"greek":"πρεσβύτερος, -α, -ον","english":"elder, older"},{"greek":"ἀμήν","english":"amen, truly, so be it"},{"greek":"ἔξω","english":"outside"},{"greek":"ἕως","english":"until, while"},{"greek":"οὐδέ","english":"and not, neither, nor"},{"greek":"οὔτε","english":"and not, neither, nor"},{"greek":"τότε","english":"then"}],"17":[{"greek":"φανερόω","english":"I reveal, make known, manifest"},{"greek":"κρατέω","english":"I grasp, seize, arrest"},{"greek":"εἷς, μία, ἕν","english":"one"},{"greek":"δύο","english":"two"},{"greek":"τρεῖς","english":"three"},{"greek":"τέσσαρες","english":"four"},{"greek":"πέντε","english":"five"},{"greek":"ἑπτά","english":"seven"},{"greek":"δέκα","english":"ten"},{"greek":"δώδεκα","english":"twelve"},{"greek":"πρῶτος, -η, -ον","english":"first"},{"greek":"δεύτερος, -α, -ον","english":"second"},{"greek":"τρίτος, -η, -ον","english":"third"},{"greek":"τέταρτος, -η, -ον","english":"fourth"},{"greek":"μή","english":"no, not"}],"18":[{"greek":"προσφέρω","english":"I bring to, offer"},{"greek":"ἑτοιμάζω","english":"I prepare"},{"greek":"δέω","english":"I bind"},{"greek":"παιδίον, τό","english":"child"},{"greek":"ὄρος, -ους, τό","english":"mountain, hill"},{"greek":"ἐλπίς, -ίδος, ἡ","english":"hope"},{"greek":"μόνος, -η, -ον","english":"only, single, alone"},{"greek":"ὅλος, -η, -ον","english":"whole, entire, complete"},{"greek":"ἀγαπητός, -ή, -όν","english":"beloved"},{"greek":"μέσος, -η, - ον","english":"middle, midst"},{"greek":"λοιπός, -ή, -όν","english":"remaining, rest"},{"greek":"δεξιός, -ά, -όν","english":"right"},{"greek":"ἄρα","english":"so then"},{"greek":"ἤδη","english":"already, now"},{"greek":"ὧδε","english":"here"}],"19":[{"greek":"ἀλλήλων","english":"of one another (alien)"},{"greek":"ἑαυτοῦ, -ῆς, -οῦ","english":"(of) himself, herself, itself"},{"greek":"ἐκεῖνος, -η, -ο","english":"that; those (pl)"},{"greek":"ἐμαυτοῦ, -ῆς","english":"myself"},{"greek":"οὗτος, αὕτη, τοῦτο","english":"this; these (pl)"},{"greek":"σεαυτοῦ, -ῆς","english":"(of) yourself"},{"greek":"τις, τι","english":"someone, certain"},{"greek":"τίς, τί","english":"who? which? what?"},{"greek":"ἐμός, -ή, -όν","english":"my, mine"},{"greek":"ἔσχατος, -η, - ον","english":"last"},{"greek":"ἴδιος, -α, -ον","english":"one’s own, peculiar"},{"greek":"κακός, -ή, -όν","english":"bad, evil"},{"greek":"ὅσος, -η, -ον","english":"as much as"},{"greek":"τοιοῦτος, -αύτη, οῦτον","english":"of such a kind, such as this"},{"greek":"πῶς","english":"how?"}],"20":[{"greek":"ἁμαρτάνω","english":"I sin (ἥμαρτον)"},{"greek":"βούλομαι","english":"I wish, want, desire"},{"greek":"δεῖ","english":"It is necessary, one must/should"},{"greek":"δοκέω","english":"I seem, suppose, think"},{"greek":"δύναμαι","english":"I am able, can"},{"greek":"θέλω","english":"I want, wish, desire"},{"greek":"μέλλω","english":"I am about to, am going to"},{"greek":"θέλημα, -ατος, τό","english":"will, wish, desire"},{"greek":"νύξ, νυκτός, ἡ","english":"night"},{"greek":"μακάριος, -α, -ον","english":"blessed, happy"},{"greek":"μηδείς, μηδεία, μηδέν","english":"no one, nothing (subst)"},{"greek":"τυφλός, -ή, -όν","english":"blind; blind person (subst)"},{"greek":"πρό","english":"before, in front of (gen)"},{"greek":"μηδέ","english":"and not, nor"},{"greek":"ὥστε","english":"so that"}],"21":[{"greek":"δέχομαι","english":"I take, receive, welcome"},{"greek":"δικαιόω","english":"I declare righteous, justify"},{"greek":"λογίζομαι","english":"I consider, reckon"},{"greek":"σταυρόω","english":"I crucify"},{"greek":"χαίρω","english":"I rejoice; greetings"},{"greek":"ἄν","english":"(particle of indefiniteness: untranslated)"},{"greek":"ἐάν","english":"if, when"},{"greek":"ἐὰν μή","english":"unless"},{"greek":"ἵνα","english":"in order that, so that, that"},{"greek":"ὅπου","english":"where"},{"greek":"ὅπως","english":"in order that, that"},{"greek":"ὅστις, ἥτις, ὅ τι","english":"whoever, whatever, who"},{"greek":"ὅταν","english":"whenever, when (ὅτε + ἄν)"},{"greek":"ὅτε","english":"when"},{"greek":"ποῦ","english":"where?"}],"22":[{"greek":"ἀσπάζομαι","english":"I greet"},{"greek":"ἐπιγινώσκω","english":"I know, understand"},{"greek":"ἐργάζομαι","english":"I work, do, perform"},{"greek":"καθίζω","english":"I sit"},{"greek":"κατοικέω","english":"I live, dwell"},{"greek":"γενεά","english":"generation, family"},{"greek":"ἔτος, -ους, τό","english":"year"},{"greek":"θηρίον, τό","english":"animal, beast"},{"greek":"θλῖψις, -εως, ἡ","english":"tribulation, affliction"},{"greek":"χρεία, ἡ","english":"need"},{"greek":"κρίσις, -εως, ἡ","english":"judgment, condemnation"},{"greek":"φόβος, ὁ","english":"fear, reverence, respect"},{"greek":"φυλακή, ἡ","english":"watch, guard, prison"},{"greek":"ἔμπροσθεν","english":"in front of, before"},{"greek":"ἰδού","english":"behold, look, see"}],"23":[{"greek":"ἀνίστημι","english":"I stand up, arise"},{"greek":"ἀποδίδωμι","english":"I give back, pay"},{"greek":"ἀπόλλυμι","english":"I destroy, am lost (mid)"},{"greek":"ἀφίημι","english":"I forgive, let go, divorce"},{"greek":"δίδωμι","english":"I give"},{"greek":"ἵστημι","english":"I stand, set"},{"greek":"παραδίδωμι","english":"I hand over, betray, entrust"},{"greek":"τίθημι","english":"I put, place, appoint"},{"greek":"φημί","english":"I say, affirm"},{"greek":"ἁμαρτωλός, -όν","english":"sinful, sinner (subst)"},{"greek":"ἔρημος, -όν","english":"desolate, desert, wilderness (subst)"},{"greek":"μικρός, -ά, -όν","english":"small"},{"greek":"ὅμοιος-α, -ον","english":"same nature, similar"},{"greek":"ἄχρι","english":"until"},{"greek":"οὐαί","english":"woe"}]};
 const CHAPTERS = Object.keys(VOCAB).map(Number).sort((a,b)=>a-b);
+const MASTERY_THRESHOLD = 80;
 
 /* ---------- storage: works inside Claude artifacts (window.storage) and on any
    normal web host / home-screen app (falls back to localStorage) ---------- */
@@ -401,66 +378,100 @@ const storageAdapter = {
 };
 
 const STATS_KEY = 'koine-drill-word-stats';
-const THEME_KEY = 'koine-drill-theme';
+const STREAK_KEY = 'oikos-streak';
 
 let state = {
-  screen: 'setup',
-  selectedChapters: new Set(),
-  direction: 'mixed',        // 'gtoe' | 'etog' | 'mixed'  (mc mode only)
-  answerMode: 'mc',          // 'mc' | 'typed'
-  count: 15,
-  pool: [],
-  quizItems: [],
-  qIndex: 0,
-  score: 0,
-  missed: [],
-  answered: false,
-  stats: {},
-  theme: 'light'
+  screen: 'home',            // 'home' | 'flashcard' | 'progress'
+  stats: {},                 // wordKey -> { seen, correct }
+  streak: { count: 0, lastDate: null },
+  quiz: null,                // { chapter, items: [{item, options}], index, score, selectedOpt, answered }
 };
 
-async function loadTheme() {
-  const t = await storageAdapter.get(THEME_KEY);
-  state.theme = (t === 'dark' || t === 'light') ? t : 'light';
-  document.documentElement.setAttribute('data-theme', state.theme);
+function wordKey(chapter, greek) {
+  return chapter + '::' + greek;
 }
 
-function toggleTheme() {
-  state.theme = state.theme === 'light' ? 'dark' : 'light';
-  document.documentElement.setAttribute('data-theme', state.theme);
-  storageAdapter.set(THEME_KEY, state.theme);
-  render();
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
 
-async function loadStats() {
-  const raw = await storageAdapter.get(STATS_KEY);
-  try { state.stats = raw ? JSON.parse(raw) : {}; } catch (e) { state.stats = {}; }
+async function loadData() {
+  const rawStats = await storageAdapter.get(STATS_KEY);
+  try { state.stats = rawStats ? JSON.parse(rawStats) : {}; } catch (e) { state.stats = {}; }
+  const rawStreak = await storageAdapter.get(STREAK_KEY);
+  try { state.streak = rawStreak ? JSON.parse(rawStreak) : { count: 0, lastDate: null }; } catch (e) { state.streak = { count: 0, lastDate: null }; }
 }
 
-function saveStats() {
-  storageAdapter.set(STATS_KEY, JSON.stringify(state.stats));
+function saveStats() { storageAdapter.set(STATS_KEY, JSON.stringify(state.stats)); }
+function saveStreak() { storageAdapter.set(STREAK_KEY, JSON.stringify(state.streak)); }
+
+function bumpStreak() {
+  const today = todayStr();
+  if (state.streak.lastDate === today) return;
+  const yest = new Date();
+  yest.setDate(yest.getDate() - 1);
+  const yestStr = yest.getFullYear() + '-' + String(yest.getMonth() + 1).padStart(2, '0') + '-' + String(yest.getDate()).padStart(2, '0');
+  state.streak.count = (state.streak.lastDate === yestStr) ? state.streak.count + 1 : 1;
+  state.streak.lastDate = today;
+  saveStreak();
 }
 
-function wordKey(item) {
-  return item.chapter + '::' + item.greek;
-}
-
-function recordAttempt(item, correct) {
-  const k = wordKey(item);
+function recordAttempt(chapter, greek, correct) {
+  const k = wordKey(chapter, greek);
   if (!state.stats[k]) state.stats[k] = { seen: 0, correct: 0 };
   state.stats[k].seen += 1;
   if (correct) state.stats[k].correct += 1;
   saveStats();
 }
 
-function buildPool(chapters) {
-  const pool = [];
-  chapters.forEach(ch => {
+/* ---------- derived data ---------- */
+function chapterMastery(ch) {
+  const words = VOCAB[ch] || [];
+  let seen = 0, correct = 0;
+  words.forEach(w => {
+    const s = state.stats[wordKey(ch, w.greek)];
+    if (s) { seen += s.seen; correct += s.correct; }
+  });
+  if (seen === 0) return 0;
+  return Math.round((correct / seen) * 100);
+}
+
+function overallStats() {
+  let totalSeenWords = 0, totalWords = 0, sumSeen = 0, sumCorrect = 0;
+  CHAPTERS.forEach(ch => {
     (VOCAB[ch] || []).forEach(w => {
-      pool.push({ chapter: ch, greek: w.greek.trim(), english: w.english.trim() });
+      totalWords += 1;
+      const s = state.stats[wordKey(ch, w.greek)];
+      if (s && s.seen > 0) {
+        totalSeenWords += 1;
+        sumSeen += s.seen;
+        sumCorrect += s.correct;
+      }
     });
   });
-  return pool;
+  const accuracy = sumSeen > 0 ? Math.round((sumCorrect / sumSeen) * 100) : 0;
+  const chaptersMastered = CHAPTERS.filter(ch => chapterMastery(ch) >= MASTERY_THRESHOLD).length;
+  return { wordsSeen: totalSeenWords, totalWords, accuracy, chaptersMastered, totalChapters: CHAPTERS.length };
+}
+
+function continueChapter() {
+  const next = CHAPTERS.find(ch => chapterMastery(ch) < MASTERY_THRESHOLD);
+  return next !== undefined ? next : CHAPTERS[CHAPTERS.length - 1];
+}
+
+function wordsToReview(limit) {
+  const rows = [];
+  CHAPTERS.forEach(ch => {
+    (VOCAB[ch] || []).forEach(w => {
+      const s = state.stats[wordKey(ch, w.greek)];
+      if (s && s.seen > 0 && s.correct < s.seen) {
+        rows.push({ greek: w.greek, english: w.english, accuracy: s.correct / s.seen });
+      }
+    });
+  });
+  rows.sort((a, b) => a.accuracy - b.accuracy);
+  return rows.slice(0, limit);
 }
 
 function shuffle(arr) {
@@ -472,379 +483,279 @@ function shuffle(arr) {
   return a;
 }
 
-function pickDistractors(correctItem, pool, field, n) {
-  const others = pool.filter(w => w[field] !== correctItem[field]);
-  const shuffled = shuffle(others);
-  const seen = new Set([correctItem[field]]);
+function pickDistractors(correct, pool, n) {
+  const others = shuffle(pool.filter(w => w.english !== correct.english));
+  const seen = new Set([correct.english]);
   const out = [];
-  for (const w of shuffled) {
+  for (const w of others) {
     if (out.length >= n) break;
-    if (seen.has(w[field])) continue;
-    seen.add(w[field]);
-    out.push(w[field]);
+    if (seen.has(w.english)) continue;
+    seen.add(w.english);
+    out.push(w.english);
   }
   return out;
 }
 
-/* ---------- generous grading for typed answers ---------- */
-function extractAlternatives(englishStr) {
-  let alts = [];
-  const parenRegex = /\(([^)]+)\)/g;
-  let m;
-  while ((m = parenRegex.exec(englishStr)) !== null) alts.push(m[1]);
-  const cleaned = englishStr.replace(parenRegex, '');
-  cleaned.split(/[,;]/).forEach(seg => {
-    seg.split('/').forEach(sub => {
-      const t = sub.trim();
-      if (t) alts.push(t);
-    });
+function buildQuiz(chapter) {
+  let pool = (VOCAB[chapter] || []).slice();
+  if (pool.length < 4) {
+    // borrow distractors from the full vocabulary if a chapter is too small
+    pool = pool.concat(Object.values(VOCAB).flat());
+  }
+  const items = shuffle(VOCAB[chapter] || []).map(item => {
+    const distractors = pickDistractors(item, pool, 3);
+    return { item, options: shuffle([item.english, ...distractors]) };
   });
-  return alts.filter(Boolean);
+  state.quiz = { chapter, items, index: 0, score: 0, selectedOpt: null, answered: false };
 }
 
-function normalizeAnswer(s) {
-  return s.toLowerCase().trim()
-    .replace(/^i\s+/, '')
-    .replace(/^(a|an|the)\s+/, '')
-    .replace(/[.!?]+$/, '')
-    .replace(/\s+/g, ' ');
-}
+function goHome() { state.screen = 'home'; render(); }
 
-function wordBoundaryMatch(haystack, needle) {
-  if (!needle) return false;
-  const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp('\\b' + escaped + '\\b').test(haystack);
-}
-
-function checkTypedAnswer(userInput, correctEnglish) {
-  const user = normalizeAnswer(userInput);
-  if (!user) return false;
-  const alts = extractAlternatives(correctEnglish).map(normalizeAnswer);
-  return alts.some(alt => {
-    if (!alt) return false;
-    if (user === alt) return true;
-    if (alt.split(' ').length === 1) {
-      return wordBoundaryMatch(user, alt) || wordBoundaryMatch(alt, user);
-    }
-    return user.includes(alt) || alt.includes(user);
-  });
-}
-
-function makeQuizItems(sourceItems, pool) {
-  return sourceItems.map(item => {
-    let dir = state.answerMode === 'typed' ? 'gtoe' : state.direction;
-    if (dir === 'mixed') dir = Math.random() < 0.5 ? 'gtoe' : 'etog';
-    const field = dir === 'gtoe' ? 'english' : 'greek';
-    const promptField = dir === 'gtoe' ? 'greek' : 'english';
-    const q = {
-      item, dir, promptField, field,
-      prompt: item[promptField],
-      correctAnswer: item[field]
-    };
-    if (state.answerMode === 'mc') {
-      const distractors = pickDistractors(item, pool, field, 3);
-      q.options = shuffle([item[field], ...distractors]);
-    }
-    return q;
-  });
-}
-
-function buildQuiz() {
-  const pool = buildPool([...state.selectedChapters]);
-  state.pool = pool;
-  const n = Math.min(state.count, pool.length);
-  const chosen = shuffle(pool).slice(0, n);
-  state.quizItems = makeQuizItems(chosen, pool);
-  state.qIndex = 0;
-  state.score = 0;
-  state.missed = [];
-  state.answered = false;
-  state.screen = 'quiz';
+function goReview() {
+  if (!(state.screen === 'flashcard' && state.quiz && state.quiz.index < state.quiz.items.length)) {
+    buildQuiz(continueChapter());
+  }
+  state.screen = 'flashcard';
   render();
 }
 
-function selectChip(ch) {
-  if (state.selectedChapters.has(ch)) state.selectedChapters.delete(ch);
-  else state.selectedChapters.add(ch);
+function goProgress() { state.screen = 'progress'; render(); }
+
+function startChapterReview(ch) {
+  buildQuiz(ch);
+  state.screen = 'flashcard';
   render();
 }
 
-function selectAll() { CHAPTERS.forEach(c => state.selectedChapters.add(c)); render(); }
-function selectNone() { state.selectedChapters.clear(); render(); }
-function setDirection(d) { state.direction = d; render(); }
-function setAnswerMode(m) { state.answerMode = m; render(); }
-function setCount(n) { state.count = n; render(); }
-
-function goNext(delay) {
+function selectOption(opt) {
+  const q = state.quiz;
+  if (!q || q.answered) return;
+  q.answered = true;
+  q.selectedOpt = opt;
+  const current = q.items[q.index];
+  const correct = opt === current.item.english;
+  if (correct) q.score += 1;
+  bumpStreak();
+  recordAttempt(q.chapter, current.item.greek, correct);
+  render();
   setTimeout(() => {
-    if (state.qIndex < state.quizItems.length - 1) {
-      state.qIndex += 1;
-      state.answered = false;
+    if (!state.quiz || state.quiz !== q) return;
+    if (q.index < q.items.length - 1) {
+      q.index += 1;
+      q.answered = false;
+      q.selectedOpt = null;
       render();
     } else {
-      state.screen = 'results';
+      state.screen = 'home';
       render();
     }
-  }, delay);
+  }, correct ? 650 : 1500);
 }
 
-function answerMC(opt, btnEl) {
-  if (state.answered) return;
-  state.answered = true;
-  const q = state.quizItems[state.qIndex];
-  const correct = opt === q.correctAnswer;
-  if (correct) state.score += 1;
-  else state.missed.push(q);
-  recordAttempt(q.item, correct);
-
-  document.querySelectorAll('.answer-btn').forEach(b => {
-    b.disabled = true;
-    if (b.dataset.opt === q.correctAnswer) b.classList.add('correct');
-    else if (b === btnEl && !correct) b.classList.add('wrong');
-  });
-  const note = document.getElementById('feedback-note');
-  if (note) note.textContent = correct ? 'Correct.' : ('Correct answer: ' + q.correctAnswer);
-  goNext(correct ? 650 : 1500);
+/* ---------- rendering ---------- */
+function glassLayer() {
+  return '<div class="glass-fill"></div><div class="glass-edge"></div>';
 }
 
-function answerTyped() {
-  if (state.answered) return;
-  const input = document.getElementById('typed-input');
-  const val = input.value;
-  state.answered = true;
-  const q = state.quizItems[state.qIndex];
-  const correct = checkTypedAnswer(val, q.correctAnswer);
-  if (correct) state.score += 1;
-  else state.missed.push(q);
-  recordAttempt(q.item, correct);
-
-  input.disabled = true;
-  input.classList.add(correct ? 'correct' : 'wrong');
-  document.getElementById('typed-submit').disabled = true;
-  const note = document.getElementById('feedback-note');
-  if (note) note.textContent = correct ? 'Correct.' : ('Accepted answer: ' + q.correctAnswer);
-  goNext(correct ? 650 : 1800);
+function greeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 18) return 'Good afternoon';
+  return 'Good evening';
 }
 
-function retryMissed() {
-  const missedItems = state.missed.map(q => q.item);
-  const uniqueByKey = {};
-  missedItems.forEach(it => { uniqueByKey[wordKey(it)] = it; });
-  const items = Object.values(uniqueByKey);
-  state.pool = buildPool([...state.selectedChapters]);
-  state.quizItems = makeQuizItems(items, state.pool);
-  state.qIndex = 0;
-  state.score = 0;
-  state.missed = [];
-  state.answered = false;
-  state.screen = 'quiz';
-  render();
-}
-
-function backToSetup() { state.screen = 'setup'; render(); }
-
-function themeToggleHtml() {
-  const label = state.theme === 'light' ? 'Dark mode' : 'Light mode';
-  return `<button class="theme-toggle" id="theme-toggle">${label}</button>`;
-}
-
-function renderSetup() {
-  const chipsHtml = CHAPTERS.map(ch => {
-    const sel = state.selectedChapters.has(ch) ? 'selected' : '';
-    return `<div class="chip ${sel}" data-ch="${ch}">${ch}</div>`;
-  }).join('');
-
-  const dirOptions = [
-    { id: 'gtoe', label: 'Greek → English' },
-    { id: 'etog', label: 'English → Greek' },
-    { id: 'mixed', label: 'Mixed' }
-  ];
-  const typedActive = state.answerMode === 'typed';
-  const dirHtml = dirOptions.map(o => {
-    const active = (state.direction === o.id && !typedActive) ? 'active' : '';
-    return `<button class="opt-btn" data-dir="${o.id}" ${typedActive ? 'disabled' : ''}>${o.label}</button>`;
-  }).join('');
-
-  const modeOptions = [
-    { id: 'mc', label: 'Multiple choice' },
-    { id: 'typed', label: 'Type the answer' }
-  ];
-  const modeHtml = modeOptions.map(o => {
-    const active = state.answerMode === o.id ? 'active' : '';
-    return `<button class="opt-btn ${active}" data-mode="${o.id}">${o.label}</button>`;
-  }).join('');
-
-  const counts = [10, 15, 20, 30];
-  const countHtml = counts.map(c => {
-    const active = state.count === c ? 'active' : '';
-    return `<button class="opt-btn ${active}" data-count="${c}">${c}</button>`;
-  }).join('');
-
-  const poolSize = buildPool([...state.selectedChapters]).length;
-  const minNeeded = state.answerMode === 'typed' ? 1 : 4;
-  const canStart = poolSize >= minNeeded;
-
-  document.getElementById('app').innerHTML = `
-    <div class="topbar">
-      <h1>Koine Drill</h1>
-      ${themeToggleHtml()}
+function renderHeader(isHome, sectionTitle, streakOrTitle) {
+  return `
+    <div class="header-row">
+      <div>
+        <p class="app-title">Oikos</p>
+        ${isHome ? `<div class="app-subtitle text-muted">${greeting()}</div>` : ''}
+      </div>
+      <div class="pill glass">
+        ${glassLayer()}
+        <div class="glass-content">${streakOrTitle}</div>
+      </div>
     </div>
-    <div class="card">
-      <p class="subhead">Beginning with New Testament Greek — Merkle &amp; Plummer vocabulary, chapters 1&ndash;23.</p>
+  `;
+}
 
-      <label class="section-label">Chapters</label>
-      <div class="chapter-grid">${chipsHtml}</div>
-      <div class="row-buttons">
-        <button class="link-btn" id="btn-all">Select all</button>
-        <button class="link-btn" id="btn-none">Clear</button>
+function renderHome() {
+  const stats = overallStats();
+  const ch = continueChapter();
+  const sample = (VOCAB[ch] || []).slice(0, 5).map(w => w.greek.split(',')[0].trim()).join(' · ');
+
+  const chapterChips = CHAPTERS.map(c => {
+    const mastery = chapterMastery(c);
+    const done = mastery >= MASTERY_THRESHOLD;
+    return `<button class="chapter-chip ${done ? 'done' : 'not-done'}" data-ch="${c}">${c}</button>`;
+  }).join('');
+
+  document.getElementById('screen').innerHTML = `
+    <div class="fade-in">
+      ${renderHeader(true, 'Home', `${state.streak.count}-day streak`)}
+
+      <div class="continue-card glass">
+        ${glassLayer()}
+        <div class="glass-content">
+          <div class="kicker">CONTINUE</div>
+          <h2>Chapter ${ch}</h2>
+          <p class="continue-words text-muted">${sample}</p>
+          <button class="resume-btn" id="btn-resume">
+            <div class="resume-fill"></div>
+            <div class="resume-edge"></div>
+            <span>Resume review</span>
+          </button>
+        </div>
       </div>
 
-      <hr class="rule">
+      <div class="stats-row">
+        <div class="stat-chip glass">${glassLayer()}<div class="glass-content"><div class="stat-value">${stats.wordsSeen}</div><div class="stat-label text-muted">words</div></div></div>
+        <div class="stat-chip glass">${glassLayer()}<div class="glass-content"><div class="stat-value">${stats.accuracy}%</div><div class="stat-label text-muted">accuracy</div></div></div>
+        <div class="stat-chip glass">${glassLayer()}<div class="glass-content"><div class="stat-value">${stats.chaptersMastered}/${stats.totalChapters}</div><div class="stat-label text-muted">chapters</div></div></div>
+      </div>
 
-      <label class="section-label">Answer type</label>
-      <div class="option-group">${modeHtml}</div>
-      ${typedActive ? '<div class="note-line">Typed mode always quizzes Greek → English, and accepts any one correct English meaning.</div>' : ''}
-
-      <hr class="rule">
-
-      <label class="section-label">Direction</label>
-      <div class="option-group">${dirHtml}</div>
-
-      <hr class="rule">
-
-      <label class="section-label">Number of questions</label>
-      <div class="option-group count-row">${countHtml}</div>
-
-      <button class="primary-btn" id="btn-start" ${canStart ? '' : 'disabled'}>
-        ${poolSize === 0 ? 'Select at least one chapter' : (poolSize < minNeeded ? 'Select more chapters' : 'Start quiz — ' + Math.min(state.count, poolSize) + ' words')}
-      </button>
+      <div class="kicker" style="margin:8px 0 10px">CHAPTERS</div>
+      <div class="chapters-grid">${chapterChips}</div>
     </div>
   `;
 
-  document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
-  document.querySelectorAll('.chip').forEach(el => el.addEventListener('click', () => selectChip(Number(el.dataset.ch))));
-  document.getElementById('btn-all').addEventListener('click', selectAll);
-  document.getElementById('btn-none').addEventListener('click', selectNone);
-  document.querySelectorAll('[data-mode]').forEach(el => el.addEventListener('click', () => setAnswerMode(el.dataset.mode)));
-  document.querySelectorAll('[data-dir]').forEach(el => {
-    if (!typedActive) el.addEventListener('click', () => setDirection(el.dataset.dir));
+  document.getElementById('btn-resume').addEventListener('click', goReview);
+  document.querySelectorAll('.chapter-chip').forEach(el => {
+    el.addEventListener('click', () => startChapterReview(Number(el.dataset.ch)));
   });
-  document.querySelectorAll('[data-count]').forEach(el => el.addEventListener('click', () => setCount(Number(el.dataset.count))));
-  const startBtn = document.getElementById('btn-start');
-  if (canStart) startBtn.addEventListener('click', buildQuiz);
 }
 
-function renderQuiz() {
-  const q = state.quizItems[state.qIndex];
-  const total = state.quizItems.length;
-  const pct = Math.round((state.qIndex / total) * 100);
-  const langTag = q.dir === 'gtoe' ? 'Give the English meaning' : 'Give the Greek word';
+function renderFlashcard() {
+  const q = state.quiz;
+  const total = q.items.length;
+  const current = q.items[q.index];
+  const pct = Math.round((q.index / total) * 100);
 
-  let bodyHtml;
-  if (state.answerMode === 'mc') {
-    const optionsHtml = q.options.map(opt =>
-      `<button class="answer-btn" data-opt="${opt.replace(/"/g, '&quot;')}">${opt}</button>`
-    ).join('');
-    bodyHtml = `<div id="options-wrap">${optionsHtml}</div>`;
-  } else {
-    bodyHtml = `
-      <div class="typed-row">
-        <input class="typed-input" id="typed-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Type the English meaning…">
-        <button class="typed-submit" id="typed-submit">Check</button>
+  const optionsHtml = current.options.map(opt => {
+    let cls = '';
+    let icon = '';
+    if (q.answered) {
+      if (opt === current.item.english) {
+        cls = 'is-correct';
+        icon = '<span class="option-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5 6.5 12 13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+      } else if (opt === q.selectedOpt) {
+        cls = 'is-wrong';
+        icon = '<span class="option-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2 2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>';
+      } else {
+        cls = 'is-faded';
+      }
+    }
+    return `
+      <button class="option-btn ${cls}" data-opt="${opt.replace(/"/g, '&quot;')}" ${q.answered ? 'disabled' : ''}>
+        <div class="option-fill"></div>
+        <div class="option-edge"></div>
+        <div class="option-content"><span>${opt}</span>${icon}</div>
+      </button>
+    `;
+  }).join('');
+
+  document.getElementById('screen').innerHTML = `
+    <div class="fade-in">
+      ${renderHeader(false, 'Review', 'Review')}
+
+      <div class="progress-row">
+        <span>Question ${q.index + 1} of ${total}</span>
+        <span>Score ${q.score}</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+
+      <div class="prompt-panel glass">
+        ${glassLayer()}
+        <div class="glass-content">
+          <div class="kicker">GIVE THE ENGLISH MEANING</div>
+          <div class="prompt-word" style="margin-top:12px">${current.item.greek}</div>
+        </div>
+      </div>
+
+      <div class="options">${optionsHtml}</div>
+    </div>
+  `;
+
+  if (!q.answered) {
+    document.querySelectorAll('.option-btn').forEach(btn => {
+      btn.addEventListener('click', () => selectOption(btn.dataset.opt));
+    });
+  }
+}
+
+function renderProgress() {
+  const stats = overallStats();
+  const circ = 2 * Math.PI * 54;
+  const offset = circ * (1 - stats.accuracy / 100);
+
+  const chapterRows = CHAPTERS.map(c => {
+    const pct = chapterMastery(c);
+    return `
+      <div class="chapter-row">
+        <div class="ch-num">${c}</div>
+        <div class="ch-track"><div class="ch-fill" style="width:${pct}%"></div></div>
+        <div class="ch-pct">${pct}%</div>
       </div>
     `;
-  }
+  }).join('');
 
-  document.getElementById('app').innerHTML = `
-    <div class="topbar">
-      <h1>Koine Drill</h1>
-      ${themeToggleHtml()}
-    </div>
-    <div class="card">
-      <div class="progress-row">
-        <span>Question ${state.qIndex + 1} of ${total}</span>
-        <span>Score: ${state.score}</span>
-      </div>
-      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-
-      <div class="prompt-lang-tag">${langTag}</div>
-      <div class="prompt-word">${q.prompt}</div>
-      <div class="feedback-note" id="feedback-note"></div>
-
-      ${bodyHtml}
-    </div>
-  `;
-
-  document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
-
-  if (state.answerMode === 'mc') {
-    document.querySelectorAll('.answer-btn').forEach(btn => {
-      btn.addEventListener('click', () => answerMC(btn.dataset.opt, btn));
-    });
-  } else {
-    const input = document.getElementById('typed-input');
-    const submitBtn = document.getElementById('typed-submit');
-    input.focus();
-    submitBtn.addEventListener('click', answerTyped);
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') { e.preventDefault(); answerTyped(); }
-    });
-  }
-}
-
-function renderResults() {
-  const total = state.score + state.missed.length;
-  const missedUnique = [];
-  const seenKeys = new Set();
-  state.missed.forEach(q => {
-    const k = wordKey(q.item);
-    if (!seenKeys.has(k)) { seenKeys.add(k); missedUnique.push(q); }
-  });
-
-  const missedHtml = missedUnique.length
-    ? missedUnique.map(q => `
-        <div class="missed-item">
-          <span class="missed-greek">${q.item.greek}</span>
-          <span class="missed-eng">${q.item.english}</span>
+  const missed = wordsToReview(8);
+  const missedHtml = missed.length
+    ? missed.map(m => `
+        <div class="missed-row">
+          <span class="missed-greek">${m.greek}</span>
+          <span class="missed-english text-muted">${m.english}</span>
         </div>
       `).join('')
-    : '<div class="empty-note">No misses — well done.</div>';
+    : '<div class="empty-note text-muted">No missed words yet — well done.</div>';
 
-  document.getElementById('app').innerHTML = `
-    <div class="topbar">
-      <h1>Koine Drill</h1>
-      ${themeToggleHtml()}
-    </div>
-    <div class="card">
-      <div class="score-display">
-        <div class="score-num">${state.score}/${total}</div>
-        <div class="score-label">correct</div>
-        <div class="stat-pill">${[...state.selectedChapters].sort((a,b)=>a-b).join(', ')}</div>
+  document.getElementById('screen').innerHTML = `
+    <div class="fade-in">
+      ${renderHeader(false, 'Progress', 'Progress')}
+
+      <div class="ring-panel glass">
+        ${glassLayer()}
+        <div class="glass-content">
+          <svg width="128" height="128" viewBox="0 0 128 128" style="margin:0 auto;display:block">
+            <circle cx="64" cy="64" r="54" fill="none" stroke="rgba(32,30,29,0.08)" stroke-width="10"/>
+            <circle cx="64" cy="64" r="54" fill="none" stroke="#4f7a5c" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}" transform="rotate(-90 64 64)"/>
+            <text x="64" y="70" text-anchor="middle" font-family="Archivo" font-weight="800" font-size="26" fill="#201e1d">${stats.accuracy}%</text>
+          </svg>
+          <div class="ring-label text-muted">${stats.wordsSeen} of ${stats.totalWords} words</div>
+        </div>
       </div>
 
-      <hr class="rule">
-      <label class="section-label">Words to review</label>
-      <div class="missed-list">${missedHtml}</div>
+      <div class="kicker" style="margin:0 0 10px">BY CHAPTER</div>
+      <div class="list-panel glass">${glassLayer()}<div class="glass-content">${chapterRows}</div></div>
 
-      ${missedUnique.length ? '<button class="primary-btn" id="btn-retry">Drill missed words again</button>' : ''}
-      <button class="ghost-btn" id="btn-new">New quiz setup</button>
+      <div class="kicker" style="margin:0 0 10px">WORDS TO REVIEW</div>
+      <div class="list-panel glass" style="margin-bottom:0">${glassLayer()}<div class="glass-content">${missedHtml}</div></div>
     </div>
   `;
+}
 
-  document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
-  if (missedUnique.length) document.getElementById('btn-retry').addEventListener('click', retryMissed);
-  document.getElementById('btn-new').addEventListener('click', backToSetup);
+function renderTabBar() {
+  document.getElementById('tab-home').classList.toggle('active', state.screen === 'home');
+  document.getElementById('tab-review').classList.toggle('active', state.screen === 'flashcard');
+  document.getElementById('tab-progress').classList.toggle('active', state.screen === 'progress');
 }
 
 function render() {
-  if (state.screen === 'setup') renderSetup();
-  else if (state.screen === 'quiz') renderQuiz();
-  else if (state.screen === 'results') renderResults();
+  if (state.screen === 'home') renderHome();
+  else if (state.screen === 'flashcard') {
+    if (!state.quiz) buildQuiz(continueChapter());
+    renderFlashcard();
+  } else if (state.screen === 'progress') renderProgress();
+  renderTabBar();
 }
 
+document.getElementById('tab-home').addEventListener('click', goHome);
+document.getElementById('tab-review').addEventListener('click', goReview);
+document.getElementById('tab-progress').addEventListener('click', goProgress);
+
 (async function init() {
-  await loadTheme();
-  await loadStats();
+  await loadData();
   render();
 })();
 </script>
