@@ -235,6 +235,100 @@
   .tab-btn.active { color: var(--green); }
   .tab-btn svg { width: 26px; height: 26px; }
 
+  /* ---------- home ---------- */
+  .home-hero { margin-top: 30px; }
+  .greeting {
+    margin: 0; font-weight: 800; letter-spacing: -0.02em; line-height: 1.05;
+    font-size: clamp(30px, 9vw, 38px);
+  }
+  .stats-line {
+    margin: 12px 0 0; font-size: 12.5px; line-height: 1.6; color: rgba(32,30,29,0.55);
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 7px;
+  }
+  .stats-line .stat-bit { white-space: nowrap; }
+  .stats-line .sep { color: rgba(32,30,29,0.28); }
+  .stats-line strong { font-weight: 700; color: var(--green-text); }
+  .home-actions { margin-top: 28px; }
+  .home-actions .start-btn { margin-top: 0; padding: 17px 0; border-radius: 18px; box-shadow: 0 10px 26px rgba(79,122,92,0.26); }
+  .home-actions .start-btn span { font-size: 15.5px; }
+  .home-secondary { text-align: center; margin-top: 15px; }
+
+  /* ---------- step-by-step setup ---------- */
+  .setup-topbar { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .back-btn {
+    width: 32px; height: 32px; border-radius: 9999px; flex-shrink: 0; cursor: pointer;
+    border: 0.5px solid rgba(32,30,29,0.1); background: rgba(255,255,255,0.6);
+    display: flex; align-items: center; justify-content: center; color: var(--ink);
+  }
+  .step-count { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; color: var(--green-text); }
+  .step-track { height: 4px; background: rgba(32,30,29,0.08); border-radius: 9999px; overflow: hidden; margin-bottom: 18px; }
+  .step-fill { height: 4px; background: var(--green); border-radius: 9999px; transition: width 240ms cubic-bezier(.2,.7,.3,1); }
+  .step-title { margin: 0 0 4px; font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
+  .step-hint { margin: 0 0 16px; font-size: 12.5px; line-height: 1.45; }
+  .stack { display: flex; flex-direction: column; gap: 8px; }
+  .choice-btn {
+    position: relative; width: 100%; text-align: left; cursor: pointer; font-family: var(--font-sans);
+    border: 0.5px solid rgba(32,30,29,0.1); background: rgba(255,255,255,0.5); border-radius: 14px;
+    padding: 13px 16px; font-size: 14px; font-weight: 700; color: var(--ink);
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .choice-btn.active { background: var(--green); border-color: var(--green); color: #fff; }
+  .choice-sub { display: block; font-size: 11.5px; font-weight: 400; margin-top: 2px; color: rgba(32,30,29,0.45); }
+  .choice-btn.active .choice-sub { color: rgba(255,255,255,0.78); }
+  .choice-tick { flex-shrink: 0; opacity: 0; transition: opacity 150ms ease; }
+  .choice-btn.active .choice-tick { opacity: 1; }
+  .summary-card {
+    border-radius: 16px; padding: 14px 16px; background: rgba(255,255,255,0.5);
+    border: 0.5px solid rgba(255,255,255,0.6);
+  }
+  .summary-line { font-size: 13.5px; font-weight: 700; line-height: 1.5; }
+  .summary-sub { font-size: 11.5px; margin-top: 4px; line-height: 1.45; }
+  .setup-panel .start-btn.step-next { margin-top: 16px; }
+
+  /* ---------- flip card (flashcards + review word) ---------- */
+  .flip { perspective: 1200px; cursor: pointer; }
+  .flip-inner {
+    position: relative; transition: transform 280ms cubic-bezier(.2,.7,.3,1);
+    transform-style: preserve-3d; min-height: 116px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .flip.is-flipped .flip-inner { transform: rotateY(180deg); }
+  .flip-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; width: 100%; }
+  .flip-back {
+    position: absolute; top: 50%; left: 0; transform: translateY(-50%) rotateY(180deg);
+  }
+  .card-actions { display: flex; gap: 10px; margin-top: 18px; }
+  .card-actions .ghost-btn, .card-actions .start-btn { flex: 1; margin-top: 0; }
+  .card-actions .ghost-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ---------- motion ---------- */
+  button { transition: transform 150ms cubic-bezier(.2,.7,.3,1); }
+  button:not(:disabled):active { transform: scale(0.97); }
+  .step-in-fwd { animation: oikos-step-fwd 220ms cubic-bezier(.2,.7,.3,1); }
+  .step-in-back { animation: oikos-step-back 220ms cubic-bezier(.2,.7,.3,1); }
+  @keyframes oikos-step-fwd { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
+  @keyframes oikos-step-back { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: none; } }
+  @keyframes oikos-pulse-correct {
+    0% { background: rgba(255,255,255,0.4); }
+    45% { background: rgba(79,122,92,0.30); }
+    100% { background: var(--green-tint); }
+  }
+  @keyframes oikos-pulse-wrong {
+    0% { background: rgba(255,255,255,0.4); }
+    45% { background: rgba(32,30,29,0.13); }
+    100% { background: rgba(32,30,29,0.06); }
+  }
+  .option-btn.is-correct .option-fill { animation: oikos-pulse-correct 300ms ease both; }
+  .option-btn.is-wrong .option-fill { animation: oikos-pulse-wrong 300ms ease both; }
+  .typed-input-wrap.is-correct .glass-fill { animation: oikos-pulse-correct 300ms ease both; }
+  .typed-input-wrap.is-wrong .glass-fill { animation: oikos-pulse-wrong 300ms ease both; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
   .fade-in { animation: oikos-fade 0.18s ease; }
   @keyframes oikos-fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 </style>
@@ -291,16 +385,20 @@ const STATS_KEY = 'koine-drill-word-stats';
 const STREAK_KEY = 'oikos-streak';
 
 let state = {
-  screen: 'home',            // 'home' (quiz picker) | 'flashcard' (quiz / flash cards) | 'progress'
+  screen: 'home',            // 'home' | 'setup' (step flow) | 'flashcard' (quiz) | 'cards' (flashcards) | 'progress'
   stats: {},                 // wordKey -> { seen, correct }
   streak: { count: 0, lastDate: null },
   setup: {
     selectedChapters: new Set(),
     count: 20,                // 10 | 20 | 30
     direction: 'gtoe',        // 'gtoe' | 'etog' | 'mixed'
-    mode: 'mc'                // 'mc' | 'typed'
+    mode: 'mc',               // 'mc' | 'typed' | 'cards'
+    step: 1,                  // 1 chapters, 2 format, 3 direction, 4 word count, 5 start
+    anim: 'fwd'               // direction of the last step transition, for the slide animation
   },
   quiz: null,                 // { settings, pool, items, index, score, answered, selectedOpt, typedValue, typedCorrect }
+  cards: null,                // flashcard session: { chapters, items, index, revealed }
+  lastSession: 'quiz',        // 'quiz' | 'cards' -- which one the Review tab should open
   randomWord: null,           // { chapter, greek, english } shown when no quiz is selected
   randomWordRevealed: false
 };
@@ -522,6 +620,8 @@ function startQuiz(settings) {
   const pool = buildPool(chapters);
   const n = Math.min(settings.count, pool.length);
   const chosen = shuffle(pool).slice(0, n);
+  state.cards = null;
+  state.lastSession = 'quiz';
   state.quiz = {
     settings: { ...settings, selectedChapters: chapters },
     pool,
@@ -553,7 +653,18 @@ function quizInProgress() {
 
 function goHome() { state.screen = 'home'; render(); }
 
-function goQuizTab() { state.screen = 'flashcard'; render(); }
+function goQuizTab() {
+  const cards = cardsInProgress(), quiz = quizInProgress();
+  state.screen = (cards && (state.lastSession === 'cards' || !quiz)) ? 'cards' : 'flashcard';
+  render();
+}
+
+function openSetup() {
+  state.setup.step = 1;
+  state.setup.anim = 'fwd';
+  state.screen = 'setup';
+  render();
+}
 
 function goProgress() { state.screen = 'progress'; render(); }
 
@@ -573,7 +684,6 @@ function shuffleRandomWord() {
 
 function revealRandomWord() {
   state.randomWordRevealed = true;
-  render();
 }
 
 /* ---------- quiz setup screen actions ---------- */
@@ -591,6 +701,83 @@ function setSetupMode(m) {
 }
 function setSetupDirection(d) { state.setup.direction = d; render(); }
 function setSetupCount(n) { state.setup.count = n; render(); }
+
+/* the steps that actually apply for the chosen format:
+   flashcards stop after the format step, type-answer skips direction */
+function stepPath() {
+  if (state.setup.mode === 'cards') return [1, 2];
+  if (state.setup.mode === 'typed') return [1, 2, 4, 5];
+  return [1, 2, 3, 4, 5];
+}
+
+function goToStep(n, anim) {
+  state.setup.step = n;
+  state.setup.anim = anim || 'fwd';
+  render();
+}
+
+function setupNext() {
+  const step = state.setup.step;
+  if (step === 1) { goToStep(2, 'fwd'); return; }
+  if (step === 2) {
+    if (state.setup.mode === 'cards') { startCards(); return; }
+    goToStep(state.setup.mode === 'typed' ? 4 : 3, 'fwd');
+    return;
+  }
+  if (step === 3) { goToStep(4, 'fwd'); return; }
+  if (step === 4) { goToStep(5, 'fwd'); return; }
+}
+
+function setupBack() {
+  const step = state.setup.step;
+  if (step === 1) { goHome(); return; }
+  if (step === 2) { goToStep(1, 'back'); return; }
+  if (step === 3) { goToStep(2, 'back'); return; }
+  if (step === 4) { goToStep(state.setup.mode === 'mc' ? 3 : 2, 'back'); return; }
+  goToStep(4, 'back');
+}
+
+/* choosing a format / direction / word count also moves the flow along, so a
+   step is a single tap -- prior choices are kept, so Back is non-destructive */
+function chooseFormat(m) { setSetupMode(m); setupNext(); }
+function chooseDirection(d) { state.setup.direction = d; setupNext(); }
+function chooseCount(n) { state.setup.count = n; setupNext(); }
+
+/* ---------- flashcard sessions (no scoring: browsing only, like the review card) ---------- */
+function startCards() {
+  const chapters = [...state.setup.selectedChapters].sort((a, b) => a - b);
+  const pool = buildPool(chapters);
+  if (!pool.length) return;
+  state.cards = { chapters, items: shuffle(pool), index: 0, revealed: false };
+  state.lastSession = 'cards';
+  state.screen = 'cards';
+  render();
+}
+
+function cardsInProgress() { return !!(state.cards && state.cards.index < state.cards.items.length); }
+
+function nextCard() {
+  const c = state.cards;
+  if (!c) return;
+  if (c.index >= c.items.length - 1) { exitCards(); return; }
+  c.index += 1;
+  c.revealed = false;
+  render();
+}
+
+function prevCard() {
+  const c = state.cards;
+  if (!c || c.index === 0) return;
+  c.index -= 1;
+  c.revealed = false;
+  render();
+}
+
+function exitCards() {
+  state.cards = null;
+  state.screen = 'home';
+  render();
+}
 
 function launchSetupQuiz() {
   const pool = buildPool([...state.setup.selectedChapters]);
@@ -653,169 +840,326 @@ function submitTyped() {
 /* ---------- rendering ---------- */
 function glassLayer() { return '<div class="glass-fill"></div><div class="glass-edge"></div>'; }
 
+/* time-of-day greeting, unless a session has already been logged today */
 function greeting() {
+  if (state.streak.lastDate === todayStr()) return 'Welcome Back!';
   const h = new Date().getHours();
-  if (h < 12) return 'Good morning';
-  if (h < 18) return 'Good afternoon';
-  return 'Good evening';
+  if (h >= 5 && h < 12) return 'Good Morning!';
+  if (h >= 12 && h < 18) return 'Good Afternoon!';
+  return 'Good Evening!';
+}
+
+/* one compact line of stats, all derived from data the app already stores */
+function homeStatsLine() {
+  const st = overallStats();
+  const learned = learnedWordsCount();
+  const bits = [
+    `<span class="stat-bit"><strong>${learned}</strong> ${learned === 1 ? 'word' : 'words'} learned</span>`,
+    `<span class="stat-bit">${state.streak.count > 0 ? `<strong>${state.streak.count}</strong>-day streak` : 'No streak yet'}</span>`,
+    `<span class="stat-bit"><strong>${st.chaptersMastered}</strong> of ${st.totalChapters} chapters</span>`
+  ];
+  return bits.join('<span class="sep">\u00b7</span>');
 }
 
 function renderHeader(isHome, pillLabel, showClose) {
-  const right = showClose
-    ? `<button class="icon-btn" id="btn-exit-quiz" title="Exit quiz" aria-label="Exit quiz">
+  let right = '';
+  if (showClose) {
+    right = `<button class="icon-btn" id="btn-exit-quiz" title="Close" aria-label="Close">
          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2.5 2.5l11 11M13.5 2.5l-11 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-       </button>`
-    : `<div class="pill glass">${glassLayer()}<div class="glass-content">${pillLabel}</div></div>`;
+       </button>`;
+  } else if (!isHome) {
+    right = `<div class="pill glass">${glassLayer()}<div class="glass-content">${pillLabel}</div></div>`;
+  }
   return `
     <div class="header-row">
       <div>
         <p class="app-title">Oikos</p>
-        <div class="app-tagline">learning to belong</div>
-        ${isHome ? `<div class="app-subtitle text-muted">${greeting()}</div>` : ''}
+        <div class="app-tagline">Learning to belong in God's Word</div>
       </div>
       ${right}
     </div>
   `;
 }
 
+/* a flip card: same component for a flashcard session and the review word */
+function flipCard(id, frontKicker, frontText, backKicker, backText, backHint) {
+  return `
+    <div class="prompt-panel glass flip" id="${id}">
+      ${glassLayer()}
+      <div class="glass-content flip-inner">
+        <div class="flip-face flip-front">
+          <div class="kicker">${frontKicker}</div>
+          <div class="prompt-word" style="margin-top:12px">${frontText}</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="kicker">${backKicker}</div>
+          <div class="prompt-word is-english" style="margin-top:12px">${backText}</div>
+          ${backHint ? `<div class="flip-hint text-muted">${backHint}</div>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function renderHome() {
-  const s = state.setup;
-  const chapterChips = CHAPTERS.map(c => {
-    const sel = s.selectedChapters.has(c) ? 'selected' : '';
-    return `<button class="chapter-chip selectable ${sel}" data-ch="${c}">${c}</button>`;
-  }).join('');
-
-  const modeOptions = [{ id: 'mc', label: 'Multiple choice' }, { id: 'typed', label: 'Type answer' }];
-  const modeHtml = modeOptions.map(o =>
-    `<button class="seg-btn ${s.mode === o.id ? 'active' : ''}" data-mode="${o.id}">${o.label}</button>`
-  ).join('');
-
-  const dirOptions = [{ id: 'gtoe', label: 'Greek → English' }, { id: 'etog', label: 'English → Greek' }, { id: 'mixed', label: 'Mixed' }];
-  const typedActive = s.mode === 'typed';
-  const dirHtml = dirOptions.map(o =>
-    `<button class="seg-btn ${(s.direction === o.id && !typedActive) ? 'active' : ''}" data-dir="${o.id}" ${typedActive ? 'disabled' : ''}>${o.label}</button>`
-  ).join('');
-
-  const counts = [10, 20, 30];
-  const countHtml = counts.map(c =>
-    `<button class="seg-btn ${s.count === c ? 'active' : ''}" data-count="${c}">${c}</button>`
-  ).join('');
-
-  const poolSize = buildPool([...s.selectedChapters]).length;
-  const minNeeded = s.mode === 'typed' ? 1 : 4;
-  const canStart = poolSize >= minNeeded;
-  const startLabel = poolSize === 0
-    ? 'Select at least one chapter'
-    : (poolSize < minNeeded ? 'Select more chapters' : `Start quiz — ${Math.min(s.count, poolSize)} words`);
-
-  const nextCh = continueChapter();
-
   document.getElementById('screen').innerHTML = `
     <div class="fade-in">
-      ${renderHeader(true, `${state.streak.count}-day streak`)}
+      ${renderHeader(true)}
 
-      <div class="setup-panel glass">
-        ${glassLayer()}
-        <div class="glass-content">
+      <div class="home-hero">
+        <h1 class="greeting">${greeting()}</h1>
+        <div class="stats-line">${homeStatsLine()}</div>
+      </div>
 
-          <div class="setup-label-row" style="margin-bottom:16px">
-            <span class="kicker">NEW QUIZ</span>
-            <button class="link-btn" id="btn-continue">Continue chapter ${nextCh}</button>
-          </div>
-
-          <div class="setup-section" style="margin-top:0">
-            <div class="setup-label-row">
-              <span class="kicker">CHAPTERS</span>
-              <span>
-                <button class="link-btn" id="btn-sel-all">Select all</button>
-                &nbsp;&nbsp;
-                <button class="link-btn" id="btn-sel-none">Clear</button>
-              </span>
-            </div>
-            <div class="chapters-grid">${chapterChips}</div>
-          </div>
-
-          <div class="setup-section">
-            <div class="kicker" style="margin-bottom:10px">ANSWER TYPE</div>
-            <div class="segmented">${modeHtml}</div>
-          </div>
-
-          <div class="setup-section">
-            <div class="kicker" style="margin-bottom:10px">DIRECTION</div>
-            <div class="segmented">${dirHtml}</div>
-            ${typedActive ? '<div class="setup-note text-muted">Type-answer mode always quizzes Greek → English, and accepts any one correct English meaning.</div>' : ''}
-          </div>
-
-          <div class="setup-section">
-            <div class="kicker" style="margin-bottom:10px">NUMBER OF WORDS</div>
-            <div class="segmented">${countHtml}</div>
-          </div>
-
-          <button class="start-btn" id="btn-start" ${canStart ? '' : 'disabled'}>
-            <div class="resume-fill"></div>
-            <div class="resume-edge"></div>
-            <span>${startLabel}</span>
-          </button>
-
+      <div class="home-actions">
+        <button class="start-btn" id="btn-start-learning">
+          <div class="resume-fill"></div>
+          <div class="resume-edge"></div>
+          <span>Start Learning</span>
+        </button>
+        <div class="home-secondary">
+          <button class="link-btn" id="btn-continue">Continue chapter ${continueChapter()}</button>
         </div>
       </div>
     </div>
   `;
 
+  document.getElementById('btn-start-learning').addEventListener('click', openSetup);
   document.getElementById('btn-continue').addEventListener('click', quickResume);
-  document.querySelectorAll('.chapter-chip').forEach(el => {
-    el.addEventListener('click', () => toggleSetupChapter(Number(el.dataset.ch)));
+}
+
+/* ---------- step-by-step quiz setup ---------- */
+const FORMAT_LABELS = { mc: 'Multiple Choice', typed: 'Type Answer', cards: 'Flashcards' };
+const DIRECTION_LABELS = { gtoe: 'Greek → English', etog: 'English → Greek', mixed: 'Mixed' };
+
+function chaptersLabel(chapters) {
+  if (!chapters.length) return 'No chapters';
+  if (chapters.length === CHAPTERS.length) return `All ${CHAPTERS.length} chapters`;
+  return `${chapters.length} chapter${chapters.length === 1 ? '' : 's'}`;
+}
+
+function tickIcon() {
+  return '<span class="choice-tick"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M3 8.5 6.5 12 13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+}
+
+function choiceBtn(attr, value, active, label, sub) {
+  return `
+    <button class="choice-btn ${active ? 'active' : ''}" ${attr}="${value}">
+      <span><span>${label}</span>${sub ? `<span class="choice-sub">${sub}</span>` : ''}</span>
+      ${tickIcon()}
+    </button>
+  `;
+}
+
+function renderSetup() {
+  const s = state.setup;
+  const path = stepPath();
+  const stepIndex = Math.max(0, path.indexOf(s.step));
+  const chapters = [...s.selectedChapters].sort((a, b) => a - b);
+  const poolSize = buildPool(chapters).length;
+
+  let title = '', hint = '', body = '', footer = '';
+
+  if (s.step === 1) {
+    title = 'Choose your chapters';
+    hint = 'Pick one, several, or all of them.';
+    const chips = CHAPTERS.map(c =>
+      `<button class="chapter-chip selectable ${s.selectedChapters.has(c) ? 'selected' : ''}" data-ch="${c}">${c}</button>`
+    ).join('');
+    body = `
+      <div class="setup-label-row">
+        <span class="kicker">CHAPTERS</span>
+        <span>
+          <button class="link-btn" id="btn-sel-all">Select all</button>
+          &nbsp;&nbsp;
+          <button class="link-btn" id="btn-sel-none">Clear</button>
+        </span>
+      </div>
+      <div class="chapters-grid">${chips}</div>
+    `;
+    footer = `
+      <button class="start-btn step-next" id="btn-step-next" ${chapters.length ? '' : 'disabled'}>
+        <div class="resume-fill"></div>
+        <div class="resume-edge"></div>
+        <span>${chapters.length ? `Next — ${chaptersLabel(chapters)}, ${poolSize} words` : 'Select at least one chapter'}</span>
+      </button>
+    `;
+  } else if (s.step === 2) {
+    title = 'How do you want to learn?';
+    hint = 'Flashcards start straight away — no further setup.';
+    body = `<div class="stack">
+      ${choiceBtn('data-mode', 'mc', s.mode === 'mc', 'Multiple Choice', 'Pick the right meaning from four options')}
+      ${choiceBtn('data-mode', 'typed', s.mode === 'typed', 'Type Answer', 'Write the English meaning yourself')}
+      ${choiceBtn('data-mode', 'cards', s.mode === 'cards', 'Flashcards', 'Tap to flip — browse at your own pace')}
+    </div>`;
+  } else if (s.step === 3) {
+    title = 'Which direction?';
+    hint = 'How each question is asked.';
+    body = `<div class="stack">
+      ${choiceBtn('data-dir', 'gtoe', s.direction === 'gtoe', DIRECTION_LABELS.gtoe, 'See the Greek, choose the meaning')}
+      ${choiceBtn('data-dir', 'etog', s.direction === 'etog', DIRECTION_LABELS.etog, 'See the meaning, choose the Greek')}
+      ${choiceBtn('data-dir', 'mixed', s.direction === 'mixed', DIRECTION_LABELS.mixed, 'A mix of both, question by question')}
+    </div>`;
+  } else if (s.step === 4) {
+    title = 'How many words?';
+    hint = poolSize < 30 ? `Your selection has ${poolSize} words — shorter quizzes stop early.` : 'Drawn at random from your chapters.';
+    body = `<div class="stack">
+      ${choiceBtn('data-count', '10', s.count === 10, '10 words', 'A quick session')}
+      ${choiceBtn('data-count', '20', s.count === 20, '20 words', 'The usual drill')}
+      ${choiceBtn('data-count', '30', s.count === 30, '30 words', 'A longer stretch')}
+    </div>`;
+  } else {
+    const minNeeded = s.mode === 'typed' ? 1 : 4;
+    const canStart = poolSize >= minNeeded;
+    const parts = [chaptersLabel(chapters), FORMAT_LABELS[s.mode]];
+    parts.push(s.mode === 'typed' ? DIRECTION_LABELS.gtoe : DIRECTION_LABELS[s.direction]);
+    parts.push(`${Math.min(s.count, poolSize)} words`);
+    title = 'Ready when you are';
+    hint = '';
+    body = `
+      <div class="summary-card">
+        <div class="summary-line">${parts.join(' · ')}</div>
+        <div class="summary-sub text-muted">${chapters.length && chapters.length !== CHAPTERS.length ? 'Chapter ' + chapters.join(', ') : 'Every chapter in the course'}</div>
+      </div>
+    `;
+    footer = `
+      <button class="start-btn step-next" id="btn-launch" ${canStart ? '' : 'disabled'}>
+        <div class="resume-fill"></div>
+        <div class="resume-edge"></div>
+        <span>${canStart ? 'Start Learning' : 'Select more chapters'}</span>
+      </button>
+    `;
+  }
+
+  const pct = Math.round(((stepIndex + 1) / path.length) * 100);
+
+  document.getElementById('screen').innerHTML = `
+    <div class="fade-in">
+      ${renderHeader(false, 'New session')}
+
+      <div class="setup-panel glass">
+        ${glassLayer()}
+        <div class="glass-content">
+          <div class="setup-topbar">
+            <button class="back-btn" id="btn-step-back" title="Back" aria-label="Back">
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M10 2.5 4.5 8l5.5 5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <span class="step-count">Step ${stepIndex + 1} of ${path.length}</span>
+          </div>
+          <div class="step-track"><div class="step-fill" style="width:${pct}%"></div></div>
+
+          <div class="${s.anim === 'back' ? 'step-in-back' : 'step-in-fwd'}">
+            <h2 class="step-title">${title}</h2>
+            ${hint ? `<p class="step-hint text-muted">${hint}</p>` : ''}
+            ${body}
+            ${footer}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('btn-step-back').addEventListener('click', setupBack);
+
+  if (s.step === 1) {
+    document.querySelectorAll('.chapter-chip').forEach(el => {
+      el.addEventListener('click', () => toggleSetupChapter(Number(el.dataset.ch)));
+    });
+    document.getElementById('btn-sel-all').addEventListener('click', setupSelectAll);
+    document.getElementById('btn-sel-none').addEventListener('click', setupSelectNone);
+    if (chapters.length) document.getElementById('btn-step-next').addEventListener('click', setupNext);
+  } else if (s.step === 2) {
+    document.querySelectorAll('[data-mode]').forEach(el => el.addEventListener('click', () => chooseFormat(el.dataset.mode)));
+  } else if (s.step === 3) {
+    document.querySelectorAll('[data-dir]').forEach(el => el.addEventListener('click', () => chooseDirection(el.dataset.dir)));
+  } else if (s.step === 4) {
+    document.querySelectorAll('[data-count]').forEach(el => el.addEventListener('click', () => chooseCount(Number(el.dataset.count))));
+  } else {
+    const launch = document.getElementById('btn-launch');
+    if (!launch.disabled) launch.addEventListener('click', launchSetupQuiz);
+  }
+}
+
+/* ---------- flashcard session ---------- */
+function renderCards() {
+  const c = state.cards;
+  if (!c) { goHome(); return; }
+  const total = c.items.length;
+  const w = c.items[c.index];
+  const pct = Math.round(((c.index + 1) / total) * 100);
+  const isLast = c.index === total - 1;
+
+  document.getElementById('screen').innerHTML = `
+    <div class="fade-in">
+      ${renderHeader(false, 'Flashcards', true)}
+
+      <div class="progress-row">
+        <span>Card ${c.index + 1} of ${total}</span>
+        <span>Chapter ${w.chapter}</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+
+      ${flipCard('flip-card', 'GREEK WORD — TAP TO FLIP', w.greek, 'ENGLISH MEANING', w.english, `Chapter ${w.chapter} · ${w.greek}`)}
+
+      <div class="card-actions">
+        <button class="ghost-btn" id="btn-prev-card" ${c.index === 0 ? 'disabled' : ''}>Previous</button>
+        <button class="start-btn" id="btn-next-card" style="margin-top:0">
+          <div class="resume-fill"></div>
+          <div class="resume-edge"></div>
+          <span>${isLast ? 'Finish' : 'Next card'}</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  wireFlipCard('flip-card', () => { c.revealed = true; });
+  document.getElementById('btn-prev-card').addEventListener('click', prevCard);
+  document.getElementById('btn-next-card').addEventListener('click', nextCard);
+  document.getElementById('btn-exit-quiz').addEventListener('click', exitCards);
+}
+
+/* flips in the DOM rather than re-rendering, so the transition actually plays */
+function wireFlipCard(id, onFlip) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('click', () => {
+    const flipped = el.classList.toggle('is-flipped');
+    if (flipped && onFlip) onFlip();
   });
-  document.getElementById('btn-sel-all').addEventListener('click', setupSelectAll);
-  document.getElementById('btn-sel-none').addEventListener('click', setupSelectNone);
-  document.querySelectorAll('[data-mode]').forEach(el => el.addEventListener('click', () => setSetupMode(el.dataset.mode)));
-  document.querySelectorAll('[data-dir]').forEach(el => {
-    if (!typedActive) el.addEventListener('click', () => setSetupDirection(el.dataset.dir));
-  });
-  document.querySelectorAll('[data-count]').forEach(el => el.addEventListener('click', () => setSetupCount(Number(el.dataset.count))));
-  if (canStart) document.getElementById('btn-start').addEventListener('click', launchSetupQuiz);
 }
 
 function renderQuizTab() {
   if (quizInProgress()) { renderFlashcard(); return; }
+  if (cardsInProgress()) { renderCards(); return; }
   renderQuizEmpty();
 }
 
 function renderQuizEmpty() {
   if (!state.randomWord) state.randomWord = pickRandomWord();
   const w = state.randomWord;
-  const revealed = state.randomWordRevealed;
 
   document.getElementById('screen').innerHTML = `
     <div class="fade-in">
       ${renderHeader(false, 'Review')}
 
-      <div class="quiz-empty-note text-muted">No quiz selected yet — pick chapters on Home to start one. In the meantime, here's a word to learn:</div>
+      <div class="quiz-empty-note text-muted">No quiz in progress — tap Start Learning to set one up. In the meantime, here's a word to learn:</div>
 
-      <div class="prompt-panel glass" id="flip-card" style="cursor:pointer">
-        ${glassLayer()}
-        <div class="glass-content">
-          <div class="kicker">${revealed ? 'ENGLISH MEANING' : 'GREEK WORD — TAP TO REVEAL'}</div>
-          <div class="prompt-word ${revealed ? 'is-english' : ''}" style="margin-top:12px">${revealed ? w.english : w.greek}</div>
-          ${revealed ? `<div class="flip-hint text-muted">Chapter ${w.chapter} · ${w.greek}</div>` : ''}
-        </div>
-      </div>
+      ${flipCard('flip-card', 'GREEK WORD — TAP TO REVEAL', w.greek, 'ENGLISH MEANING', w.english, `Chapter ${w.chapter} · ${w.greek}`)}
 
       <div class="quiz-empty-actions">
         <button class="ghost-btn" id="btn-shuffle-word">Shuffle word</button>
         <button class="start-btn" id="btn-goto-home" style="margin-top:0">
           <div class="resume-fill"></div>
           <div class="resume-edge"></div>
-          <span>Choose a quiz</span>
+          <span>Start Learning</span>
         </button>
       </div>
     </div>
   `;
 
-  const flip = document.getElementById('flip-card');
-  if (!revealed) flip.addEventListener('click', revealRandomWord);
+  wireFlipCard('flip-card', revealRandomWord);
   document.getElementById('btn-shuffle-word').addEventListener('click', shuffleRandomWord);
-  document.getElementById('btn-goto-home').addEventListener('click', goHome);
+  document.getElementById('btn-goto-home').addEventListener('click', openSetup);
 }
 
 function renderFlashcard() {
@@ -986,14 +1330,16 @@ function renderProgress() {
 }
 
 function renderTabBar() {
-  document.getElementById('tab-home').classList.toggle('active', state.screen === 'home');
-  document.getElementById('tab-review').classList.toggle('active', state.screen === 'flashcard');
+  document.getElementById('tab-home').classList.toggle('active', state.screen === 'home' || state.screen === 'setup');
+  document.getElementById('tab-review').classList.toggle('active', state.screen === 'flashcard' || state.screen === 'cards');
   document.getElementById('tab-progress').classList.toggle('active', state.screen === 'progress');
 }
 
 function render() {
   if (state.screen === 'home') renderHome();
+  else if (state.screen === 'setup') renderSetup();
   else if (state.screen === 'flashcard') renderQuizTab();
+  else if (state.screen === 'cards') renderCards();
   else if (state.screen === 'progress') renderProgress();
   renderTabBar();
 }
