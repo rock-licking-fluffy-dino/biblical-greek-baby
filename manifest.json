@@ -1,11 +1,11 @@
 {
-  "name": "Koine Drill",
-  "short_name": "Koine Drill",
+  "name": "Oikos",
+  "short_name": "Oikos",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#2f6f4e",
+  "background_color": "#f2f0ea",
+  "theme_color": "#4f7a5c",
   "icons": [
     {
       "src": "icon-180.png",
