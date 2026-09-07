@@ -75,7 +75,15 @@
   /* header */
   .header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
   .app-title { font-weight: 800; font-size: 21px; letter-spacing: -0.01em; margin: 0; }
-  .app-subtitle { font-size: 12px; margin-top: 1px; }
+  .app-tagline { font-size: 11px; margin-top: 1px; color: var(--green-text); font-weight: 600; }
+  .app-subtitle { font-size: 12px; margin-top: 3px; }
+  .icon-btn {
+    position: relative; width: 38px; height: 38px; border-radius: 9999px; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; color: var(--ink); flex-shrink: 0;
+    background: rgba(255,255,255,0.55); backdrop-filter: blur(14px) saturate(180%); -webkit-backdrop-filter: blur(14px) saturate(180%);
+    box-shadow: inset 1px 1px 1px rgba(255,255,255,0.85), inset -1px -1px 1px rgba(255,255,255,0.3);
+    border: 0.5px solid rgba(0,0,0,0.06);
+  }
   .pill { position: relative; border-radius: 9999px; }
   .pill .glass-fill { border-radius: 9999px; backdrop-filter: blur(14px) saturate(180%); -webkit-backdrop-filter: blur(14px) saturate(180%); background: rgba(255,255,255,0.55); }
   .pill .glass-edge { border-radius: 9999px; box-shadow: inset 1px 1px 1px rgba(255,255,255,0.85), inset -1px -1px 1px rgba(255,255,255,0.3); border: 0.5px solid rgba(0,0,0,0.06); }
@@ -186,11 +194,25 @@
   .typed-feedback { text-align: center; font-size: 12.5px; margin-top: 14px; min-height: 16px; }
 
   /* progress screen */
+  .rings-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .rings-row .ring-panel { flex: 1; margin-bottom: 0; padding: 18px 10px; }
   .ring-panel { border-radius: 24px; padding: 26px 20px; margin-bottom: 16px; box-shadow: 0 12px 32px rgba(32,30,29,0.1); text-align: center; }
   .ring-panel .glass-fill { border-radius: 24px; backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); background: rgba(255,255,255,0.6); }
   .ring-panel .glass-edge { border-radius: 24px; box-shadow: none; border: 0.5px solid rgba(255,255,255,0.5); }
+  .ring-panel .kicker { margin-bottom: 10px; }
   .ring-label { font-size: 12px; margin-top: 6px; }
   .ring-caption { font-size: 11.5px; margin-top: 2px; line-height: 1.4; }
+
+  /* quiz empty state (no quiz selected) */
+  .quiz-empty-note { text-align: center; font-size: 12.5px; margin-bottom: 16px; line-height: 1.4; }
+  .flip-hint { font-size: 11px; margin-top: 14px; }
+  .quiz-empty-actions { display: flex; gap: 10px; margin-top: 6px; }
+  .quiz-empty-actions .start-btn { width: auto; flex: 1; }
+  .ghost-btn {
+    position: relative; flex: 1; border: none; border-radius: 16px; padding: 13px 0; overflow: hidden; cursor: pointer;
+    background: rgba(255,255,255,0.5); border: 0.5px solid rgba(32,30,29,0.1); color: var(--ink); font-weight: 700;
+    font-family: var(--font-sans); font-size: 14px;
+  }
   .list-panel { border-radius: 20px; padding: 6px 16px; margin-bottom: 16px; }
   .list-panel .glass-fill { border-radius: 20px; background: rgba(255,255,255,0.5); }
   .list-panel .glass-edge { border-radius: 20px; box-shadow: none; border: 0.5px solid rgba(255,255,255,0.5); }
@@ -269,7 +291,7 @@ const STATS_KEY = 'koine-drill-word-stats';
 const STREAK_KEY = 'oikos-streak';
 
 let state = {
-  screen: 'home',            // 'home' | 'reviewSetup' | 'flashcard' | 'progress'
+  screen: 'home',            // 'home' (quiz picker) | 'flashcard' (quiz / flash cards) | 'progress'
   stats: {},                 // wordKey -> { seen, correct }
   streak: { count: 0, lastDate: null },
   setup: {
@@ -279,6 +301,8 @@ let state = {
     mode: 'mc'                // 'mc' | 'typed'
   },
   quiz: null,                 // { settings, pool, items, index, score, answered, selectedOpt, typedValue, typedCorrect }
+  randomWord: null,           // { chapter, greek, english } shown when no quiz is selected
+  randomWordRevealed: false
 };
 
 function wordKey(chapter, greek) { return chapter + '::' + greek; }
@@ -359,6 +383,30 @@ function overallStats() {
 function continueChapter() {
   const next = CHAPTERS.find(ch => chapterMastery(ch) < MASTERY_THRESHOLD);
   return next !== undefined ? next : CHAPTERS[CHAPTERS.length - 1];
+}
+
+/* a word counts as "learned" once it's been answered correctly enough
+   of the time it has been asked (same threshold used for chapter mastery) */
+function learnedWordsCount() {
+  let count = 0;
+  CHAPTERS.forEach(ch => {
+    (VOCAB[ch] || []).forEach(w => {
+      const s = state.stats[wordKey(ch, w.greek)];
+      if (s && s.seen > 0 && (s.correct / s.seen) * 100 >= MASTERY_THRESHOLD) count += 1;
+    });
+  });
+  return count;
+}
+
+function allWords() {
+  const out = [];
+  CHAPTERS.forEach(ch => (VOCAB[ch] || []).forEach(w => out.push({ chapter: ch, greek: w.greek.trim(), english: w.english.trim() })));
+  return out;
+}
+
+function pickRandomWord() {
+  const words = allWords();
+  return words[Math.floor(Math.random() * words.length)];
 }
 
 function wordsToReview(limit) {
@@ -499,27 +547,34 @@ function quickResume() {
   });
 }
 
-function startChapterReview(ch) {
-  startQuiz({
-    selectedChapters: new Set([ch]),
-    count: (VOCAB[ch] || []).length,
-    direction: 'gtoe',
-    mode: 'mc'
-  });
-}
-
 function quizInProgress() {
   return !!(state.quiz && state.quiz.index < state.quiz.items.length);
 }
 
 function goHome() { state.screen = 'home'; render(); }
 
-function goReviewTab() {
-  state.screen = quizInProgress() ? 'flashcard' : 'reviewSetup';
+function goQuizTab() { state.screen = 'flashcard'; render(); }
+
+function goProgress() { state.screen = 'progress'; render(); }
+
+function exitQuiz() {
+  if (window.confirm("Exit this quiz? Your progress on this quiz will be lost.")) {
+    state.quiz = null;
+    state.screen = 'home';
+    render();
+  }
+}
+
+function shuffleRandomWord() {
+  state.randomWord = pickRandomWord();
+  state.randomWordRevealed = false;
   render();
 }
 
-function goProgress() { state.screen = 'progress'; render(); }
+function revealRandomWord() {
+  state.randomWordRevealed = true;
+  render();
+}
 
 /* ---------- quiz setup screen actions ---------- */
 function toggleSetupChapter(ch) {
@@ -605,68 +660,25 @@ function greeting() {
   return 'Good evening';
 }
 
-function renderHeader(isHome, pillLabel) {
+function renderHeader(isHome, pillLabel, showClose) {
+  const right = showClose
+    ? `<button class="icon-btn" id="btn-exit-quiz" title="Exit quiz" aria-label="Exit quiz">
+         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2.5 2.5l11 11M13.5 2.5l-11 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+       </button>`
+    : `<div class="pill glass">${glassLayer()}<div class="glass-content">${pillLabel}</div></div>`;
   return `
     <div class="header-row">
       <div>
         <p class="app-title">Oikos</p>
+        <div class="app-tagline">learning to belong</div>
         ${isHome ? `<div class="app-subtitle text-muted">${greeting()}</div>` : ''}
       </div>
-      <div class="pill glass">
-        ${glassLayer()}
-        <div class="glass-content">${pillLabel}</div>
-      </div>
+      ${right}
     </div>
   `;
 }
 
 function renderHome() {
-  const stats = overallStats();
-  const ch = continueChapter();
-  const sample = (VOCAB[ch] || []).slice(0, 5).map(w => w.greek.split(',')[0].trim()).join(' · ');
-
-  const chapterChips = CHAPTERS.map(c => {
-    const mastery = chapterMastery(c);
-    const done = mastery >= MASTERY_THRESHOLD;
-    return `<button class="chapter-chip ${done ? 'done' : 'not-done'}" data-ch="${c}">${c}</button>`;
-  }).join('');
-
-  document.getElementById('screen').innerHTML = `
-    <div class="fade-in">
-      ${renderHeader(true, `${state.streak.count}-day streak`)}
-
-      <div class="continue-card glass">
-        ${glassLayer()}
-        <div class="glass-content">
-          <div class="kicker">CONTINUE</div>
-          <h2>Chapter ${ch}</h2>
-          <p class="continue-words text-muted">${sample}</p>
-          <button class="resume-btn" id="btn-resume">
-            <div class="resume-fill"></div>
-            <div class="resume-edge"></div>
-            <span>Resume review</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="stats-row">
-        <div class="stat-chip glass">${glassLayer()}<div class="glass-content"><div class="stat-value">${stats.wordsSeen}</div><div class="stat-label text-muted">words</div></div></div>
-        <div class="stat-chip glass">${glassLayer()}<div class="glass-content"><div class="stat-value">${stats.accuracy}%</div><div class="stat-label text-muted">accuracy</div></div></div>
-        <div class="stat-chip glass">${glassLayer()}<div class="glass-content"><div class="stat-value">${stats.chaptersMastered}/${stats.totalChapters}</div><div class="stat-label text-muted">chapters</div></div></div>
-      </div>
-
-      <div class="kicker" style="margin:8px 0 10px">CHAPTERS</div>
-      <div class="chapters-grid">${chapterChips}</div>
-    </div>
-  `;
-
-  document.getElementById('btn-resume').addEventListener('click', quickResume);
-  document.querySelectorAll('.chapter-chip').forEach(el => {
-    el.addEventListener('click', () => startChapterReview(Number(el.dataset.ch)));
-  });
-}
-
-function renderReviewSetup() {
   const s = state.setup;
   const chapterChips = CHAPTERS.map(c => {
     const sel = s.selectedChapters.has(c) ? 'selected' : '';
@@ -696,15 +708,22 @@ function renderReviewSetup() {
     ? 'Select at least one chapter'
     : (poolSize < minNeeded ? 'Select more chapters' : `Start quiz — ${Math.min(s.count, poolSize)} words`);
 
+  const nextCh = continueChapter();
+
   document.getElementById('screen').innerHTML = `
     <div class="fade-in">
-      ${renderHeader(false, 'New quiz')}
+      ${renderHeader(true, `${state.streak.count}-day streak`)}
 
       <div class="setup-panel glass">
         ${glassLayer()}
         <div class="glass-content">
 
-          <div class="setup-section">
+          <div class="setup-label-row" style="margin-bottom:16px">
+            <span class="kicker">NEW QUIZ</span>
+            <button class="link-btn" id="btn-continue">Continue chapter ${nextCh}</button>
+          </div>
+
+          <div class="setup-section" style="margin-top:0">
             <div class="setup-label-row">
               <span class="kicker">CHAPTERS</span>
               <span>
@@ -743,6 +762,7 @@ function renderReviewSetup() {
     </div>
   `;
 
+  document.getElementById('btn-continue').addEventListener('click', quickResume);
   document.querySelectorAll('.chapter-chip').forEach(el => {
     el.addEventListener('click', () => toggleSetupChapter(Number(el.dataset.ch)));
   });
@@ -754,6 +774,48 @@ function renderReviewSetup() {
   });
   document.querySelectorAll('[data-count]').forEach(el => el.addEventListener('click', () => setSetupCount(Number(el.dataset.count))));
   if (canStart) document.getElementById('btn-start').addEventListener('click', launchSetupQuiz);
+}
+
+function renderQuizTab() {
+  if (quizInProgress()) { renderFlashcard(); return; }
+  renderQuizEmpty();
+}
+
+function renderQuizEmpty() {
+  if (!state.randomWord) state.randomWord = pickRandomWord();
+  const w = state.randomWord;
+  const revealed = state.randomWordRevealed;
+
+  document.getElementById('screen').innerHTML = `
+    <div class="fade-in">
+      ${renderHeader(false, 'Review')}
+
+      <div class="quiz-empty-note text-muted">No quiz selected yet — pick chapters on Home to start one. In the meantime, here's a word to learn:</div>
+
+      <div class="prompt-panel glass" id="flip-card" style="cursor:pointer">
+        ${glassLayer()}
+        <div class="glass-content">
+          <div class="kicker">${revealed ? 'ENGLISH MEANING' : 'GREEK WORD — TAP TO REVEAL'}</div>
+          <div class="prompt-word ${revealed ? 'is-english' : ''}" style="margin-top:12px">${revealed ? w.english : w.greek}</div>
+          ${revealed ? `<div class="flip-hint text-muted">Chapter ${w.chapter} · ${w.greek}</div>` : ''}
+        </div>
+      </div>
+
+      <div class="quiz-empty-actions">
+        <button class="ghost-btn" id="btn-shuffle-word">Shuffle word</button>
+        <button class="start-btn" id="btn-goto-home" style="margin-top:0">
+          <div class="resume-fill"></div>
+          <div class="resume-edge"></div>
+          <span>Choose a quiz</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  const flip = document.getElementById('flip-card');
+  if (!revealed) flip.addEventListener('click', revealRandomWord);
+  document.getElementById('btn-shuffle-word').addEventListener('click', shuffleRandomWord);
+  document.getElementById('btn-goto-home').addEventListener('click', goHome);
 }
 
 function renderFlashcard() {
@@ -811,7 +873,7 @@ function renderFlashcard() {
 
   document.getElementById('screen').innerHTML = `
     <div class="fade-in">
-      ${renderHeader(false, 'Review')}
+      ${renderHeader(false, 'Review', true)}
 
       <div class="progress-row">
         <span>Question ${q.index + 1} of ${total}</span>
@@ -848,12 +910,27 @@ function renderFlashcard() {
       });
     }
   }
+
+  document.getElementById('btn-exit-quiz').addEventListener('click', exitQuiz);
+}
+
+function ringSvg(pct) {
+  const circ = 2 * Math.PI * 54;
+  const offset = circ * (1 - pct / 100);
+  return `
+    <svg width="108" height="108" viewBox="0 0 128 128" style="margin:0 auto;display:block">
+      <circle cx="64" cy="64" r="54" fill="none" stroke="rgba(32,30,29,0.08)" stroke-width="10"/>
+      <circle cx="64" cy="64" r="54" fill="none" stroke="#4f7a5c" stroke-width="10" stroke-linecap="round"
+        stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}" transform="rotate(-90 64 64)"/>
+      <text x="64" y="70" text-anchor="middle" font-family="Archivo" font-weight="800" font-size="24" fill="#201e1d">${pct}%</text>
+    </svg>
+  `;
 }
 
 function renderProgress() {
   const stats = overallStats();
-  const circ = 2 * Math.PI * 54;
-  const offset = circ * (1 - stats.accuracy / 100);
+  const learned = learnedWordsCount();
+  const progressPct = stats.totalWords > 0 ? Math.round((learned / stats.totalWords) * 100) : 0;
 
   const chapterRows = CHAPTERS.map(c => {
     const pct = chapterMastery(c);
@@ -880,47 +957,49 @@ function renderProgress() {
     <div class="fade-in">
       ${renderHeader(false, 'Progress')}
 
-      <div class="ring-panel glass">
-        ${glassLayer()}
-        <div class="glass-content">
-          <svg width="128" height="128" viewBox="0 0 128 128" style="margin:0 auto;display:block">
-            <circle cx="64" cy="64" r="54" fill="none" stroke="rgba(32,30,29,0.08)" stroke-width="10"/>
-            <circle cx="64" cy="64" r="54" fill="none" stroke="#4f7a5c" stroke-width="10" stroke-linecap="round"
-              stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}" transform="rotate(-90 64 64)"/>
-            <text x="64" y="70" text-anchor="middle" font-family="Archivo" font-weight="800" font-size="26" fill="#201e1d">${stats.accuracy}%</text>
-          </svg>
-          <div class="ring-label text-muted">${stats.wordsSeen} of ${stats.totalWords} words</div>
-          <div class="ring-caption text-muted">Accuracy is correct ÷ answered so far — not how much of the syllabus you've covered. See "words" and "chapters" on Home, and the chapter bars below, for coverage.</div>
+      <div class="rings-row">
+        <div class="ring-panel glass">
+          ${glassLayer()}
+          <div class="glass-content">
+            <div class="kicker">ACCURACY</div>
+            ${ringSvg(stats.accuracy)}
+            <div class="ring-label text-muted">${stats.wordsSeen} words answered</div>
+          </div>
+        </div>
+        <div class="ring-panel glass">
+          ${glassLayer()}
+          <div class="glass-content">
+            <div class="kicker">PROGRESS</div>
+            ${ringSvg(progressPct)}
+            <div class="ring-label text-muted">${learned} of ${stats.totalWords} words learned</div>
+          </div>
         </div>
       </div>
 
-      <div class="kicker" style="margin:0 0 10px">BY CHAPTER</div>
-      <div class="list-panel glass">${glassLayer()}<div class="glass-content">${chapterRows}</div></div>
-
       <div class="kicker" style="margin:0 0 10px">WORDS TO REVIEW</div>
-      <div class="list-panel glass" style="margin-bottom:0">${glassLayer()}<div class="glass-content">${missedHtml}</div></div>
+      <div class="list-panel glass">${glassLayer()}<div class="glass-content">${missedHtml}</div></div>
+
+      <div class="kicker" style="margin:0 0 10px">BY CHAPTER</div>
+      <div class="list-panel glass" style="margin-bottom:0">${glassLayer()}<div class="glass-content">${chapterRows}</div></div>
     </div>
   `;
 }
 
 function renderTabBar() {
   document.getElementById('tab-home').classList.toggle('active', state.screen === 'home');
-  document.getElementById('tab-review').classList.toggle('active', state.screen === 'flashcard' || state.screen === 'reviewSetup');
+  document.getElementById('tab-review').classList.toggle('active', state.screen === 'flashcard');
   document.getElementById('tab-progress').classList.toggle('active', state.screen === 'progress');
 }
 
 function render() {
   if (state.screen === 'home') renderHome();
-  else if (state.screen === 'reviewSetup') renderReviewSetup();
-  else if (state.screen === 'flashcard') {
-    if (!quizInProgress()) { state.screen = 'reviewSetup'; renderReviewSetup(); renderTabBar(); return; }
-    renderFlashcard();
-  } else if (state.screen === 'progress') renderProgress();
+  else if (state.screen === 'flashcard') renderQuizTab();
+  else if (state.screen === 'progress') renderProgress();
   renderTabBar();
 }
 
 document.getElementById('tab-home').addEventListener('click', goHome);
-document.getElementById('tab-review').addEventListener('click', goReviewTab);
+document.getElementById('tab-review').addEventListener('click', goQuizTab);
 document.getElementById('tab-progress').addEventListener('click', goProgress);
 
 (async function init() {
