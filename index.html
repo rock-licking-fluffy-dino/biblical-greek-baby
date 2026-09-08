@@ -308,7 +308,7 @@
   .stat-ring + .stat-ring { border-left: 1px solid var(--hairline-soft); }
   .stat-ring-label { font-size: 10.5px; line-height: 1.3; margin-top: 9px; color: var(--muted); font-weight: 500; }
   .stat-caption { text-align: center; font-size: 11px; margin-top: 14px; color: var(--faint); font-weight: 500; font-feature-settings: 'tnum'; }
-  .stat-caption .sep { color: var(--track); margin: 0 6px; }
+  .stat-caption .sep, .progress-row .sep { color: var(--track); margin: 0 6px; }
   .home-actions { margin-top: 34px; }
   .home-actions .start-btn { margin-top: 0; padding: 18px 0; }
   .home-actions .start-btn span { font-size: 15px; }
@@ -367,6 +367,64 @@
   .card-actions .ghost-btn, .card-actions .start-btn { flex: 1; margin-top: 0; }
   .card-actions .ghost-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
+  /* ---------- category chips ---------- */
+  .select-toggle { margin-bottom: 14px; }
+  .categories-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cat-chip {
+    display: inline-flex; align-items: center; gap: 6px; text-align: left;
+    padding: 9px 11px; border-radius: var(--r-sm); font-size: 11.5px; line-height: 1.25;
+    cursor: pointer; user-select: none; font-family: var(--font-sans); font-weight: 600;
+    background: var(--surface); border: 1px solid var(--hairline); color: var(--ink);
+  }
+  .cat-chip:hover { border-color: var(--sage-300); background: var(--surface-2); }
+  .cat-chip.selected { background: var(--green-solid); color: var(--on-green); border-color: var(--green-solid); }
+  .cat-count { font-size: 10px; font-weight: 700; color: var(--muted); font-feature-settings: 'tnum'; }
+  .cat-chip.selected .cat-count { color: var(--on-green); opacity: 0.72; }
+
+  /* ---------- memory game ---------- */
+  .mem-note { font-size: 11.5px; margin: 0 0 14px; line-height: 1.5; text-align: center; }
+  .mem-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+  .mem-tile {
+    position: relative; perspective: 900px; background: none; border: none; padding: 0;
+    flex: 0 0 calc((100% - 16px) / 3); cursor: pointer;
+    font-family: var(--font-sans); aspect-ratio: 1 / 1;
+  }
+  .mem-tile-inner {
+    position: relative; width: 100%; height: 100%;
+    transition: transform 280ms cubic-bezier(.2,.7,.3,1); transform-style: preserve-3d;
+  }
+  .mem-tile.is-flipped .mem-tile-inner { transform: rotateY(180deg); }
+  .mem-face {
+    position: absolute; inset: 0; border-radius: var(--r-sm); overflow: hidden;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    padding: 8px; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    border: 1px solid var(--hairline); background: var(--surface); box-shadow: var(--shadow-card);
+  }
+  .mem-front { background: var(--green-tint); border-color: var(--green-border); color: var(--green-text); }
+  .mem-back { transform: rotateY(180deg); font-size: 11.5px; font-weight: 600; line-height: 1.32; color: var(--ink); }
+  .mem-back.is-greek { font-size: 13.5px; font-weight: 700; }
+  .mem-tile.is-matched { pointer-events: none; }
+  .mem-tile.is-matched .mem-tile-inner { animation: oikos-match 420ms cubic-bezier(.2,.7,.3,1) both; }
+  .mem-tile.is-matched .mem-back {
+    background: var(--green-tint); border-color: var(--green-border);
+    color: var(--green-text); box-shadow: none; opacity: 0.78;
+    transition: background 200ms ease, color 200ms ease, opacity 200ms ease;
+  }
+  @keyframes oikos-match {
+    0%   { transform: rotateY(180deg) scale(1); }
+    45%  { transform: rotateY(180deg) scale(1.055); }
+    100% { transform: rotateY(180deg) scale(1); }
+  }
+  .mem-done-time {
+    font-weight: 800; font-size: 40px; font-feature-settings: 'tnum';
+    letter-spacing: -0.02em; margin: 6px 0 2px;
+  }
+  .mem-done-badge {
+    display: inline-block; margin-top: 10px; padding: 6px 12px; border-radius: 999px;
+    background: var(--green-tint); border: 1px solid var(--green-border);
+    color: var(--green-text); font-size: 11.5px; font-weight: 700;
+  }
+
   /* ---------- motion ---------- */
   button { transition: transform 150ms cubic-bezier(.2,.7,.3,1), background 150ms ease, border-color 150ms ease; }
   button:not(:disabled):active { transform: scale(0.98); }
@@ -421,9 +479,25 @@
 </div>
 
 <script>
-const VOCAB = {"1":[{"greek":"ἀγάπη, ἡ","english":"love"},{"greek":"γῆ, ἡ","english":"earth, land, ground"},{"greek":"ζωή, ἡ","english":"life"},{"greek":"φωνή, ἡ","english":"voice, sound"},{"greek":"ἀλήθεια, ἡ","english":"truth"},{"greek":"ἁμαρτία, ἡ","english":"sin"},{"greek":"βασιλεία, ἡ","english":"kingdom, reign"},{"greek":"δόξα, ἡ","english":"glory, majesty"},{"greek":"ἐκκλησία, ἡ","english":"congregation, assembly, church"},{"greek":"ἡμέρα, ἡ","english":"day"},{"greek":"καρδία, ἡ","english":"heart"},{"greek":"δέ","english":"and, but, now"},{"greek":"καί","english":"and, even, also"},{"greek":"μέν","english":"on the one hand, indeed"},{"greek":"ὁ, ἡ, τό","english":"the"}],"2":[{"greek":"ἀδελφός, ὁ","english":"brother (and sister)"},{"greek":"ἄνθρωπος, ὁ","english":"man, human being, husband"},{"greek":"θεός, ὁ","english":"God"},{"greek":"κόσμος, ὁ","english":"world, universe; adornment"},{"greek":"κύριος, ὁ","english":"Lord, master, sir"},{"greek":"λόγος, ὁ","english":"word, message, account"},{"greek":"νόμος, ὁ","english":"law, principle"},{"greek":"οὐρανός, ὁ","english":"heaven, sky"},{"greek":"υἱός, ὁ","english":"son, descendant"},{"greek":"Χριστός, ὁ","english":"Christ, Messiah, Anointed One"},{"greek":"ἔργον, τό","english":"work, deed"},{"greek":"εὐαγγέλιον, τό","english":"good news, gospel"},{"greek":"ἱερόν, τό","english":"temple, sanctuary"},{"greek":"σημεῖον , τό","english":"sign"},{"greek":"τέκνον, τό","english":"child, son, descendant"}],"3":[{"greek":"εἰμί","english":"I am, exist"},{"greek":"ἀκούω","english":"I hear, listen to, obey"},{"greek":"γινώσκω","english":"I know, understand, acknowledge"},{"greek":"γράφω","english":"I write"},{"greek":"ἔχω","english":"I have, hold"},{"greek":"λέγω","english":"I say, speak"},{"greek":"λαμβάνω","english":"I take, receive"},{"greek":"λύω","english":"I loose, destroy"},{"greek":"πιστεύω","english":"I believe, have faith/trust in"},{"greek":"ἀποκρίνομαι","english":"I answer, reply"},{"greek":"γίνομαι","english":"I become, come, exist, am born"},{"greek":"ἔρχομαι","english":"I come, go"},{"greek":"πορεύομαι","english":"I go, travel"},{"greek":"ἀλλά","english":"but, yet, nevertheless"},{"greek":"ὅτι","english":"that, because"}],"4":[{"greek":"ἄγω","english":"I lead, bring"},{"greek":"βλέπω","english":"I see, look at"},{"greek":"διδάσκω","english":"I teach"},{"greek":"ἐγείρω","english":"I raise up"},{"greek":"κρίνω","english":"I judge, condemn"},{"greek":"μένω","english":"I remain, abide, dwell"},{"greek":"ὑπάγω","english":"I go away, depart"},{"greek":"δοῦλος, ὁ","english":"slave"},{"greek":"θάνατος, ὁ","english":"death"},{"greek":"ψυχή, ἡ","english":"soul, life, living being"},{"greek":"ὥρα, ἡ","english":"hour"},{"greek":"εἰ","english":"if, whether"},{"greek":"εἴτε","english":"if, whether"},{"greek":"καθώς","english":"as, just as, even as"},{"greek":"ὡς","english":"as, like"}],"5":[{"greek":"βαπτίζω","english":"I baptize, immerse, dip"},{"greek":"θεραπεύω","english":"I heal"},{"greek":"κράζω","english":"I cry out"},{"greek":"ἄγγελος, ὁ","english":"angel, messenger"},{"greek":"μαθητής, ὁ","english":"disciple, follower"},{"greek":"ὄχλος, ὁ","english":"crowd"},{"greek":"προφήτης, ὁ","english":"prophet"},{"greek":"γάρ","english":"for, because"},{"greek":"ἐκεῖ","english":"there, in that place"},{"greek":"κἀγώ","english":"and I (καί + ἐγώ)"},{"greek":"οὖν","english":"then, so, therefore"},{"greek":"οὕτως","english":"in this manner, thus, so"},{"greek":"τέ","english":"and, but"},{"greek":"οὐ, οὐκ, οὐχ","english":"no, not"},{"greek":"οὐχί","english":"no! (emphatic)"}],"6":[{"greek":"ἀγαπάω","english":"I love"},{"greek":"γεννάω","english":"I give birth to, bear, beget"},{"greek":"ἐπερωτάω","english":"I ask"},{"greek":"ἐρωτάω","english":"I ask, question, request"},{"greek":"αἰτέω","english":"I ask, demand"},{"greek":"ἀκολουθέω","english":"I follow"},{"greek":"ζητέω","english":"I seek, look for"},{"greek":"καλέω","english":"I call, invite, name"},{"greek":"λαλέω","english":"I speak, say"},{"greek":"μαρτυρέω","english":"I testify, bear witness"},{"greek":"παρακαλέω","english":"I call, urge, comfort"},{"greek":"περιπατέω","english":"I walk, live"},{"greek":"ποιέω","english":"I do, make"},{"greek":"φοβέομαι","english":"I am afraid, fear, respect"},{"greek":"πληρόω","english":"I fill, fulfill, complete"}],"7":[{"greek":"ἀπό","english":"from, away from (gen)"},{"greek":"διά","english":"through (gen); because of (acc)"},{"greek":"εἰς","english":"into, among, for (acc)"},{"greek":"ἐκ","english":"from, out of (gen)"},{"greek":"ἐν","english":"in, on, at, by, with (dat)"},{"greek":"ἐπί","english":"on, over (gen); on, at, in (dat); on, to, for (acc)"},{"greek":"κατά","english":"down, against (gen); according to (acc)"},{"greek":"μετά","english":"with, among (gen); after (acc)"},{"greek":"παρά","english":"from (gen); beside (dat); on, at (acc)"},{"greek":"περί","english":"about, concerning (gen); around (acc)"},{"greek":"πρός","english":"to, toward (acc)"},{"greek":"σύν","english":"with (dat)"},{"greek":"ὑπέρ","english":"for (gen); above, beyond (acc)"},{"greek":"ὑπό","english":"by (gen); under, below (acc)"},{"greek":"ἐνώπιον","english":"before, in the presence of"}],"8":[{"greek":"αὐτός, -ή, -ό","english":"he, she, it; self, same"},{"greek":"ἐγώ, ἡμεῖς","english":"I; we"},{"greek":"ὅς, ἥ, ὅ","english":"who, which, that"},{"greek":"σύ, ὑμεῖς","english":"you (sg); you (pl)"},{"greek":"ἄρτος, ὁ","english":"bread, food"},{"greek":"δικαιοσύνη, ἡ","english":"righteousness, justice"},{"greek":"εἰρήνη, ἡ","english":"peace"},{"greek":"ἐξουσία , ἡ","english":"authority, right, power"},{"greek":"θάλασσα, ἡ","english":"lake, sea"},{"greek":"λαός, ὁ","english":"people, crowd"},{"greek":"ὁδός, ἡ","english":"way, road"},{"greek":"οἰκία, ἡ","english":"home, dwelling, family"},{"greek":"οἶκος, ὁ","english":"house, household, family"},{"greek":"ὀφθαλμός, ὁ","english":"eye"},{"greek":"τόπος, ὁ","english":"place"}],"9":[{"greek":"διώκω","english":"I pursue, persecute"},{"greek":"δοξάζω","english":"I glorify, praise"},{"greek":"πέμπω","english":"I send"},{"greek":"πράσσω","english":"I do, practice"},{"greek":"σῴζω","english":"I save, rescue, heal"},{"greek":"τηρέω","english":"I keep, guard, obey"},{"greek":"ἀπόστολος, ὁ","english":"apostle, messenger"},{"greek":"ἐντολή, ἡ","english":"command"},{"greek":"καιρός, ὁ","english":"time, season"},{"greek":"κεφαλή, ἡ","english":"head"},{"greek":"πρόσωπον, τό","english":"face, appearance"},{"greek":"σάββατον, τό","english":"Sabbath, week"},{"greek":"ἔτι","english":"still, yet, more"},{"greek":"μᾶλλον","english":"more, rather"},{"greek":"οὐκέτι","english":"no longer"}],"10":[{"greek":"ἀνοίγω","english":"I open"},{"greek":"ἀπολύω","english":"I set free, dismiss, divorce"},{"greek":"ἄρχω","english":"I rule, begin (mid)"},{"greek":"προσεύχομαι","english":"I pray"},{"greek":"προσκυνέω","english":"I worship"},{"greek":"συνάγω","english":"I gather, bring together"},{"greek":"ἀρχή, ἡ","english":"beginning"},{"greek":"δαιμόνιον, τό","english":"demon"},{"greek":"διδάσκαλος, ὁ","english":"teacher"},{"greek":"θρόνος, ὁ","english":"throne"},{"greek":"ἱμάτιον, τό","english":"clothing, garment"},{"greek":"καρπός, ὁ","english":"fruit, crop"},{"greek":"πλοῖον, τό","english":"ship, boat"},{"greek":"συναγωγή, ἡ","english":"synagogue, assembly"},{"greek":"χαρά, ἡ","english":"joy"}],"11":[{"greek":"ἀναβαίνω","english":"I go up, ascend"},{"greek":"ἀπέρχομαι","english":"I go away, depart"},{"greek":"ἀποθνῄσκω","english":"I die"},{"greek":"βάλλω","english":"I throw, cast out"},{"greek":"εἰσέρχομαι","english":"I go in, enter"},{"greek":"ἐκβάλλω","english":"I drive/send out"},{"greek":"ἐσθίω","english":"I eat"},{"greek":"ἐξέρχομαι","english":"I go out, depart, leave"},{"greek":"εὑρίσκω","english":"I find, discover"},{"greek":"καταβαίνω","english":"I go down, descend"},{"greek":"πίνω","english":"I drink"},{"greek":"πίπτω","english":"I fall"},{"greek":"προσέρχομαι","english":"I go to, approach"},{"greek":"φέρω","english":"I bear, carry"},{"greek":"ἐπαγγελία, ἡ","english":"promise"}],"12":[{"greek":"αἴρω","english":"I take up/away"},{"greek":"ἀπαγγέλλω","english":"I announce, report"},{"greek":"ἀποκτείνω","english":"I kill, put to death"},{"greek":"ἀποστέλλω","english":"I send out"},{"greek":"σπείρω","english":"I sow, plant"},{"greek":"γλῶσσα, ἡ","english":"language, tongue"},{"greek":"γραφή, ἡ","english":"writing, Scripture"},{"greek":"λίθος, ὁ","english":"stone"},{"greek":"ναός, ὁ","english":"temple, sanctuary"},{"greek":"παραβολή, ἡ","english":"parable"},{"greek":"σοφία, ἡ","english":"wisdom"},{"greek":"σωτηρία, ἡ","english":"salvation, deliverance"},{"greek":"χρόνος, ὁ","english":"time"},{"greek":"διό","english":"therefore, for this reason"},{"greek":"εὐθύς","english":"immediately"}],"13":[{"greek":"αἰών, -ῶνος, ὁ","english":"eternity, age, world"},{"greek":"ἀνήρ, ἀνδρός, ὁ","english":"man, husband"},{"greek":"ἀρχιερεύς, -έως, ὁ","english":"high priest"},{"greek":"βασιλεύς, -έως, ὁ","english":"king"},{"greek":"πατήρ, πατρός, ὁ","english":"father, ancestor"},{"greek":"γυνή, γυναικός, ἡ","english":"woman, wife"},{"greek":"μήτηρ, -τρός, ἡ","english":"mother"},{"greek":"πίστις, -εως, ἡ","english":"faith, trust"},{"greek":"πόλις, -εως, ἡ","english":"city, town"},{"greek":"σάρξ, σαρκός, ἡ","english":"flesh, body, mortal nature"},{"greek":"χάρις, -ιτος, ἡ","english":"grace, thanks"},{"greek":"ἔθνος, -ους, τό","english":"nation, people; Gentiles (pl)"},{"greek":"ὄνομα, -ατος, τό","english":"name"},{"greek":"πνεῦμα, -ατος, τό","english":"Spirit, spirit, wind"},{"greek":"σῶμα, -ατος, τό","english":"body"}],"14":[{"greek":"ἐγγίζω","english":"I approach, draw near"},{"greek":"ζάω","english":"I live"},{"greek":"οἶδα","english":"I know, understand"},{"greek":"ὁράω","english":"I see, perceive"},{"greek":"πείθω","english":"I persuade, convince"},{"greek":"αἷμα, -ατος, τό","english":"blood"},{"greek":"γραμματεύς, -εως, ὁ","english":"scribe"},{"greek":"δύναμις, -εως, ἡ","english":"power, miracle"},{"greek":"πούς, ποδός, ὁ","english":"foot"},{"greek":"πῦρ, -ός, τό","english":"fire"},{"greek":"ῥῆμα, -ατος, τό","english":"word, saying"},{"greek":"στόμα, -ατος, ἡ","english":"mouth"},{"greek":"ὕδωρ, -ατος, τό","english":"water"},{"greek":"φῶς, φωτός, τό","english":"light"},{"greek":"χείρ, χειρός, ἡ","english":"hand"}],"15":[{"greek":"ἀγαθός, -ή, -όν","english":"good"},{"greek":"ἅγιος, -α, -ον","english":"holy; saints (pl  subst)"},{"greek":"ἄλλος, -η, -ο","english":"other, another, different"},{"greek":"δίκαιος, -α, -ον","english":"righteous, just"},{"greek":"ἕτερος, -α, -ον","english":"other, another, different"},{"greek":"καλός, -ή, -όν","english":"good, beautiful"},{"greek":"μέγας, μεγάλη, μέγα","english":"large, great"},{"greek":"νεκρός, -ά, -όν","english":"dead"},{"greek":"πᾶς, πᾶσα, πᾶν","english":"every, all"},{"greek":"πιστός, -ή, -όν","english":"faithful, believing"},{"greek":"πολύς, πολλή, πολύ","english":"much, many, large, great"},{"greek":"πονηρός, -ά, -όν","english":"evil, wicked"},{"greek":"νῦν","english":"now, at present"},{"greek":"πάλιν","english":"again"},{"greek":"ἤ","english":"or, than"}],"16":[{"greek":"εὐαγγελίζω","english":"I announce good news, preach"},{"greek":"θεωρέω","english":"I gaze, behold, look at"},{"greek":"κάθημαι","english":"I sit"},{"greek":"κηρύσσω","english":"I herald, proclaim, preach"},{"greek":"ὑπάρχω","english":"I exist, am"},{"greek":"αἰώνιος, -α, -ον","english":"eternal"},{"greek":"ἕκαστος, -η, -ον","english":"each"},{"greek":"οὐδείς, οὐδεμία, οὐδέν","english":"no one, nothing (subst)"},{"greek":"πρεσβύτερος, -α, -ον","english":"elder, older"},{"greek":"ἀμήν","english":"amen, truly, so be it"},{"greek":"ἔξω","english":"outside"},{"greek":"ἕως","english":"until, while"},{"greek":"οὐδέ","english":"and not, neither, nor"},{"greek":"οὔτε","english":"and not, neither, nor"},{"greek":"τότε","english":"then"}],"17":[{"greek":"φανερόω","english":"I reveal, make known, manifest"},{"greek":"κρατέω","english":"I grasp, seize, arrest"},{"greek":"εἷς, μία, ἕν","english":"one"},{"greek":"δύο","english":"two"},{"greek":"τρεῖς","english":"three"},{"greek":"τέσσαρες","english":"four"},{"greek":"πέντε","english":"five"},{"greek":"ἑπτά","english":"seven"},{"greek":"δέκα","english":"ten"},{"greek":"δώδεκα","english":"twelve"},{"greek":"πρῶτος, -η, -ον","english":"first"},{"greek":"δεύτερος, -α, -ον","english":"second"},{"greek":"τρίτος, -η, -ον","english":"third"},{"greek":"τέταρτος, -η, -ον","english":"fourth"},{"greek":"μή","english":"no, not"}],"18":[{"greek":"προσφέρω","english":"I bring to, offer"},{"greek":"ἑτοιμάζω","english":"I prepare"},{"greek":"δέω","english":"I bind"},{"greek":"παιδίον, τό","english":"child"},{"greek":"ὄρος, -ους, τό","english":"mountain, hill"},{"greek":"ἐλπίς, -ίδος, ἡ","english":"hope"},{"greek":"μόνος, -η, -ον","english":"only, single, alone"},{"greek":"ὅλος, -η, -ον","english":"whole, entire, complete"},{"greek":"ἀγαπητός, -ή, -όν","english":"beloved"},{"greek":"μέσος, -η, - ον","english":"middle, midst"},{"greek":"λοιπός, -ή, -όν","english":"remaining, rest"},{"greek":"δεξιός, -ά, -όν","english":"right"},{"greek":"ἄρα","english":"so then"},{"greek":"ἤδη","english":"already, now"},{"greek":"ὧδε","english":"here"}],"19":[{"greek":"ἀλλήλων","english":"of one another (alien)"},{"greek":"ἑαυτοῦ, -ῆς, -οῦ","english":"(of) himself, herself, itself"},{"greek":"ἐκεῖνος, -η, -ο","english":"that; those (pl)"},{"greek":"ἐμαυτοῦ, -ῆς","english":"myself"},{"greek":"οὗτος, αὕτη, τοῦτο","english":"this; these (pl)"},{"greek":"σεαυτοῦ, -ῆς","english":"(of) yourself"},{"greek":"τις, τι","english":"someone, certain"},{"greek":"τίς, τί","english":"who? which? what?"},{"greek":"ἐμός, -ή, -όν","english":"my, mine"},{"greek":"ἔσχατος, -η, - ον","english":"last"},{"greek":"ἴδιος, -α, -ον","english":"one’s own, peculiar"},{"greek":"κακός, -ή, -όν","english":"bad, evil"},{"greek":"ὅσος, -η, -ον","english":"as much as"},{"greek":"τοιοῦτος, -αύτη, οῦτον","english":"of such a kind, such as this"},{"greek":"πῶς","english":"how?"}],"20":[{"greek":"ἁμαρτάνω","english":"I sin (ἥμαρτον)"},{"greek":"βούλομαι","english":"I wish, want, desire"},{"greek":"δεῖ","english":"It is necessary, one must/should"},{"greek":"δοκέω","english":"I seem, suppose, think"},{"greek":"δύναμαι","english":"I am able, can"},{"greek":"θέλω","english":"I want, wish, desire"},{"greek":"μέλλω","english":"I am about to, am going to"},{"greek":"θέλημα, -ατος, τό","english":"will, wish, desire"},{"greek":"νύξ, νυκτός, ἡ","english":"night"},{"greek":"μακάριος, -α, -ον","english":"blessed, happy"},{"greek":"μηδείς, μηδεία, μηδέν","english":"no one, nothing (subst)"},{"greek":"τυφλός, -ή, -όν","english":"blind; blind person (subst)"},{"greek":"πρό","english":"before, in front of (gen)"},{"greek":"μηδέ","english":"and not, nor"},{"greek":"ὥστε","english":"so that"}],"21":[{"greek":"δέχομαι","english":"I take, receive, welcome"},{"greek":"δικαιόω","english":"I declare righteous, justify"},{"greek":"λογίζομαι","english":"I consider, reckon"},{"greek":"σταυρόω","english":"I crucify"},{"greek":"χαίρω","english":"I rejoice; greetings"},{"greek":"ἄν","english":"(particle of indefiniteness: untranslated)"},{"greek":"ἐάν","english":"if, when"},{"greek":"ἐὰν μή","english":"unless"},{"greek":"ἵνα","english":"in order that, so that, that"},{"greek":"ὅπου","english":"where"},{"greek":"ὅπως","english":"in order that, that"},{"greek":"ὅστις, ἥτις, ὅ τι","english":"whoever, whatever, who"},{"greek":"ὅταν","english":"whenever, when (ὅτε + ἄν)"},{"greek":"ὅτε","english":"when"},{"greek":"ποῦ","english":"where?"}],"22":[{"greek":"ἀσπάζομαι","english":"I greet"},{"greek":"ἐπιγινώσκω","english":"I know, understand"},{"greek":"ἐργάζομαι","english":"I work, do, perform"},{"greek":"καθίζω","english":"I sit"},{"greek":"κατοικέω","english":"I live, dwell"},{"greek":"γενεά","english":"generation, family"},{"greek":"ἔτος, -ους, τό","english":"year"},{"greek":"θηρίον, τό","english":"animal, beast"},{"greek":"θλῖψις, -εως, ἡ","english":"tribulation, affliction"},{"greek":"χρεία, ἡ","english":"need"},{"greek":"κρίσις, -εως, ἡ","english":"judgment, condemnation"},{"greek":"φόβος, ὁ","english":"fear, reverence, respect"},{"greek":"φυλακή, ἡ","english":"watch, guard, prison"},{"greek":"ἔμπροσθεν","english":"in front of, before"},{"greek":"ἰδού","english":"behold, look, see"}],"23":[{"greek":"ἀνίστημι","english":"I stand up, arise"},{"greek":"ἀποδίδωμι","english":"I give back, pay"},{"greek":"ἀπόλλυμι","english":"I destroy, am lost (mid)"},{"greek":"ἀφίημι","english":"I forgive, let go, divorce"},{"greek":"δίδωμι","english":"I give"},{"greek":"ἵστημι","english":"I stand, set"},{"greek":"παραδίδωμι","english":"I hand over, betray, entrust"},{"greek":"τίθημι","english":"I put, place, appoint"},{"greek":"φημί","english":"I say, affirm"},{"greek":"ἁμαρτωλός, -όν","english":"sinful, sinner (subst)"},{"greek":"ἔρημος, -όν","english":"desolate, desert, wilderness (subst)"},{"greek":"μικρός, -ά, -όν","english":"small"},{"greek":"ὅμοιος-α, -ον","english":"same nature, similar"},{"greek":"ἄχρι","english":"until"},{"greek":"οὐαί","english":"woe"}]};
+const VOCAB = {"1":[{"greek":"ἀγάπη, ἡ","english":"love","cat":"Positive Emotions"},{"greek":"γῆ, ἡ","english":"earth, land, ground","cat":"Nature"},{"greek":"ζωή, ἡ","english":"life","cat":"Abstract Nouns"},{"greek":"φωνή, ἡ","english":"voice, sound","cat":"Seeing and Hearing"},{"greek":"ἀλήθεια, ἡ","english":"truth","cat":"Abstract Nouns"},{"greek":"ἁμαρτία, ἡ","english":"sin","cat":"God and the Church"},{"greek":"βασιλεία, ἡ","english":"kingdom, reign","cat":"God and the Church"},{"greek":"δόξα, ἡ","english":"glory, majesty","cat":"God and the Church"},{"greek":"ἐκκλησία, ἡ","english":"congregation, assembly, church","cat":"God and the Church"},{"greek":"ἡμέρα, ἡ","english":"day","cat":"Time"},{"greek":"καρδία, ἡ","english":"heart","cat":"Body"},{"greek":"δέ","english":"and, but, now","cat":"Words of Addition"},{"greek":"καί","english":"and, even, also","cat":"Words of Addition"},{"greek":"μέν","english":"on the one hand, indeed","cat":"Words of Addition"},{"greek":"ὁ, ἡ, τό","english":"the","cat":"Grammar"}],"2":[{"greek":"ἀδελφός, ὁ","english":"brother (and sister)","cat":"People"},{"greek":"ἄνθρωπος, ὁ","english":"man, human being, husband","cat":"People"},{"greek":"θεός, ὁ","english":"God","cat":"People"},{"greek":"κόσμος, ὁ","english":"world, universe; adornment","cat":"Nature"},{"greek":"κύριος, ὁ","english":"Lord, master, sir","cat":"God and the Church"},{"greek":"λόγος, ὁ","english":"word, message, account","cat":"Speaking and Writing"},{"greek":"νόμος, ὁ","english":"law, principle","cat":"Law and Politics"},{"greek":"οὐρανός, ὁ","english":"heaven, sky","cat":"Nature"},{"greek":"υἱός, ὁ","english":"son, descendant","cat":"People"},{"greek":"Χριστός, ὁ","english":"Christ, Messiah, Anointed One","cat":"People"},{"greek":"ἔργον, τό","english":"work, deed","cat":"Everyday Life"},{"greek":"εὐαγγέλιον, τό","english":"good news, gospel","cat":"God and the Church"},{"greek":"ἱερόν, τό","english":"temple, sanctuary","cat":"The City and Buildings"},{"greek":"σημεῖον , τό","english":"sign","cat":"Abstract Nouns"},{"greek":"τέκνον, τό","english":"child, son, descendant","cat":"People"}],"3":[{"greek":"εἰμί","english":"I am, exist","cat":"Existence and Position"},{"greek":"ἀκούω","english":"I hear, listen to, obey","cat":"Seeing and Hearing"},{"greek":"γινώσκω","english":"I know, understand, acknowledge","cat":"Thinking and Wanting"},{"greek":"γράφω","english":"I write","cat":"Speaking and Writing"},{"greek":"ἔχω","english":"I have, hold","cat":"Movement"},{"greek":"λέγω","english":"I say, speak","cat":"Speaking and Writing"},{"greek":"λαμβάνω","english":"I take, receive","cat":"Taking and Giving"},{"greek":"λύω","english":"I loose, destroy","cat":"Movement"},{"greek":"πιστεύω","english":"I believe, have faith/trust in","cat":"Thinking and Wanting"},{"greek":"ἀποκρίνομαι","english":"I answer, reply","cat":"Speaking and Writing"},{"greek":"γίνομαι","english":"I become, come, exist, am born","cat":"Existence and Position"},{"greek":"ἔρχομαι","english":"I come, go","cat":"Movement"},{"greek":"πορεύομαι","english":"I go, travel","cat":"Movement"},{"greek":"ἀλλά","english":"but, yet, nevertheless","cat":"Words of Contradiction"},{"greek":"ὅτι","english":"that, because","cat":"Conjunctions"}],"4":[{"greek":"ἄγω","english":"I lead, bring","cat":"Movement"},{"greek":"βλέπω","english":"I see, look at","cat":"Seeing and Hearing"},{"greek":"διδάσκω","english":"I teach","cat":"Speaking and Writing"},{"greek":"ἐγείρω","english":"I raise up","cat":"Movement"},{"greek":"κρίνω","english":"I judge, condemn","cat":"Law and Politics"},{"greek":"μένω","english":"I remain, abide, dwell","cat":"Existence and Position"},{"greek":"ὑπάγω","english":"I go away, depart","cat":"Movement"},{"greek":"δοῦλος, ὁ","english":"slave","cat":"People"},{"greek":"θάνατος, ὁ","english":"death","cat":"Abstract Nouns"},{"greek":"ψυχή, ἡ","english":"soul, life, living being","cat":"Abstract Nouns"},{"greek":"ὥρα, ἡ","english":"hour","cat":"Time"},{"greek":"εἰ","english":"if, whether","cat":"Conjunctions"},{"greek":"εἴτε","english":"if, whether","cat":"Conjunctions"},{"greek":"καθώς","english":"as, just as, even as","cat":"Conjunctions"},{"greek":"ὡς","english":"as, like","cat":"Conjunctions"}],"5":[{"greek":"βαπτίζω","english":"I baptize, immerse, dip","cat":"God and the Church"},{"greek":"θεραπεύω","english":"I heal","cat":"Everyday Life"},{"greek":"κράζω","english":"I cry out","cat":"Speaking and Writing"},{"greek":"ἄγγελος, ὁ","english":"angel, messenger","cat":"God and the Church"},{"greek":"μαθητής, ὁ","english":"disciple, follower","cat":"People"},{"greek":"ὄχλος, ὁ","english":"crowd","cat":"People"},{"greek":"προφήτης, ὁ","english":"prophet","cat":"Professions"},{"greek":"γάρ","english":"for, because","cat":"Conjunctions"},{"greek":"ἐκεῖ","english":"there, in that place","cat":"Existence and Position"},{"greek":"κἀγώ","english":"and I (καί + ἐγώ)","cat":"Pronouns"},{"greek":"οὖν","english":"then, so, therefore","cat":"Conjunctions"},{"greek":"οὕτως","english":"in this manner, thus, so","cat":"Conjunctions"},{"greek":"τέ","english":"and, but","cat":"Words of Addition"},{"greek":"οὐ, οὐκ, οὐχ","english":"no, not","cat":"Words of Contradiction"},{"greek":"οὐχί","english":"no! (emphatic)","cat":"Words of Contradiction"}],"6":[{"greek":"ἀγαπάω","english":"I love","cat":"Positive Emotions"},{"greek":"γεννάω","english":"I give birth to, bear, beget","cat":"Everyday Life"},{"greek":"ἐπερωτάω","english":"I ask","cat":"Speaking and Writing"},{"greek":"ἐρωτάω","english":"I ask, question, request","cat":"Speaking and Writing"},{"greek":"αἰτέω","english":"I ask, demand","cat":"Speaking and Writing"},{"greek":"ἀκολουθέω","english":"I follow","cat":"Movement"},{"greek":"ζητέω","english":"I seek, look for","cat":"Thinking and Wanting"},{"greek":"καλέω","english":"I call, invite, name","cat":"Speaking and Writing"},{"greek":"λαλέω","english":"I speak, say","cat":"Speaking and Writing"},{"greek":"μαρτυρέω","english":"I testify, bear witness","cat":"Speaking and Writing"},{"greek":"παρακαλέω","english":"I call, urge, comfort","cat":"Speaking and Writing"},{"greek":"περιπατέω","english":"I walk, live","cat":"Movement"},{"greek":"ποιέω","english":"I do, make","cat":"Introductory Verbs"},{"greek":"φοβέομαι","english":"I am afraid, fear, respect","cat":"Negative Emotions"},{"greek":"πληρόω","english":"I fill, fulfill, complete","cat":"Words of Quantity and Quality"}],"7":[{"greek":"ἀπό","english":"from, away from (gen)","cat":"Prepositions"},{"greek":"διά","english":"through (gen); because of (acc)","cat":"Prepositions"},{"greek":"εἰς","english":"into, among, for (acc)","cat":"Prepositions"},{"greek":"ἐκ","english":"from, out of (gen)","cat":"Prepositions"},{"greek":"ἐν","english":"in, on, at, by, with (dat)","cat":"Prepositions"},{"greek":"ἐπί","english":"on, over (gen); on, at, in (dat); on, to, for (acc)","cat":"Prepositions"},{"greek":"κατά","english":"down, against (gen); according to (acc)","cat":"Prepositions"},{"greek":"μετά","english":"with, among (gen); after (acc)","cat":"Prepositions"},{"greek":"παρά","english":"from (gen); beside (dat); on, at (acc)","cat":"Prepositions"},{"greek":"περί","english":"about, concerning (gen); around (acc)","cat":"Prepositions"},{"greek":"πρός","english":"to, toward (acc)","cat":"Prepositions"},{"greek":"σύν","english":"with (dat)","cat":"Prepositions"},{"greek":"ὑπέρ","english":"for (gen); above, beyond (acc)","cat":"Prepositions"},{"greek":"ὑπό","english":"by (gen); under, below (acc)","cat":"Prepositions"},{"greek":"ἐνώπιον","english":"before, in the presence of","cat":"Prepositions"}],"8":[{"greek":"αὐτός, -ή, -ό","english":"he, she, it; self, same","cat":"Pronouns"},{"greek":"ἐγώ, ἡμεῖς","english":"I; we","cat":"Pronouns"},{"greek":"ὅς, ἥ, ὅ","english":"who, which, that","cat":"Pronouns"},{"greek":"σύ, ὑμεῖς","english":"you (sg); you (pl)","cat":"Pronouns"},{"greek":"ἄρτος, ὁ","english":"bread, food","cat":"Everyday Life"},{"greek":"δικαιοσύνη, ἡ","english":"righteousness, justice","cat":"Abstract Nouns"},{"greek":"εἰρήνη, ἡ","english":"peace","cat":"Positive Emotions"},{"greek":"ἐξουσία , ἡ","english":"authority, right, power","cat":"Law and Politics"},{"greek":"θάλασσα, ἡ","english":"lake, sea","cat":"Nature"},{"greek":"λαός, ὁ","english":"people, crowd","cat":"People"},{"greek":"ὁδός, ἡ","english":"way, road","cat":"Everyday Life"},{"greek":"οἰκία, ἡ","english":"home, dwelling, family","cat":"Everyday Life"},{"greek":"οἶκος, ὁ","english":"house, household, family","cat":"Everyday Life"},{"greek":"ὀφθαλμός, ὁ","english":"eye","cat":"Body"},{"greek":"τόπος, ὁ","english":"place","cat":"Everyday Life"}],"9":[{"greek":"διώκω","english":"I pursue, persecute","cat":"Law and Politics"},{"greek":"δοξάζω","english":"I glorify, praise","cat":"God and the Church"},{"greek":"πέμπω","english":"I send","cat":"Movement"},{"greek":"πράσσω","english":"I do, practice","cat":"Introductory Verbs"},{"greek":"σῴζω","english":"I save, rescue, heal","cat":"God and the Church"},{"greek":"τηρέω","english":"I keep, guard, obey","cat":"Existence and Position"},{"greek":"ἀπόστολος, ὁ","english":"apostle, messenger","cat":"People"},{"greek":"ἐντολή, ἡ","english":"command","cat":"Law and Politics"},{"greek":"καιρός, ὁ","english":"time, season","cat":"Time"},{"greek":"κεφαλή, ἡ","english":"head","cat":"Body"},{"greek":"πρόσωπον, τό","english":"face, appearance","cat":"Body"},{"greek":"σάββατον, τό","english":"Sabbath, week","cat":"Everyday Life"},{"greek":"ἔτι","english":"still, yet, more","cat":"Time"},{"greek":"μᾶλλον","english":"more, rather","cat":"Words of Quantity and Quality"},{"greek":"οὐκέτι","english":"no longer","cat":"Words of Contradiction"}],"10":[{"greek":"ἀνοίγω","english":"I open","cat":"Everyday Life"},{"greek":"ἀπολύω","english":"I set free, dismiss, divorce","cat":"Law and Politics"},{"greek":"ἄρχω","english":"I rule, begin (mid)","cat":"Law and Politics"},{"greek":"προσεύχομαι","english":"I pray","cat":"God and the Church"},{"greek":"προσκυνέω","english":"I worship","cat":"God and the Church"},{"greek":"συνάγω","english":"I gather, bring together","cat":"Movement"},{"greek":"ἀρχή, ἡ","english":"beginning","cat":"Abstract Nouns"},{"greek":"δαιμόνιον, τό","english":"demon","cat":"God and the Church"},{"greek":"διδάσκαλος, ὁ","english":"teacher","cat":"Professions"},{"greek":"θρόνος, ὁ","english":"throne","cat":"God and the Church"},{"greek":"ἱμάτιον, τό","english":"clothing, garment","cat":"Everyday Life"},{"greek":"καρπός, ὁ","english":"fruit, crop","cat":"Nature"},{"greek":"πλοῖον, τό","english":"ship, boat","cat":"Everyday Life"},{"greek":"συναγωγή, ἡ","english":"synagogue, assembly","cat":"The City and Buildings"},{"greek":"χαρά, ἡ","english":"joy","cat":"Positive Emotions"}],"11":[{"greek":"ἀναβαίνω","english":"I go up, ascend","cat":"Movement"},{"greek":"ἀπέρχομαι","english":"I go away, depart","cat":"Movement"},{"greek":"ἀποθνῄσκω","english":"I die","cat":"Existence and Position"},{"greek":"βάλλω","english":"I throw, cast out","cat":"Movement"},{"greek":"εἰσέρχομαι","english":"I go in, enter","cat":"Movement"},{"greek":"ἐκβάλλω","english":"I drive/send out","cat":"Movement"},{"greek":"ἐσθίω","english":"I eat","cat":"Everyday Life"},{"greek":"ἐξέρχομαι","english":"I go out, depart, leave","cat":"Movement"},{"greek":"εὑρίσκω","english":"I find, discover","cat":"Thinking and Wanting"},{"greek":"καταβαίνω","english":"I go down, descend","cat":"Movement"},{"greek":"πίνω","english":"I drink","cat":"Everyday Life"},{"greek":"πίπτω","english":"I fall","cat":"Movement"},{"greek":"προσέρχομαι","english":"I go to, approach","cat":"Movement"},{"greek":"φέρω","english":"I bear, carry","cat":"Movement"},{"greek":"ἐπαγγελία, ἡ","english":"promise","cat":"Abstract Nouns"}],"12":[{"greek":"αἴρω","english":"I take up/away","cat":"Taking and Giving"},{"greek":"ἀπαγγέλλω","english":"I announce, report","cat":"Law and Politics"},{"greek":"ἀποκτείνω","english":"I kill, put to death","cat":"Law and Politics"},{"greek":"ἀποστέλλω","english":"I send out","cat":"Movement"},{"greek":"σπείρω","english":"I sow, plant","cat":"Nature"},{"greek":"γλῶσσα, ἡ","english":"language, tongue","cat":"Speaking and Writing"},{"greek":"γραφή, ἡ","english":"writing, Scripture","cat":"God and the Church"},{"greek":"λίθος, ὁ","english":"stone","cat":"Nature"},{"greek":"ναός, ὁ","english":"temple, sanctuary","cat":"The City and Buildings"},{"greek":"παραβολή, ἡ","english":"parable","cat":"Speaking and Writing"},{"greek":"σοφία, ἡ","english":"wisdom","cat":"Abstract Nouns"},{"greek":"σωτηρία, ἡ","english":"salvation, deliverance","cat":"God and the Church"},{"greek":"χρόνος, ὁ","english":"time","cat":"Time"},{"greek":"διό","english":"therefore, for this reason","cat":"Conjunctions"},{"greek":"εὐθύς","english":"immediately","cat":"Time"}],"13":[{"greek":"αἰών, -ῶνος, ὁ","english":"eternity, age, world","cat":"Time"},{"greek":"ἀνήρ, ἀνδρός, ὁ","english":"man, husband","cat":"People"},{"greek":"ἀρχιερεύς, -έως, ὁ","english":"high priest","cat":"Professions"},{"greek":"βασιλεύς, -έως, ὁ","english":"king","cat":"Professions"},{"greek":"πατήρ, πατρός, ὁ","english":"father, ancestor","cat":"People"},{"greek":"γυνή, γυναικός, ἡ","english":"woman, wife","cat":"People"},{"greek":"μήτηρ, -τρός, ἡ","english":"mother","cat":"People"},{"greek":"πίστις, -εως, ἡ","english":"faith, trust","cat":"God and the Church"},{"greek":"πόλις, -εως, ἡ","english":"city, town","cat":"The City and Buildings"},{"greek":"σάρξ, σαρκός, ἡ","english":"flesh, body, mortal nature","cat":"Body"},{"greek":"χάρις, -ιτος, ἡ","english":"grace, thanks","cat":"God and the Church"},{"greek":"ἔθνος, -ους, τό","english":"nation, people; Gentiles (pl)","cat":"People"},{"greek":"ὄνομα, -ατος, τό","english":"name","cat":"Abstract Nouns"},{"greek":"πνεῦμα, -ατος, τό","english":"Spirit, spirit, wind","cat":"God and the Church"},{"greek":"σῶμα, -ατος, τό","english":"body","cat":"Body"}],"14":[{"greek":"ἐγγίζω","english":"I approach, draw near","cat":"Movement"},{"greek":"ζάω","english":"I live","cat":"Existence and Position"},{"greek":"οἶδα","english":"I know, understand","cat":"Thinking and Wanting"},{"greek":"ὁράω","english":"I see, perceive","cat":"Seeing and Hearing"},{"greek":"πείθω","english":"I persuade, convince","cat":"Thinking and Wanting"},{"greek":"αἷμα, -ατος, τό","english":"blood","cat":"Body"},{"greek":"γραμματεύς, -εως, ὁ","english":"scribe","cat":"Professions"},{"greek":"δύναμις, -εως, ἡ","english":"power, miracle","cat":"Abstract Nouns"},{"greek":"πούς, ποδός, ὁ","english":"foot","cat":"Body"},{"greek":"πῦρ, -ός, τό","english":"fire","cat":"Nature"},{"greek":"ῥῆμα, -ατος, τό","english":"word, saying","cat":"Speaking and Writing"},{"greek":"στόμα, -ατος, ἡ","english":"mouth","cat":"Body"},{"greek":"ὕδωρ, -ατος, τό","english":"water","cat":"Nature"},{"greek":"φῶς, φωτός, τό","english":"light","cat":"Nature"},{"greek":"χείρ, χειρός, ἡ","english":"hand","cat":"Body"}],"15":[{"greek":"ἀγαθός, -ή, -όν","english":"good","cat":"Positive Emotions"},{"greek":"ἅγιος, -α, -ον","english":"holy; saints (pl  subst)","cat":"God and the Church"},{"greek":"ἄλλος, -η, -ο","english":"other, another, different","cat":"Words of Quantity and Quality"},{"greek":"δίκαιος, -α, -ον","english":"righteous, just","cat":"Personality"},{"greek":"ἕτερος, -α, -ον","english":"other, another, different","cat":"Words of Quantity and Quality"},{"greek":"καλός, -ή, -όν","english":"good, beautiful","cat":"Physical Qualities"},{"greek":"μέγας, μεγάλη, μέγα","english":"large, great","cat":"Words of Quantity and Quality"},{"greek":"νεκρός, -ά, -όν","english":"dead","cat":"Physical Qualities"},{"greek":"πᾶς, πᾶσα, πᾶν","english":"every, all","cat":"Words of Quantity and Quality"},{"greek":"πιστός, -ή, -όν","english":"faithful, believing","cat":"Personality"},{"greek":"πολύς, πολλή, πολύ","english":"much, many, large, great","cat":"Words of Quantity and Quality"},{"greek":"πονηρός, -ά, -όν","english":"evil, wicked","cat":"Personality"},{"greek":"νῦν","english":"now, at present","cat":"Time"},{"greek":"πάλιν","english":"again","cat":"Time"},{"greek":"ἤ","english":"or, than","cat":"Words of Addition"}],"16":[{"greek":"εὐαγγελίζω","english":"I announce good news, preach","cat":"God and the Church"},{"greek":"θεωρέω","english":"I gaze, behold, look at","cat":"Seeing and Hearing"},{"greek":"κάθημαι","english":"I sit","cat":"Existence and Position"},{"greek":"κηρύσσω","english":"I herald, proclaim, preach","cat":"Speaking and Writing"},{"greek":"ὑπάρχω","english":"I exist, am","cat":"Existence and Position"},{"greek":"αἰώνιος, -α, -ον","english":"eternal","cat":"Time"},{"greek":"ἕκαστος, -η, -ον","english":"each","cat":"Words of Quantity and Quality"},{"greek":"οὐδείς, οὐδεμία, οὐδέν","english":"no one, nothing (subst)","cat":"Words of Contradiction"},{"greek":"πρεσβύτερος, -α, -ον","english":"elder, older","cat":"Professions"},{"greek":"ἀμήν","english":"amen, truly, so be it","cat":"Grammar"},{"greek":"ἔξω","english":"outside","cat":"Existence and Position"},{"greek":"ἕως","english":"until, while","cat":"Time"},{"greek":"οὐδέ","english":"and not, neither, nor","cat":"Words of Contradiction"},{"greek":"οὔτε","english":"and not, neither, nor","cat":"Words of Contradiction"},{"greek":"τότε","english":"then","cat":"Time"}],"17":[{"greek":"φανερόω","english":"I reveal, make known, manifest","cat":"Speaking and Writing"},{"greek":"κρατέω","english":"I grasp, seize, arrest","cat":"Law and Politics"},{"greek":"εἷς, μία, ἕν","english":"one","cat":"Words of Quantity and Quality"},{"greek":"δύο","english":"two","cat":"Words of Quantity and Quality"},{"greek":"τρεῖς","english":"three","cat":"Words of Quantity and Quality"},{"greek":"τέσσαρες","english":"four","cat":"Words of Quantity and Quality"},{"greek":"πέντε","english":"five","cat":"Words of Quantity and Quality"},{"greek":"ἑπτά","english":"seven","cat":"Words of Quantity and Quality"},{"greek":"δέκα","english":"ten","cat":"Words of Quantity and Quality"},{"greek":"δώδεκα","english":"twelve","cat":"Words of Quantity and Quality"},{"greek":"πρῶτος, -η, -ον","english":"first","cat":"Words of Quantity and Quality"},{"greek":"δεύτερος, -α, -ον","english":"second","cat":"Words of Quantity and Quality"},{"greek":"τρίτος, -η, -ον","english":"third","cat":"Words of Quantity and Quality"},{"greek":"τέταρτος, -η, -ον","english":"fourth","cat":"Words of Quantity and Quality"},{"greek":"μή","english":"no, not","cat":"Words of Contradiction"}],"18":[{"greek":"προσφέρω","english":"I bring to, offer","cat":"Taking and Giving"},{"greek":"ἑτοιμάζω","english":"I prepare","cat":"Everyday Life"},{"greek":"δέω","english":"I bind","cat":"Law and Politics"},{"greek":"παιδίον, τό","english":"child","cat":"People"},{"greek":"ὄρος, -ους, τό","english":"mountain, hill","cat":"Nature"},{"greek":"ἐλπίς, -ίδος, ἡ","english":"hope","cat":"Positive Emotions"},{"greek":"μόνος, -η, -ον","english":"only, single, alone","cat":"Words of Quantity and Quality"},{"greek":"ὅλος, -η, -ον","english":"whole, entire, complete","cat":"Words of Quantity and Quality"},{"greek":"ἀγαπητός, -ή, -όν","english":"beloved","cat":"Positive Emotions"},{"greek":"μέσος, -η, - ον","english":"middle, midst","cat":"Words of Quantity and Quality"},{"greek":"λοιπός, -ή, -όν","english":"remaining, rest","cat":"Words of Quantity and Quality"},{"greek":"δεξιός, -ά, -όν","english":"right","cat":"Words of Quantity and Quality"},{"greek":"ἄρα","english":"so then","cat":"Conjunctions"},{"greek":"ἤδη","english":"already, now","cat":"Time"},{"greek":"ὧδε","english":"here","cat":"Existence and Position"}],"19":[{"greek":"ἀλλήλων","english":"of one another (alien)","cat":"Pronouns"},{"greek":"ἑαυτοῦ, -ῆς, -οῦ","english":"(of) himself, herself, itself","cat":"Pronouns"},{"greek":"ἐκεῖνος, -η, -ο","english":"that; those (pl)","cat":"Pronouns"},{"greek":"ἐμαυτοῦ, -ῆς","english":"myself","cat":"Pronouns"},{"greek":"οὗτος, αὕτη, τοῦτο","english":"this; these (pl)","cat":"Pronouns"},{"greek":"σεαυτοῦ, -ῆς","english":"(of) yourself","cat":"Pronouns"},{"greek":"τις, τι","english":"someone, certain","cat":"Pronouns"},{"greek":"τίς, τί","english":"who? which? what?","cat":"Question Words"},{"greek":"ἐμός, -ή, -όν","english":"my, mine","cat":"Pronouns"},{"greek":"ἔσχατος, -η, - ον","english":"last","cat":"Time"},{"greek":"ἴδιος, -α, -ον","english":"one’s own, peculiar","cat":"Pronouns"},{"greek":"κακός, -ή, -όν","english":"bad, evil","cat":"Personality"},{"greek":"ὅσος, -η, -ον","english":"as much as","cat":"Words of Quantity and Quality"},{"greek":"τοιοῦτος, -αύτη, οῦτον","english":"of such a kind, such as this","cat":"Words of Quantity and Quality"},{"greek":"πῶς","english":"how?","cat":"Question Words"}],"20":[{"greek":"ἁμαρτάνω","english":"I sin (ἥμαρτον)","cat":"God and the Church"},{"greek":"βούλομαι","english":"I wish, want, desire","cat":"Thinking and Wanting"},{"greek":"δεῖ","english":"It is necessary, one must/should","cat":"Introductory Verbs"},{"greek":"δοκέω","english":"I seem, suppose, think","cat":"Thinking and Wanting"},{"greek":"δύναμαι","english":"I am able, can","cat":"Introductory Verbs"},{"greek":"θέλω","english":"I want, wish, desire","cat":"Thinking and Wanting"},{"greek":"μέλλω","english":"I am about to, am going to","cat":"Time"},{"greek":"θέλημα, -ατος, τό","english":"will, wish, desire","cat":"Abstract Nouns"},{"greek":"νύξ, νυκτός, ἡ","english":"night","cat":"Time"},{"greek":"μακάριος, -α, -ον","english":"blessed, happy","cat":"Positive Emotions"},{"greek":"μηδείς, μηδεία, μηδέν","english":"no one, nothing (subst)","cat":"Words of Contradiction"},{"greek":"τυφλός, -ή, -όν","english":"blind; blind person (subst)","cat":"Physical Qualities"},{"greek":"πρό","english":"before, in front of (gen)","cat":"Prepositions"},{"greek":"μηδέ","english":"and not, nor","cat":"Words of Contradiction"},{"greek":"ὥστε","english":"so that","cat":"Conjunctions"}],"21":[{"greek":"δέχομαι","english":"I take, receive, welcome","cat":"Taking and Giving"},{"greek":"δικαιόω","english":"I declare righteous, justify","cat":"Law and Politics"},{"greek":"λογίζομαι","english":"I consider, reckon","cat":"Thinking and Wanting"},{"greek":"σταυρόω","english":"I crucify","cat":"God and the Church"},{"greek":"χαίρω","english":"I rejoice; greetings","cat":"Positive Emotions"},{"greek":"ἄν","english":"(particle of indefiniteness: untranslated)","cat":"Grammar"},{"greek":"ἐάν","english":"if, when","cat":"Conjunctions"},{"greek":"ἐὰν μή","english":"unless","cat":"Conjunctions"},{"greek":"ἵνα","english":"in order that, so that, that","cat":"Conjunctions"},{"greek":"ὅπου","english":"where","cat":"Conjunctions"},{"greek":"ὅπως","english":"in order that, that","cat":"Conjunctions"},{"greek":"ὅστις, ἥτις, ὅ τι","english":"whoever, whatever, who","cat":"Pronouns"},{"greek":"ὅταν","english":"whenever, when (ὅτε + ἄν)","cat":"Conjunctions"},{"greek":"ὅτε","english":"when","cat":"Conjunctions"},{"greek":"ποῦ","english":"where?","cat":"Question Words"}],"22":[{"greek":"ἀσπάζομαι","english":"I greet","cat":"Speaking and Writing"},{"greek":"ἐπιγινώσκω","english":"I know, understand","cat":"Thinking and Wanting"},{"greek":"ἐργάζομαι","english":"I work, do, perform","cat":"Everyday Life"},{"greek":"καθίζω","english":"I sit","cat":"Existence and Position"},{"greek":"κατοικέω","english":"I live, dwell","cat":"Existence and Position"},{"greek":"γενεά","english":"generation, family","cat":"Time"},{"greek":"ἔτος, -ους, τό","english":"year","cat":"Time"},{"greek":"θηρίον, τό","english":"animal, beast","cat":"Nature"},{"greek":"θλῖψις, -εως, ἡ","english":"tribulation, affliction","cat":"Negative Emotions"},{"greek":"χρεία, ἡ","english":"need","cat":"Abstract Nouns"},{"greek":"κρίσις, -εως, ἡ","english":"judgment, condemnation","cat":"Law and Politics"},{"greek":"φόβος, ὁ","english":"fear, reverence, respect","cat":"Negative Emotions"},{"greek":"φυλακή, ἡ","english":"watch, guard, prison","cat":"The City and Buildings"},{"greek":"ἔμπροσθεν","english":"in front of, before","cat":"Prepositions"},{"greek":"ἰδού","english":"behold, look, see","cat":"Grammar"}],"23":[{"greek":"ἀνίστημι","english":"I stand up, arise","cat":"Movement"},{"greek":"ἀποδίδωμι","english":"I give back, pay","cat":"Taking and Giving"},{"greek":"ἀπόλλυμι","english":"I destroy, am lost (mid)","cat":"Existence and Position"},{"greek":"ἀφίημι","english":"I forgive, let go, divorce","cat":"God and the Church"},{"greek":"δίδωμι","english":"I give","cat":"Taking and Giving"},{"greek":"ἵστημι","english":"I stand, set","cat":"Existence and Position"},{"greek":"παραδίδωμι","english":"I hand over, betray, entrust","cat":"Taking and Giving"},{"greek":"τίθημι","english":"I put, place, appoint","cat":"Existence and Position"},{"greek":"φημί","english":"I say, affirm","cat":"Speaking and Writing"},{"greek":"ἁμαρτωλός, -όν","english":"sinful, sinner (subst)","cat":"God and the Church"},{"greek":"ἔρημος, -όν","english":"desolate, desert, wilderness (subst)","cat":"Nature"},{"greek":"μικρός, -ά, -όν","english":"small","cat":"Physical Qualities"},{"greek":"ὅμοιος-α, -ον","english":"same nature, similar","cat":"Words of Quantity and Quality"},{"greek":"ἄχρι","english":"until","cat":"Prepositions"},{"greek":"οὐαί","english":"woe","cat":"Negative Emotions"}]};
 const CHAPTERS = Object.keys(VOCAB).map(Number).sort((a,b)=>a-b);
 const MASTERY_THRESHOLD = 80;
+
+/* categories come from the vocabulary data itself -- every word carries the
+   category it was tagged with, so the list and the counts can never drift
+   apart from the words. Ordered by size, largest first. */
+const CATEGORIES = (() => {
+  const counts = new Map();
+  CHAPTERS.forEach(ch => (VOCAB[ch] || []).forEach(w => counts.set(w.cat, (counts.get(w.cat) || 0) + 1)));
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([name, count]) => ({ name, count }));
+})();
+const CATEGORY_NAMES = CATEGORIES.map(c => c.name);
+
+/* the memory game is a fixed 5 pairs / 10 tiles -- that is the ceiling for a
+   legible grid on a phone, so it deliberately ignores the 10/20/30 setting */
+const MEMORY_PAIRS = 5;
 
 /* ---------- storage: works inside Claude artifacts (window.storage) and on any
    normal web host / home-screen app (falls back to localStorage) ---------- */
@@ -450,22 +524,27 @@ const storageAdapter = {
 
 const STATS_KEY = 'koine-drill-word-stats';
 const STREAK_KEY = 'oikos-streak';
+const MEMORY_BEST_KEY = 'oikos-memory-best';
 
 let state = {
-  screen: 'home',            // 'home' | 'setup' (step flow) | 'flashcard' (quiz) | 'cards' (flashcards) | 'progress'
+  screen: 'home',            // 'home' | 'setup' (step flow) | 'flashcard' (quiz) | 'cards' (flashcards) | 'memory' (game) | 'progress'
   stats: {},                 // wordKey -> { seen, correct }
   streak: { count: 0, lastDate: null },
+  memoryBest: null,          // fastest memory-game completion, in ms (null until one is finished)
   setup: {
+    selectBy: 'chapters',     // 'chapters' | 'categories' -- how the word pool is chosen
     selectedChapters: new Set(),
+    selectedCategories: new Set(),
     count: 20,                // 10 | 20 | 30
     direction: 'gtoe',        // 'gtoe' | 'etog' | 'mixed'
-    mode: 'mc',               // 'mc' | 'typed' | 'cards'
-    step: 1,                  // 1 chapters, 2 format, 3 direction, 4 word count, 5 start
+    mode: 'mc',               // 'mc' | 'typed' | 'cards' | 'memory'
+    step: 1,                  // 1 chapters/categories, 2 format, 3 direction, 4 word count, 5 start
     anim: 'fwd'               // direction of the last step transition, for the slide animation
   },
   quiz: null,                 // { settings, pool, items, index, score, answered, selectedOpt, typedValue, typedCorrect }
-  cards: null,                // flashcard session: { chapters, items, index, revealed }
-  lastSession: 'quiz',        // 'quiz' | 'cards' -- which one the Review tab should open
+  cards: null,                // flashcard session: { selection, items, index, revealed }
+  memory: null,               // memory game: { selection, pairs, tiles, flipped, matched, startedAt, finishedMs }
+  lastSession: 'quiz',        // 'quiz' | 'cards' | 'memory' -- which one the Review tab should open
   randomWord: null,           // { chapter, greek, english } shown when no quiz is selected
   randomWordRevealed: false
 };
@@ -482,10 +561,14 @@ async function loadData() {
   try { state.stats = rawStats ? JSON.parse(rawStats) : {}; } catch (e) { state.stats = {}; }
   const rawStreak = await storageAdapter.get(STREAK_KEY);
   try { state.streak = rawStreak ? JSON.parse(rawStreak) : { count: 0, lastDate: null }; } catch (e) { state.streak = { count: 0, lastDate: null }; }
+  const rawBest = await storageAdapter.get(MEMORY_BEST_KEY);
+  const best = rawBest === null || rawBest === undefined ? NaN : Number(rawBest);
+  state.memoryBest = Number.isFinite(best) && best > 0 ? best : null;
 }
 
 function saveStats() { storageAdapter.set(STATS_KEY, JSON.stringify(state.stats)); }
 function saveStreak() { storageAdapter.set(STREAK_KEY, JSON.stringify(state.streak)); }
+function saveMemoryBest() { storageAdapter.set(MEMORY_BEST_KEY, String(state.memoryBest)); }
 
 function bumpStreak() {
   const today = todayStr();
@@ -565,7 +648,7 @@ function learnedWordsCount() {
 
 function allWords() {
   const out = [];
-  CHAPTERS.forEach(ch => (VOCAB[ch] || []).forEach(w => out.push({ chapter: ch, greek: w.greek.trim(), english: w.english.trim() })));
+  CHAPTERS.forEach(ch => (VOCAB[ch] || []).forEach(w => out.push({ chapter: ch, greek: w.greek.trim(), english: w.english.trim(), cat: w.cat })));
   return out;
 }
 
@@ -600,9 +683,38 @@ function shuffle(arr) {
 function buildPool(chapters) {
   const pool = [];
   chapters.forEach(ch => {
-    (VOCAB[ch] || []).forEach(w => pool.push({ chapter: ch, greek: w.greek.trim(), english: w.english.trim() }));
+    (VOCAB[ch] || []).forEach(w => pool.push({ chapter: ch, greek: w.greek.trim(), english: w.english.trim(), cat: w.cat }));
   });
   return pool;
+}
+
+/* ---------- selections: chapters or categories ----------
+   every mode draws its words from a "selection", which is either a set of
+   chapters or a set of categories. Chapters behave exactly as before; the
+   category route is the same idea through a different front door. */
+function chapterSelection(chapters) {
+  return { by: 'chapters', chapters: [...chapters].sort((a, b) => a - b), categories: [] };
+}
+
+function selectionFromSetup() {
+  const s = state.setup;
+  if (s.selectBy === 'categories') {
+    return { by: 'categories', chapters: [], categories: CATEGORY_NAMES.filter(c => s.selectedCategories.has(c)) };
+  }
+  return chapterSelection([...s.selectedChapters]);
+}
+
+function poolForSelection(sel) {
+  if (!sel) return [];
+  if (sel.by === 'categories') {
+    const wanted = new Set(sel.categories);
+    return allWords().filter(w => wanted.has(w.cat));
+  }
+  return buildPool(sel.chapters);
+}
+
+function selectionSize(sel) {
+  return sel.by === 'categories' ? sel.categories.length : sel.chapters.length;
 }
 
 function pickDistractors(correctItem, pool, field, n) {
@@ -683,14 +795,15 @@ function makeQuizItems(sourceItems, pool, settings) {
 }
 
 function startQuiz(settings) {
-  const chapters = [...settings.selectedChapters].sort((a, b) => a - b);
-  const pool = buildPool(chapters);
+  const pool = poolForSelection(settings.selection);
   const n = Math.min(settings.count, pool.length);
   const chosen = shuffle(pool).slice(0, n);
+  stopMemoryTimer();
   state.cards = null;
+  state.memory = null;
   state.lastSession = 'quiz';
   state.quiz = {
-    settings: { ...settings, selectedChapters: chapters },
+    settings: { ...settings },
     pool,
     items: makeQuizItems(chosen, pool, settings),
     index: 0,
@@ -707,7 +820,7 @@ function startQuiz(settings) {
 function quickResume() {
   const ch = continueChapter();
   startQuiz({
-    selectedChapters: new Set([ch]),
+    selection: chapterSelection([ch]),
     count: (VOCAB[ch] || []).length,
     direction: 'gtoe',
     mode: 'mc'
@@ -721,7 +834,8 @@ function quizInProgress() {
 function goHome() { state.screen = 'home'; render(); }
 
 function goQuizTab() {
-  const cards = cardsInProgress(), quiz = quizInProgress();
+  const cards = cardsInProgress(), quiz = quizInProgress(), memory = !!state.memory;
+  if (memory && (state.lastSession === 'memory' || (!cards && !quiz))) { state.screen = 'memory'; render(); return; }
   state.screen = (cards && (state.lastSession === 'cards' || !quiz)) ? 'cards' : 'flashcard';
   render();
 }
@@ -759,8 +873,26 @@ function toggleSetupChapter(ch) {
   else state.setup.selectedChapters.add(ch);
   render();
 }
-function setupSelectAll() { CHAPTERS.forEach(c => state.setup.selectedChapters.add(c)); render(); }
-function setupSelectNone() { state.setup.selectedChapters.clear(); render(); }
+function toggleSetupCategory(cat) {
+  if (state.setup.selectedCategories.has(cat)) state.setup.selectedCategories.delete(cat);
+  else state.setup.selectedCategories.add(cat);
+  render();
+}
+function setSelectBy(by) {
+  if (state.setup.selectBy === by) return;
+  state.setup.selectBy = by;
+  render();
+}
+function setupSelectAll() {
+  if (state.setup.selectBy === 'categories') CATEGORY_NAMES.forEach(c => state.setup.selectedCategories.add(c));
+  else CHAPTERS.forEach(c => state.setup.selectedChapters.add(c));
+  render();
+}
+function setupSelectNone() {
+  if (state.setup.selectBy === 'categories') state.setup.selectedCategories.clear();
+  else state.setup.selectedChapters.clear();
+  render();
+}
 function setSetupMode(m) {
   state.setup.mode = m;
   if (m === 'typed') state.setup.direction = 'gtoe';
@@ -772,7 +904,7 @@ function setSetupCount(n) { state.setup.count = n; render(); }
 /* the steps that actually apply for the chosen format:
    flashcards stop after the format step, type-answer skips direction */
 function stepPath() {
-  if (state.setup.mode === 'cards') return [1, 2];
+  if (state.setup.mode === 'cards' || state.setup.mode === 'memory') return [1, 2];
   if (state.setup.mode === 'typed') return [1, 2, 4, 5];
   return [1, 2, 3, 4, 5];
 }
@@ -788,6 +920,7 @@ function setupNext() {
   if (step === 1) { goToStep(2, 'fwd'); return; }
   if (step === 2) {
     if (state.setup.mode === 'cards') { startCards(); return; }
+    if (state.setup.mode === 'memory') { startMemory(); return; }
     goToStep(state.setup.mode === 'typed' ? 4 : 3, 'fwd');
     return;
   }
@@ -818,10 +951,13 @@ function chooseCount(n) { state.setup.count = n; setupNext(); }
 
 /* ---------- flashcard sessions (no scoring: browsing only, like the review card) ---------- */
 function startCards() {
-  const chapters = [...state.setup.selectedChapters].sort((a, b) => a - b);
-  const pool = buildPool(chapters);
+  const selection = selectionFromSetup();
+  const pool = poolForSelection(selection);
   if (!pool.length) return;
-  state.cards = { chapters, items: shuffle(pool), index: 0, revealed: false };
+  stopMemoryTimer();
+  state.quiz = null;
+  state.memory = null;
+  state.cards = { selection, items: shuffle(pool), index: 0, revealed: false };
   state.lastSession = 'cards';
   state.screen = 'cards';
   render();
@@ -853,15 +989,175 @@ function exitCards() {
 }
 
 function launchSetupQuiz() {
-  const pool = buildPool([...state.setup.selectedChapters]);
+  const selection = selectionFromSetup();
+  const pool = poolForSelection(selection);
   const minNeeded = state.setup.mode === 'typed' ? 1 : 4;
   if (pool.length < minNeeded) return;
   startQuiz({
-    selectedChapters: new Set(state.setup.selectedChapters),
+    selection,
     count: state.setup.count,
     direction: state.setup.direction,
     mode: state.setup.mode
   });
+}
+
+/* ---------- memory game ----------
+   a matching board: half the tiles are Greek, half are the English meanings.
+   It is a game rather than a graded drill, so it keeps the daily streak alive
+   but does not feed the per-word accuracy stats. */
+function formatTime(ms) {
+  const total = Math.max(0, Math.round(ms / 1000));
+  return Math.floor(total / 60) + ':' + String(total % 60).padStart(2, '0');
+}
+
+/* a fresh board drawn from a selection: the words are re-sampled every time,
+   so replaying a large selection deals a different set */
+function newMemorySession(selection) {
+  const pool = poolForSelection(selection);
+  if (!pool.length) return null;
+  /* a full board is 5 pairs; a thin selection just plays with fewer */
+  const pairs = Math.min(MEMORY_PAIRS, pool.length);
+  const tiles = [];
+  shuffle(pool).slice(0, pairs).forEach((w, i) => {
+    tiles.push({ id: 'g' + i, pair: i, kind: 'greek', text: w.greek, matched: false });
+    tiles.push({ id: 'e' + i, pair: i, kind: 'english', text: w.english, matched: false });
+  });
+  return {
+    selection,
+    poolSize: pool.length,
+    pairs,
+    tiles: shuffle(tiles),
+    flipped: [],
+    matched: 0,
+    busy: false,
+    startedAt: null,
+    finishedMs: null,
+    previousBest: null,
+    beatBest: false,
+    timerId: null
+  };
+}
+
+function startMemory() {
+  const session = newMemorySession(selectionFromSetup());
+  if (!session) return;
+  stopMemoryTimer();
+  state.quiz = null;
+  state.cards = null;
+  state.memory = session;
+  state.lastSession = 'memory';
+  state.screen = 'memory';
+  render();
+}
+
+function memoryElapsed() {
+  const m = state.memory;
+  if (!m) return 0;
+  if (m.finishedMs !== null) return m.finishedMs;
+  return m.startedAt ? Date.now() - m.startedAt : 0;
+}
+
+function stopMemoryTimer() {
+  if (state.memory && state.memory.timerId) {
+    clearInterval(state.memory.timerId);
+    state.memory.timerId = null;
+  }
+}
+
+/* the clock runs from the first flip to the last match, and ticks in place
+   rather than through a re-render, which would interrupt the flips */
+function tickMemoryClock() {
+  const el = document.getElementById('mem-timer');
+  if (el) el.textContent = formatTime(memoryElapsed());
+}
+
+function updateMemoryCounter() {
+  const m = state.memory;
+  const el = document.getElementById('mem-count');
+  if (m && el) el.textContent = `Pairs ${m.matched} of ${m.pairs}`;
+}
+
+function exitMemory() {
+  stopMemoryTimer();
+  state.memory = null;
+  state.screen = 'home';
+  render();
+}
+
+function replayMemory() {
+  stopMemoryTimer();
+  const session = state.memory ? newMemorySession(state.memory.selection) : null;
+  if (!session) { goHome(); return; }
+  state.memory = session;
+  state.screen = 'memory';
+  render();
+}
+
+function memoryTile(id) {
+  const m = state.memory;
+  return m ? m.tiles.find(t => t.id === id) : null;
+}
+
+function flipMemoryTile(id) {
+  const m = state.memory;
+  if (!m || m.busy || m.finishedMs !== null) return;
+  const tile = memoryTile(id);
+  if (!tile || tile.matched || m.flipped.indexOf(id) !== -1) return;
+
+  if (!m.startedAt) {
+    m.startedAt = Date.now();
+    m.timerId = setInterval(tickMemoryClock, 250);
+  }
+
+  const node = document.getElementById('mem-' + id);
+  if (node) node.classList.add('is-flipped');
+  m.flipped.push(id);
+  if (m.flipped.length < 2) return;
+
+  const a = memoryTile(m.flipped[0]), b = memoryTile(m.flipped[1]);
+  if (a.pair === b.pair) {
+    a.matched = true;
+    b.matched = true;
+    m.matched += 1;
+    const matchedIds = m.flipped.slice();
+    m.flipped = [];
+    updateMemoryCounter();
+    setTimeout(() => {
+      if (state.memory !== m) return;
+      matchedIds.forEach(tid => {
+        const n = document.getElementById('mem-' + tid);
+        if (n) n.classList.add('is-matched');
+      });
+    }, 300);
+    if (m.matched === m.pairs) finishMemory();
+  } else {
+    /* hold the board while the mismatch is readable, then flip both back */
+    m.busy = true;
+    setTimeout(() => {
+      if (state.memory !== m) return;
+      m.flipped.forEach(tid => {
+        const n = document.getElementById('mem-' + tid);
+        if (n) n.classList.remove('is-flipped');
+      });
+      m.flipped = [];
+      m.busy = false;
+    }, 850);
+  }
+}
+
+function finishMemory() {
+  const m = state.memory;
+  m.finishedMs = m.startedAt ? Date.now() - m.startedAt : 0;
+  stopMemoryTimer();
+  bumpStreak();
+  m.previousBest = state.memoryBest;
+  if (state.memoryBest === null || m.finishedMs < state.memoryBest) {
+    m.beatBest = state.memoryBest !== null;
+    state.memoryBest = m.finishedMs;
+    saveMemoryBest();
+  }
+  /* let the last flip and its match pulse finish before the completion state */
+  setTimeout(() => { if (state.memory === m) render(); }, 1050);
 }
 
 /* ---------- answering ---------- */
@@ -1028,13 +1324,36 @@ function renderHome() {
 }
 
 /* ---------- step-by-step quiz setup ---------- */
-const FORMAT_LABELS = { mc: 'Multiple Choice', typed: 'Type Answer', cards: 'Flashcards' };
+const FORMAT_LABELS = { mc: 'Multiple Choice', typed: 'Type Answer', cards: 'Flashcards', memory: 'Memory Game' };
 const DIRECTION_LABELS = { gtoe: 'Greek → English', etog: 'English → Greek', mixed: 'Mixed' };
 
 function chaptersLabel(chapters) {
   if (!chapters.length) return 'No chapters';
   if (chapters.length === CHAPTERS.length) return `All ${CHAPTERS.length} chapters`;
   return `${chapters.length} chapter${chapters.length === 1 ? '' : 's'}`;
+}
+
+function categoriesLabel(cats) {
+  if (!cats.length) return 'No categories';
+  if (cats.length === CATEGORY_NAMES.length) return `All ${CATEGORY_NAMES.length} categories`;
+  return `${cats.length} categor${cats.length === 1 ? 'y' : 'ies'}`;
+}
+
+/* the short form used on buttons and summaries -- "3 chapters" / "2 categories" */
+function selectionLabel(sel) {
+  return sel.by === 'categories' ? categoriesLabel(sel.categories) : chaptersLabel(sel.chapters);
+}
+
+/* the long form underneath it -- which chapters, or which categories */
+function selectionDetail(sel) {
+  if (sel.by === 'categories') {
+    if (!sel.categories.length) return 'No categories selected';
+    if (sel.categories.length === CATEGORY_NAMES.length) return 'Every category in the course';
+    return sel.categories.join(', ');
+  }
+  return sel.chapters.length && sel.chapters.length !== CHAPTERS.length
+    ? 'Chapter ' + sel.chapters.join(', ')
+    : 'Every chapter in the course';
 }
 
 function tickIcon() {
@@ -1054,42 +1373,54 @@ function renderSetup() {
   const s = state.setup;
   const path = stepPath();
   const stepIndex = Math.max(0, path.indexOf(s.step));
-  const chapters = [...s.selectedChapters].sort((a, b) => a - b);
-  const poolSize = buildPool(chapters).length;
+  const selection = selectionFromSetup();
+  const byCategory = selection.by === 'categories';
+  const chosenCount = selectionSize(selection);
+  const poolSize = poolForSelection(selection).length;
 
   let title = '', hint = '', body = '', footer = '';
 
   if (s.step === 1) {
-    title = 'Choose your chapters';
+    title = byCategory ? 'Choose your categories' : 'Choose your chapters';
     hint = 'Pick one, several, or all of them.';
-    const chips = CHAPTERS.map(c =>
-      `<button class="chapter-chip selectable ${s.selectedChapters.has(c) ? 'selected' : ''}" data-ch="${c}">${c}</button>`
-    ).join('');
+    const grid = byCategory
+      ? `<div class="categories-grid">${CATEGORIES.map(c =>
+          `<button class="cat-chip ${s.selectedCategories.has(c.name) ? 'selected' : ''}" data-cat="${c.name}">${c.name}<span class="cat-count">${c.count}</span></button>`
+        ).join('')}</div>`
+      : `<div class="chapters-grid">${CHAPTERS.map(c =>
+          `<button class="chapter-chip selectable ${s.selectedChapters.has(c) ? 'selected' : ''}" data-ch="${c}">${c}</button>`
+        ).join('')}</div>`;
     body = `
+      <div class="segmented select-toggle">
+        <button class="seg-btn ${byCategory ? '' : 'active'}" data-by="chapters">Chapters</button>
+        <button class="seg-btn ${byCategory ? 'active' : ''}" data-by="categories">Categories</button>
+      </div>
       <div class="setup-label-row">
-        <span class="kicker">CHAPTERS</span>
+        <span class="kicker">${byCategory ? 'CATEGORIES' : 'CHAPTERS'}</span>
         <span>
           <button class="link-btn" id="btn-sel-all">Select all</button>
           &nbsp;&nbsp;
           <button class="link-btn" id="btn-sel-none">Clear</button>
         </span>
       </div>
-      <div class="chapters-grid">${chips}</div>
+      ${grid}
     `;
+    const emptyLabel = byCategory ? 'Select at least one category' : 'Select at least one chapter';
     footer = `
-      <button class="start-btn step-next" id="btn-step-next" ${chapters.length ? '' : 'disabled'}>
+      <button class="start-btn step-next" id="btn-step-next" ${chosenCount ? '' : 'disabled'}>
         <div class="resume-fill"></div>
         <div class="resume-edge"></div>
-        <span>${chapters.length ? `Next — ${chaptersLabel(chapters)}, ${poolSize} words` : 'Select at least one chapter'}</span>
+        <span>${chosenCount ? `Next — ${selectionLabel(selection)}, ${poolSize} words` : emptyLabel}</span>
       </button>
     `;
   } else if (s.step === 2) {
     title = 'How do you want to learn?';
-    hint = 'Flashcards start straight away — no further setup.';
+    hint = 'Flashcards and the Memory Game start straight away — no further setup.';
     body = `<div class="stack">
       ${choiceBtn('data-mode', 'mc', s.mode === 'mc', 'Multiple Choice', 'Pick the right meaning from four options')}
       ${choiceBtn('data-mode', 'typed', s.mode === 'typed', 'Type Answer', 'Write the English meaning yourself')}
       ${choiceBtn('data-mode', 'cards', s.mode === 'cards', 'Flashcards', 'Tap to flip — browse at your own pace')}
+      ${choiceBtn('data-mode', 'memory', s.mode === 'memory', 'Memory Game', 'Match Greek to English against the clock')}
     </div>`;
   } else if (s.step === 3) {
     title = 'Which direction?';
@@ -1110,7 +1441,7 @@ function renderSetup() {
   } else {
     const minNeeded = s.mode === 'typed' ? 1 : 4;
     const canStart = poolSize >= minNeeded;
-    const parts = [chaptersLabel(chapters), FORMAT_LABELS[s.mode]];
+    const parts = [selectionLabel(selection), FORMAT_LABELS[s.mode]];
     parts.push(s.mode === 'typed' ? DIRECTION_LABELS.gtoe : DIRECTION_LABELS[s.direction]);
     parts.push(`${Math.min(s.count, poolSize)} words`);
     title = 'Ready when you are';
@@ -1118,14 +1449,14 @@ function renderSetup() {
     body = `
       <div class="summary-card">
         <div class="summary-line">${parts.join(' · ')}</div>
-        <div class="summary-sub text-muted">${chapters.length && chapters.length !== CHAPTERS.length ? 'Chapter ' + chapters.join(', ') : 'Every chapter in the course'}</div>
+        <div class="summary-sub text-muted">${selectionDetail(selection)}</div>
       </div>
     `;
     footer = `
       <button class="start-btn step-next" id="btn-launch" ${canStart ? '' : 'disabled'}>
         <div class="resume-fill"></div>
         <div class="resume-edge"></div>
-        <span>${canStart ? 'Start Learning' : 'Select more chapters'}</span>
+        <span>${canStart ? 'Start Learning' : (byCategory ? 'Select more categories' : 'Select more chapters')}</span>
       </button>
     `;
   }
@@ -1162,12 +1493,16 @@ function renderSetup() {
   document.getElementById('btn-start-over').addEventListener('click', startOver);
 
   if (s.step === 1) {
+    document.querySelectorAll('[data-by]').forEach(el => el.addEventListener('click', () => setSelectBy(el.dataset.by)));
     document.querySelectorAll('.chapter-chip').forEach(el => {
       el.addEventListener('click', () => toggleSetupChapter(Number(el.dataset.ch)));
     });
+    document.querySelectorAll('.cat-chip').forEach(el => {
+      el.addEventListener('click', () => toggleSetupCategory(el.dataset.cat));
+    });
     document.getElementById('btn-sel-all').addEventListener('click', setupSelectAll);
     document.getElementById('btn-sel-none').addEventListener('click', setupSelectNone);
-    if (chapters.length) document.getElementById('btn-step-next').addEventListener('click', setupNext);
+    if (chosenCount) document.getElementById('btn-step-next').addEventListener('click', setupNext);
   } else if (s.step === 2) {
     document.querySelectorAll('[data-mode]').forEach(el => el.addEventListener('click', () => chooseFormat(el.dataset.mode)));
   } else if (s.step === 3) {
@@ -1358,6 +1693,91 @@ function renderFlashcard() {
   document.getElementById('btn-exit-quiz').addEventListener('click', exitQuiz);
 }
 
+/* ---------- memory game ---------- */
+function memoryCardBack() {
+  return '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2.5" y="5.5" width="12" height="9" rx="1.5" transform="rotate(-6 8.5 10)" stroke="currentColor" stroke-width="1.5"/><rect x="5.5" y="4" width="12" height="9" rx="1.9" stroke="currentColor" stroke-width="1.9"/></svg>';
+}
+
+function renderMemory() {
+  const m = state.memory;
+  if (!m) { goHome(); return; }
+  if (m.finishedMs !== null) { renderMemoryDone(); return; }
+
+  const tiles = m.tiles.map(t => {
+    const flipped = t.matched || m.flipped.indexOf(t.id) !== -1;
+    return `
+      <button class="mem-tile ${flipped ? 'is-flipped' : ''} ${t.matched ? 'is-matched' : ''}" id="mem-${t.id}" data-tile="${t.id}">
+        <div class="mem-tile-inner">
+          <div class="mem-face mem-front">${memoryCardBack()}</div>
+          <div class="mem-face mem-back ${t.kind === 'greek' ? 'is-greek' : ''}">${t.text}</div>
+        </div>
+      </button>
+    `;
+  }).join('');
+
+  /* a thin selection plays a smaller board rather than failing -- say so */
+  const shortNote = m.pairs < MEMORY_PAIRS
+    ? `<p class="mem-note text-muted">Only ${m.poolSize} word${m.poolSize === 1 ? '' : 's'} available — playing with ${m.pairs} pair${m.pairs === 1 ? '' : 's'}.</p>`
+    : '';
+  const best = state.memoryBest !== null ? `Best ${formatTime(state.memoryBest)}` : 'No best yet';
+
+  document.getElementById('screen').innerHTML = `
+    <div class="fade-in">
+      ${renderHeader(false, 'Memory Game', true)}
+
+      <div class="progress-row">
+        <span id="mem-count">Pairs ${m.matched} of ${m.pairs}</span>
+        <span><span id="mem-timer">${formatTime(memoryElapsed())}</span><span class="sep">\u00b7</span>${best}</span>
+      </div>
+
+      ${shortNote}
+      <div class="mem-grid">${tiles}</div>
+    </div>
+  `;
+
+  document.querySelectorAll('.mem-tile').forEach(el => {
+    el.addEventListener('click', () => flipMemoryTile(el.dataset.tile));
+  });
+  document.getElementById('btn-exit-quiz').addEventListener('click', exitMemory);
+}
+
+function renderMemoryDone() {
+  const m = state.memory;
+  const isFirst = m.previousBest === null;
+  const badge = m.beatBest
+    ? `New personal best — ${formatTime(m.previousBest)} beaten`
+    : (isFirst ? 'Your first best time' : `Best ${formatTime(state.memoryBest)}`);
+
+  document.getElementById('screen').innerHTML = `
+    <div class="fade-in">
+      ${renderHeader(false, 'Memory Game', true)}
+
+      <div class="ring-panel glass">
+        ${glassLayer()}
+        <div class="glass-content">
+          <div class="kicker">ALL PAIRS MATCHED</div>
+          <div class="mem-done-time">${formatTime(m.finishedMs)}</div>
+          <div class="ring-label text-muted">${m.pairs} pair${m.pairs === 1 ? '' : 's'} · ${selectionLabel(m.selection)}</div>
+          <div class="mem-done-badge">${badge}</div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="ghost-btn" id="btn-mem-home">Done</button>
+        <button class="start-btn" id="btn-mem-again">
+          <div class="resume-fill"></div>
+          <div class="resume-edge"></div>
+          <span>Play again</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('btn-mem-home').addEventListener('click', exitMemory);
+  document.getElementById('btn-mem-again').addEventListener('click', replayMemory);
+  document.getElementById('btn-exit-quiz').addEventListener('click', exitMemory);
+}
+
 function ringSvg(pct) {
   const circ = 2 * Math.PI * 54;
   const offset = circ * (1 - pct / 100);
@@ -1423,6 +1843,14 @@ function renderProgress() {
       <div class="kicker" style="margin:0 0 10px">WORDS TO REVIEW</div>
       <div class="list-panel glass">${glassLayer()}<div class="glass-content">${missedHtml}</div></div>
 
+      <div class="kicker" style="margin:0 0 10px">MEMORY GAME</div>
+      <div class="list-panel glass">${glassLayer()}<div class="glass-content">
+        <div class="missed-row">
+          <span>Best time</span>
+          <span class="missed-english ${state.memoryBest === null ? 'text-muted' : ''}">${state.memoryBest === null ? 'Not played yet' : formatTime(state.memoryBest)}</span>
+        </div>
+      </div></div>
+
       <div class="kicker" style="margin:0 0 10px">BY CHAPTER</div>
       <div class="list-panel glass" style="margin-bottom:0">${glassLayer()}<div class="glass-content">${chapterRows}</div></div>
     </div>
@@ -1431,7 +1859,7 @@ function renderProgress() {
 
 function renderTabBar() {
   document.getElementById('tab-home').classList.toggle('active', state.screen === 'home' || state.screen === 'setup');
-  document.getElementById('tab-review').classList.toggle('active', state.screen === 'flashcard' || state.screen === 'cards');
+  document.getElementById('tab-review').classList.toggle('active', state.screen === 'flashcard' || state.screen === 'cards' || state.screen === 'memory');
   document.getElementById('tab-progress').classList.toggle('active', state.screen === 'progress');
 }
 
@@ -1440,6 +1868,7 @@ function render() {
   else if (state.screen === 'setup') renderSetup();
   else if (state.screen === 'flashcard') renderQuizTab();
   else if (state.screen === 'cards') renderCards();
+  else if (state.screen === 'memory') renderMemory();
   else if (state.screen === 'progress') renderProgress();
   renderTabBar();
 }
