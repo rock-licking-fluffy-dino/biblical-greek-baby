@@ -453,6 +453,50 @@
     }
   }
 
+  /* ---------- daily review (FSRS) ---------- */
+  .review-cta {
+    position: relative; width: 100%; margin-top: 10px; padding: 15px 16px; cursor: pointer;
+    font-family: var(--font-sans); text-align: left; border-radius: var(--r-btn);
+    background: var(--green-tint); border: 1.5px solid var(--green-border); color: var(--green-text);
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .review-cta:hover { border-color: var(--sage-300); }
+  .review-cta-main { font-size: 14px; font-weight: 800; }
+  .review-cta-sub { display: block; font-size: 11.5px; font-weight: 500; margin-top: 3px; color: var(--muted); }
+  .review-cta-count {
+    flex-shrink: 0; min-width: 34px; text-align: center; padding: 5px 9px; border-radius: 999px;
+    background: var(--green-solid); color: var(--on-green); font-size: 12.5px; font-weight: 800;
+    font-feature-settings: 'tnum';
+  }
+  .review-caught-up {
+    margin-top: 12px; text-align: center; font-size: 11.5px; font-weight: 500; line-height: 1.5;
+  }
+
+  /* the four-grade rating row -- revealed once the card is flipped */
+  .rate-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 18px; }
+  .rate-btn {
+    border-radius: var(--r-sm); padding: 12px 4px 10px; cursor: pointer; font-family: var(--font-sans);
+    background: var(--surface); border: 1px solid var(--hairline); color: var(--ink);
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+  }
+  .rate-btn:hover { border-color: var(--sage-300); background: var(--surface-2); }
+  .rate-label { font-size: 12.5px; font-weight: 700; }
+  .rate-when { font-size: 10px; font-weight: 600; color: var(--muted); font-feature-settings: 'tnum'; }
+  .rate-btn.rate-again .rate-label { color: var(--muted); }
+  .rate-btn.rate-good { background: var(--green-tint); border-color: var(--green-border); }
+  .rate-btn.rate-good .rate-label { color: var(--green-text); }
+  .rate-hint { text-align: center; font-size: 12px; margin-top: 22px; line-height: 1.5; }
+
+  /* the rating row and the reveal hint swap in place, without a re-render, so
+     the flip animation is never interrupted */
+  .rate-row[hidden], .rate-hint[hidden] { display: none; }
+
+  /* FSRS state breakdown on the Progress tab */
+  .fsrs-row { display: flex; justify-content: space-between; gap: 10px; padding: 12px 0; font-size: 14px; }
+  .fsrs-row + .fsrs-row { border-top: 1px solid var(--hairline-soft); }
+  .fsrs-count { font-weight: 700; font-feature-settings: 'tnum'; }
+  .fsrs-row.is-due .fsrs-count { color: var(--green-text); }
+
   .fade-in { animation: oikos-fade 0.18s ease; }
   @keyframes oikos-fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 </style>
@@ -477,6 +521,19 @@
     </div>
   </div>
 </div>
+
+<!-- ---------------------------------------------------------------------
+     ts-fsrs 5.4.2 (FSRS-6.0) -- https://github.com/open-spaced-repetition/ts-fsrs
+     MIT License, Copyright (c) 2026 Open Spaced Repetition.
+     Vendored inline (minified UMD build, `npm pack ts-fsrs` -> dist/index.umd.js)
+     so the app stays one self-contained file that works offline and from the
+     home screen. Exposes the global `FSRS`. To update: re-pack, re-minify, and
+     replace the block below -- do not hand-edit it.
+     --------------------------------------------------------------------- -->
+<script>
+(function(c,M){typeof exports=="object"&&typeof module<"u"?M(exports):typeof define=="function"&&define.amd?define(["exports"],M):(c=typeof globalThis<"u"?globalThis:c||self,M(c.FSRS={}))})(void 0,function(c){"use strict";class M extends Error{constructor(t="FSRS Error"){var e;super(t),this.name="FSRSError",(e=Error.captureStackTrace)==null||e.call(Error,this,M)}}class f extends M{constructor(t){var e;super(t),this.name="FSRSValidationError",(e=Error.captureStackTrace)==null||e.call(Error,this,f)}}var h=(i=>(i[i.New=0]="New",i[i.Learning=1]="Learning",i[i.Review=2]="Review",i[i.Relearning=3]="Relearning",i))(h||{}),o=(i=>(i[i.Manual=0]="Manual",i[i.Again=1]="Again",i[i.Hard=2]="Hard",i[i.Good=3]="Good",i[i.Easy=4]="Easy",i))(o||{}),St=Object.defineProperty,Mt=Object.defineProperties,xt=Object.getOwnPropertyDescriptors,B=Object.getOwnPropertySymbols,$t=Object.prototype.hasOwnProperty,Pt=Object.prototype.propertyIsEnumerable,X=(i,t,e)=>t in i?St(i,t,{enumerable:!0,configurable:!0,writable:!0,value:e}):i[t]=e,Z=(i,t)=>{for(var e in t||(t={}))$t.call(t,e)&&X(i,e,t[e]);if(B)for(var e of B(t))Pt.call(t,e)&&X(i,e,t[e]);return i},K=(i,t)=>Mt(i,xt(t));class d{static card(t){return K(Z({},t),{state:d.state(t.state),due:d.time(t.due),last_review:t.last_review?d.time(t.last_review):void 0})}static rating(t){if(typeof t=="string"){const e=t.charAt(0).toUpperCase(),s=t.slice(1).toLowerCase(),r=o[`${e}${s}`];if(r===void 0)throw new f(`Invalid rating:[${t}]`);return r}else if(typeof t=="number")return t;throw new f(`Invalid rating:[${t}]`)}static state(t){if(typeof t=="string"){const e=t.charAt(0).toUpperCase(),s=t.slice(1).toLowerCase(),r=h[`${e}${s}`];if(r===void 0)throw new f(`Invalid state:[${t}]`);return r}else if(typeof t=="number")return t;throw new f(`Invalid state:[${t}]`)}static time(t){if(t instanceof Date)return t;const e=new Date(t);if(typeof t=="object"&&t!==null&&!Number.isNaN(Date.parse(t)||+e))return e;if(typeof t=="string"){const s=Date.parse(t);if(Number.isNaN(s))throw new f(`Invalid date:[${t}]`);return new Date(s)}else if(typeof t=="number")return new Date(t);throw new f(`Invalid date:[${t}]`)}static review_log(t){return K(Z({},t),{due:d.time(t.due),rating:d.rating(t.rating),state:d.state(t.state),review:d.time(t.review)})}}/* istanbul ignore next -- @preserve */Date.prototype.scheduler=function(i,t){return p(this,i,t)};/* istanbul ignore next -- @preserve */Date.prototype.diff=function(i,t){return x(this,i,t)};/* istanbul ignore next -- @preserve */Date.prototype.format=function(){return J(this)};/* istanbul ignore next -- @preserve */Date.prototype.dueFormat=function(i,t,e){return Q(this,i,t,e)};function p(i,t,e){return new Date(e?d.time(i).getTime()+t*24*60*60*1e3:d.time(i).getTime()+t*60*1e3)}function x(i,t,e){if(!i||!t)throw new f("Invalid date");const s=d.time(i).getTime()-d.time(t).getTime();let r=0;switch(e){case"days":r=Math.floor(s/(24*60*60*1e3));break;case"minutes":r=Math.floor(s/(60*1e3));break}return r}function J(i){const t=d.time(i),e=t.getFullYear(),s=t.getMonth()+1,r=t.getDate(),n=t.getHours(),a=t.getMinutes(),l=t.getSeconds();return`${e}-${A(s)}-${A(r)} ${A(n)}:${A(a)}:${A(l)}`}function A(i){return i<10?`0${i}`:`${i}`}const H=[60,60,24,31,12],G=["second","min","hour","day","month","year"];function Q(i,t,e,s=G){i=d.time(i),t=d.time(t),s.length!==G.length&&(s=G);let r=i.getTime()-t.getTime(),n=0;for(r/=1e3,n=0;n<H.length&&!(r<H[n]);n++)r/=H[n];return`${Math.floor(r)}${e?s[n]:""}`}/* istanbul ignore next -- @preserve */function At(i){return d.time(i)}/* istanbul ignore next -- @preserve */function Et(i){return d.state(i)}/* istanbul ignore next -- @preserve */function It(i){return d.rating(i)}const k=Object.freeze([o.Again,o.Hard,o.Good,o.Easy]),Nt=[{start:2.5,end:7,factor:.15},{start:7,end:20,factor:.1},{start:20,end:1/0,factor:.05}];function tt(i,t,e){let s=1;for(const a of Nt)s+=a.factor*Math.max(Math.min(i,a.end)-a.start,0);i=Math.min(i,e);let r=Math.max(2,Math.round(i-s));const n=Math.min(Math.round(i+s),e);return i>t&&(r=Math.max(r,t+1)),r=Math.min(r,n),{min_ivl:r,max_ivl:n}}function w(i,t,e){return Math.min(Math.max(i,t),e)}function v(i,t){const e=10**t;return Math.round(i*e)/e}function et(i,t){const e=Date.UTC(i.getUTCFullYear(),i.getUTCMonth(),i.getUTCDate()),s=Date.UTC(t.getUTCFullYear(),t.getUTCMonth(),t.getUTCDate());return Math.floor((s-e)/864e5)}const it=i=>{const t=i.slice(-1),e=parseInt(i.slice(0,-1),10);if(Number.isNaN(e)||!Number.isFinite(e)||e<0)throw new f(`Invalid step value: ${i}`);switch(t){case"m":return e;case"h":return e*60;case"d":return e*1440;default:throw new f(`Invalid step unit: ${i}, expected m/h/d`)}},st=(i,t,e)=>{const s=t===h.Relearning||t===h.Review?i.relearning_steps:i.learning_steps,r=s.length;if(r===0||e>=r)return{};const n=s[0],a=it,l=()=>a(n),u=()=>{if(r===1)return Math.round(a(n)*1.5);const g=s[1];return Math.round((a(n)+a(g))/2)},_=g=>g<0||g>=r?null:s[g],m=g=>a(g),y={},S=_(Math.max(0,e));if(t===h.Review)return y[o.Again]={scheduled_minutes:a(S),next_step:0},y;{y[o.Again]={scheduled_minutes:l(),next_step:0},y[o.Hard]={scheduled_minutes:u(),next_step:e};const g=_(e+1);if(g){const z=m(g);z&&(y[o.Good]={scheduled_minutes:Math.round(z),next_step:e+1})}}return y};function rt(){const i=this.review_time.getTime(),t=this.current.reps,e=this.current.difficulty*this.current.stability;return`${i}_${t}_${e}`}function Rt(i){return function(){var t;const e=(t=Reflect.get(this.current,i))!=null?t:0,s=this.current.reps;return String(e+s||0)}}var E=(i=>(i.SCHEDULER="Scheduler",i.LEARNING_STEPS="LearningSteps",i.SEED="Seed",i))(E||{}),Dt=Object.defineProperty,Ft=(i,t,e)=>t in i?Dt(i,t,{enumerable:!0,configurable:!0,writable:!0,value:e}):i[t]=e,$=(i,t,e)=>Ft(i,typeof t!="symbol"?t+"":t,e);class C{constructor(t,e,s,r){$(this,"last"),$(this,"current"),$(this,"review_time"),$(this,"next",new Map),$(this,"algorithm"),$(this,"strategies"),$(this,"elapsed_days",0),this.algorithm=s,this.last=d.card(t),this.current=d.card(t),this.review_time=d.time(e),this.strategies=r,this.init()}checkGrade(t){if(!Number.isFinite(t)||t<1||t>4)throw new f(`Invalid grade "${t}",expected 1-4`)}init(){const{state:t,last_review:e}=this.current;let s=0;t!==h.New&&e&&(s=et(e,this.review_time)),this.current.last_review=this.review_time,this.elapsed_days=s,this.current.elapsed_days=s,this.current.reps+=1;let r=rt;if(this.strategies){const n=this.strategies.get(E.SEED);n&&(r=n)}this.algorithm.seed=r.call(this)}preview(){return{[o.Again]:this.review(o.Again),[o.Hard]:this.review(o.Hard),[o.Good]:this.review(o.Good),[o.Easy]:this.review(o.Easy),[Symbol.iterator]:this.previewIterator.bind(this)}}*previewIterator(){for(const t of k)yield this.review(t)}review(t){const{state:e}=this.last;let s;switch(this.checkGrade(t),e){case h.New:s=this.newState(t);break;case h.Learning:case h.Relearning:s=this.learningState(t);break;case h.Review:s=this.reviewState(t);break}return s}buildLog(t){const{last_review:e,due:s,elapsed_days:r}=this.last;return{rating:t,state:this.current.state,due:e||s,stability:this.current.stability,difficulty:this.current.difficulty,elapsed_days:this.elapsed_days,last_elapsed_days:r,scheduled_days:this.current.scheduled_days,learning_steps:this.current.learning_steps,review:this.review_time}}}var Ot=Object.defineProperty,Lt=(i,t,e)=>t in i?Ot(i,t,{enumerable:!0,configurable:!0,writable:!0,value:e}):i[t]=e,F=(i,t,e)=>Lt(i,typeof t!="symbol"?t+"":t,e);class Tt{constructor(t){F(this,"c"),F(this,"s0"),F(this,"s1"),F(this,"s2");const e=zt();this.c=1,this.s0=e(" "),this.s1=e(" "),this.s2=e(" "),t==null&&(t=Date.now()),this.s0-=e(t),this.s0<0&&(this.s0+=1),this.s1-=e(t),this.s1<0&&(this.s1+=1),this.s2-=e(t),this.s2<0&&(this.s2+=1)}next(){const t=2091639*this.s0+this.c*23283064365386963e-26;return this.s0=this.s1,this.s1=this.s2,this.c=t|0,this.s2=t-this.c,this.s2}set state(t){this.c=t.c,this.s0=t.s0,this.s1=t.s1,this.s2=t.s2}get state(){return{c:this.c,s0:this.s0,s1:this.s1,s2:this.s2}}}function zt(){let i=4022871197;return function(e){e=String(e);for(let s=0;s<e.length;s++){i+=e.charCodeAt(s);let r=.02519603282416938*i;i=r>>>0,r-=i,r*=i,i=r>>>0,r-=i,i+=r*4294967296}return(i>>>0)*23283064365386963e-26}}function Ht(i){const t=new Tt(i),e=()=>t.next();return e.int32=()=>t.next()*4294967296|0,e.double=()=>e()+(e()*2097152|0)*11102230246251565e-32,e.state=()=>t.state,e.importState=s=>(t.state=s,e),e}const Gt="5.4.2",nt=.9,at=36500,lt=!1,I=!0,ot=Object.freeze(["1m","10m"]),ct=Object.freeze(["10m"]),Ct=`v${Gt} using FSRS-6.0`,b=.001,Ut=36500,N=100,U=.5,ut=.1542,j=Object.freeze([.212,1.2931,2.3065,8.2956,6.4133,.8334,3.0194,.001,1.8722,.1666,.796,1.4835,.0614,.2629,1.6483,.6014,1.8729,.5425,.0912,.0658,ut]),q=2,dt=(i,t=I)=>[[b,N],[b,N],[b,N],[b,N],[1,10],[.001,4],[.001,4],[.001,.75],[0,4.5],[0,.8],[.001,3.5],[.001,5],[.001,.25],[.001,.9],[0,4],[0,1],[1,6],[0,i],[0,i],[t?.01:0,.8],[.1,.8]],P=(i,t,e=I)=>{const s=dt(q,e).slice(0,i.length);if(Math.max(0,t)>1){const r=w(i[11]||0,s[11][0],s[11][1]),n=w(i[13]||0,s[13][0],s[13][1]),a=w(i[14]||0,s[14][0],s[14][1]),l=-(Math.log(r)+Math.log(Math.pow(2,n)-1)+a*.3)/t,u=w(v(Math.sqrt(Math.max(l,0)),8),.01,q);s[17]&&(s[17]=[s[17][0],u]),s[18]&&(s[18]=[s[18][0],u])}return s.map(([r,n],a)=>w(i[a]||0,r,n))},jt=i=>{if(i.find(e=>!Number.isFinite(e))!==void 0)throw new f(`Non-finite or NaN value in parameters ${i}`);if(![17,19,21].includes(i.length))throw new f(`Invalid parameter length: ${i.length}. Must be 17, 19 or 21 for FSRSv4, 5 and 6 respectively.`);return i},O=(i,t=0,e=I)=>{if(i===void 0)return[...j];switch(i.length){case 21:return P(Array.from(i),t,e);case 19:return console.debug("[FSRS-6]auto fill w from 19 to 21 length"),P(Array.from(i),t,e).concat([0,U]);case 17:{const s=P(Array.from(i),t,e);return s[4]=+(s[5]*2+s[4]).toFixed(8),s[5]=+(Math.log(s[5]*3+1)/3).toFixed(8),s[6]=+(s[6]+.5).toFixed(8),console.debug("[FSRS-6]auto fill w from 17 to 21 length"),s.concat([0,0,0,U])}default:return console.warn("[FSRS]Invalid parameters length, using default parameters"),[...j]}},ht=i=>{var t,e;const s=Array.isArray(i?.learning_steps)?i.learning_steps:ot,r=Array.isArray(i?.relearning_steps)?i.relearning_steps:ct,n=(t=i?.enable_short_term)!=null?t:I,a=O(i?.w,r.length,n);return{request_retention:i?.request_retention||nt,maximum_interval:i?.maximum_interval||at,w:a,enable_fuzz:(e=i?.enable_fuzz)!=null?e:lt,enable_short_term:n,learning_steps:s,relearning_steps:r}};function L(i,t){const e={due:i?d.time(i):new Date,stability:0,difficulty:0,elapsed_days:0,scheduled_days:0,reps:0,lapses:0,learning_steps:0,state:h.New,last_review:void 0};return t&&typeof t=="function"?t(e):e}var qt=Object.defineProperty,Yt=(i,t,e)=>t in i?qt(i,t,{enumerable:!0,configurable:!0,writable:!0,value:e}):i[t]=e,R=(i,t,e)=>Yt(i,typeof t!="symbol"?t+"":t,e);const Y=i=>{const t=typeof i=="number"?-i:-i[20],e=Math.exp(Math.pow(t,-1)*Math.log(.9))-1;return{decay:t,factor:v(e,8)}};function T(i,t,e){const{decay:s,factor:r}=Y(i);return v(Math.pow(1+r*t/e,s),8)}class _t{constructor(t){R(this,"param"),R(this,"intervalModifier"),R(this,"_seed"),R(this,"prepare_parameters",e=>{const s=ht(e);return s.w=P(Array.from(s.w),s.relearning_steps.length,s.enable_short_term),s}),R(this,"forgetting_curve"),this.param=new Proxy(this.prepare_parameters(t),this.params_handler_proxy()),this.intervalModifier=this.calculate_interval_modifier(this.param.request_retention),this.forgetting_curve=T.bind(this,this.param.w)}get interval_modifier(){return this.intervalModifier}set seed(t){this._seed=t}calculate_interval_modifier(t){if(t<=0||t>1)throw new f("Requested retention rate should be in the range (0,1]");const{decay:e,factor:s}=Y(this.param.w);return v((Math.pow(t,1/e)-1)/s,8)}get parameters(){return this.param}set parameters(t){this.update_parameters(t)}params_handler_proxy(){const t=this;return{set:function(e,s,r){return s==="request_retention"&&Number.isFinite(r)?t.intervalModifier=t.calculate_interval_modifier(Number(r)):s==="w"&&(r=O(r,e.relearning_steps.length,e.enable_short_term),r=P(Array.from(r),e.relearning_steps.length,e.enable_short_term),t.forgetting_curve=T.bind(this,r),t.intervalModifier=t.calculate_interval_modifier(Number(e.request_retention))),Reflect.set(e,s,r),!0}}}update_parameters(t){const e=this.prepare_parameters(t);for(const s in e){const r=s;this.param[r]=e[r]}}init_stability(t){return Math.max(this.param.w[t-1],.1)}init_difficulty(t){const e=this.param.w,s=e[4]-Math.exp((t-1)*e[5])+1;return v(s,8)}apply_fuzz(t,e){if(!this.param.enable_fuzz||t<2.5)return Math.round(t);const r=Ht(this._seed)(),{min_ivl:n,max_ivl:a}=tt(t,e,this.param.maximum_interval);return Math.floor(r*(a-n+1)+n)}next_interval(t,e){const s=Math.min(Math.max(1,Math.round(t*this.intervalModifier)),this.param.maximum_interval);return this.apply_fuzz(s,e)}linear_damping(t,e){return v(t*(10-e)/9,8)}next_difficulty(t,e){const s=-this.param.w[6]*(e-3),r=t+this.linear_damping(s,t);return w(this.mean_reversion(this.init_difficulty(o.Easy),r),1,10)}mean_reversion(t,e){const s=this.param.w;return v(s[7]*t+(1-s[7])*e,8)}next_recall_stability(t,e,s,r){const n=this.param.w,a=o.Hard===r?n[15]:1,l=o.Easy===r?n[16]:1;return v(w(e*(1+Math.exp(n[8])*(11-t)*Math.pow(e,-n[9])*(Math.exp((1-s)*n[10])-1)*a*l),b,36500),8)}next_forget_stability(t,e,s){const r=this.param.w;return v(w(r[11]*Math.pow(t,-r[12])*(Math.pow(e+1,r[13])-1)*Math.exp((1-s)*r[14]),b,36500),8)}next_short_term_stability(t,e){const s=this.param.w,r=Math.pow(t,-s[19])*Math.exp(s[17]*(e-3+s[18])),n=e>=o.Hard?Math.max(r,1):r;return v(w(t*n,b,36500),8)}next_state(t,e,s,r){const{difficulty:n,stability:a}=t??{difficulty:0,stability:0};if(e<0)throw new f(`Invalid delta_t "${e}"`);if(s<0||s>4)throw new f(`Invalid grade "${s}"`);if(n===0&&a===0)return{difficulty:w(this.init_difficulty(s),1,10),stability:this.init_stability(s)};if(s===0)return{difficulty:n,stability:a};if(n<1||a<b)throw new f(`Invalid memory state { difficulty: ${n}, stability: ${a} }`);const l=this.param.w;r=typeof r=="number"?r:this.forgetting_curve(e,a);let u;if(e===0&&this.param.enable_short_term)u=this.next_short_term_stability(a,s);else if(s===1){const m=this.next_forget_stability(n,a,r);let[y,S]=[0,0];this.param.enable_short_term&&(y=l[17],S=l[18]);const g=a/Math.exp(y*S);u=w(v(g,8),b,m)}else u=this.next_recall_stability(n,a,r,s);return{difficulty:this.next_difficulty(n,s),stability:u}}}var Vt=Object.defineProperty,Wt=(i,t,e)=>t in i?Vt(i,t,{enumerable:!0,configurable:!0,writable:!0,value:e}):i[t]=e,Bt=(i,t,e)=>Wt(i,t+"",e);class ft extends C{constructor(t,e,s,r){super(t,e,s,r),Bt(this,"learningStepsStrategy");let n=st;if(this.strategies){const a=this.strategies.get(E.LEARNING_STEPS);a&&(n=a)}this.learningStepsStrategy=n}getLearningInfo(t,e){var s,r,n,a;const l=this.algorithm.parameters;t.learning_steps=t.learning_steps||0;const u=this.learningStepsStrategy(l,t.state,t.learning_steps),_=Math.max(0,(r=(s=u[e])==null?void 0:s.scheduled_minutes)!=null?r:0),m=Math.max(0,(a=(n=u[e])==null?void 0:n.next_step)!=null?a:0);return{scheduled_minutes:_,next_steps:m}}applyLearningSteps(t,e,s){const{scheduled_minutes:r,next_steps:n}=this.getLearningInfo(this.current,e);if(r>0&&r<1440)t.learning_steps=n,t.scheduled_days=0,t.state=s,t.due=p(this.review_time,Math.round(r),!1);else if(t.state=h.Review,r>=1440)t.learning_steps=n,t.due=p(this.review_time,Math.round(r),!1),t.scheduled_days=Math.floor(r/1440);else{t.learning_steps=0;const a=this.algorithm.next_interval(t.stability,this.elapsed_days);t.scheduled_days=a,t.due=p(this.review_time,a,!0)}}newState(t){const e=this.next.get(t);if(e)return e;const s=this.next_ds(this.elapsed_days,t);this.applyLearningSteps(s,t,h.Learning);const r={card:s,log:this.buildLog(t)};return this.next.set(t,r),r}learningState(t){const e=this.next.get(t);if(e)return e;const s=this.next_ds(this.elapsed_days,t);this.applyLearningSteps(s,t,this.last.state);const r={card:s,log:this.buildLog(t)};return this.next.set(t,r),r}reviewState(t){const e=this.next.get(t);if(e)return e;const s=this.elapsed_days,r=this.algorithm.forgetting_curve(s,this.current.stability),n=this.next_ds(s,o.Again,r),a=this.next_ds(s,o.Hard,r),l=this.next_ds(s,o.Good,r),u=this.next_ds(s,o.Easy,r);this.next_interval(a,l,u,s),this.next_state(a,l,u),this.applyLearningSteps(n,o.Again,h.Relearning),n.lapses+=1;const _={card:n,log:this.buildLog(o.Again)},m={card:a,log:super.buildLog(o.Hard)},y={card:l,log:super.buildLog(o.Good)},S={card:u,log:super.buildLog(o.Easy)};return this.next.set(o.Again,_),this.next.set(o.Hard,m),this.next.set(o.Good,y),this.next.set(o.Easy,S),this.next.get(t)}next_ds(t,e,s){const r=this.algorithm.next_state({difficulty:this.current.difficulty,stability:this.current.stability},t,e,s),n=d.card(this.current);return n.difficulty=r.difficulty,n.stability=r.stability,n}next_interval(t,e,s,r){let n,a;n=this.algorithm.next_interval(t.stability,r),a=this.algorithm.next_interval(e.stability,r),n=Math.min(n,a),a=Math.max(a,n+1);const l=Math.max(this.algorithm.next_interval(s.stability,r),a+1);t.scheduled_days=n,t.due=p(this.review_time,n,!0),e.scheduled_days=a,e.due=p(this.review_time,a,!0),s.scheduled_days=l,s.due=p(this.review_time,l,!0)}next_state(t,e,s){t.state=h.Review,t.learning_steps=0,e.state=h.Review,e.learning_steps=0,s.state=h.Review,s.learning_steps=0}}class gt extends C{newState(t){const e=this.next.get(t);if(e)return e;this.current.scheduled_days=0,this.current.elapsed_days=0;const s=0,r=this.next_ds(s,o.Again),n=this.next_ds(s,o.Hard),a=this.next_ds(s,o.Good),l=this.next_ds(s,o.Easy);return this.next_interval(r,n,a,l,s),this.next_state(r,n,a,l),this.update_next(r,n,a,l),this.next.get(t)}next_ds(t,e,s){const r=this.algorithm.next_state({difficulty:this.current.difficulty,stability:this.current.stability},t,e,s),n=d.card(this.current);return n.difficulty=r.difficulty,n.stability=r.stability,n}learningState(t){return this.reviewState(t)}reviewState(t){const e=this.next.get(t);if(e)return e;const s=this.elapsed_days,r=this.algorithm.forgetting_curve(s,this.current.stability),n=this.next_ds(s,o.Again,r),a=this.next_ds(s,o.Hard,r),l=this.next_ds(s,o.Good,r),u=this.next_ds(s,o.Easy,r);return this.next_interval(n,a,l,u,s),this.next_state(n,a,l,u),n.lapses+=1,this.update_next(n,a,l,u),this.next.get(t)}next_interval(t,e,s,r,n){let a,l,u,_;a=this.algorithm.next_interval(t.stability,n),l=this.algorithm.next_interval(e.stability,n),u=this.algorithm.next_interval(s.stability,n),_=this.algorithm.next_interval(r.stability,n),a=Math.min(a,l),l=Math.max(l,a+1),u=Math.max(u,l+1),_=Math.max(_,u+1),t.scheduled_days=a,t.due=p(this.review_time,a,!0),e.scheduled_days=l,e.due=p(this.review_time,l,!0),s.scheduled_days=u,s.due=p(this.review_time,u,!0),r.scheduled_days=_,r.due=p(this.review_time,_,!0)}next_state(t,e,s,r){t.state=h.Review,t.learning_steps=0,e.state=h.Review,e.learning_steps=0,s.state=h.Review,s.learning_steps=0,r.state=h.Review,r.learning_steps=0}update_next(t,e,s,r){const n={card:t,log:this.buildLog(o.Again)},a={card:e,log:super.buildLog(o.Hard)},l={card:s,log:super.buildLog(o.Good)},u={card:r,log:super.buildLog(o.Easy)};this.next.set(o.Again,n),this.next.set(o.Hard,a),this.next.set(o.Good,l),this.next.set(o.Easy,u)}}var Xt=Object.defineProperty,Zt=Object.defineProperties,Kt=Object.getOwnPropertyDescriptors,mt=Object.getOwnPropertySymbols,Jt=Object.prototype.hasOwnProperty,Qt=Object.prototype.propertyIsEnumerable,V=(i,t,e)=>t in i?Xt(i,t,{enumerable:!0,configurable:!0,writable:!0,value:e}):i[t]=e,kt=(i,t)=>{for(var e in t||(t={}))Jt.call(t,e)&&V(i,e,t[e]);if(mt)for(var e of mt(t))Qt.call(t,e)&&V(i,e,t[e]);return i},te=(i,t)=>Zt(i,Kt(t)),ee=(i,t,e)=>V(i,t+"",e);class ie{constructor(t){ee(this,"fsrs"),this.fsrs=t}replay(t,e,s){return this.fsrs.next(t,e,s)}handleManualRating(t,e,s,r,n,a,l){if(typeof e>"u")throw new f("reschedule: state is required for manual rating");let u,_;if(e===h.New)u={rating:o.Manual,state:e,due:l??s,stability:t.stability,difficulty:t.difficulty,elapsed_days:r,last_elapsed_days:t.elapsed_days,scheduled_days:t.scheduled_days,learning_steps:t.learning_steps,review:s},_=L(s),_.last_review=s;else{if(typeof l>"u")throw new f("reschedule: due is required for manual rating");const m=x(l,s,"days");u={rating:o.Manual,state:t.state,due:t.last_review||t.due,stability:t.stability,difficulty:t.difficulty,elapsed_days:r,last_elapsed_days:t.elapsed_days,scheduled_days:t.scheduled_days,learning_steps:t.learning_steps,review:s},_=te(kt({},t),{state:e,due:l,last_review:s,stability:n||t.stability,difficulty:a||t.difficulty,elapsed_days:r,scheduled_days:m,reps:t.reps+1})}return{card:_,log:u}}reschedule(t,e){const s=[];let r=L(t.due);for(const n of e){let a;if(n.review=d.time(n.review),n.rating===o.Manual){let l=0;r.state!==h.New&&r.last_review&&(l=x(n.review,r.last_review,"days")),a=this.handleManualRating(r,n.state,n.review,l,n.stability,n.difficulty,n.due?d.time(n.due):void 0)}else a=this.replay(r,n.review,n.rating);s.push(a),r=a.card}return s}calculateManualRecord(t,e,s,r){if(!s)return null;const{card:n,log:a}=s,l=d.card(t);return l.due.getTime()===n.due.getTime()?null:(l.scheduled_days=x(n.due,l.due,"days"),this.handleManualRating(l,n.state,d.time(e),a.elapsed_days,r?n.stability:void 0,r?n.difficulty:void 0,n.due))}}var se=Object.defineProperty,re=Object.defineProperties,ne=Object.getOwnPropertyDescriptors,yt=Object.getOwnPropertySymbols,ae=Object.prototype.hasOwnProperty,le=Object.prototype.propertyIsEnumerable,W=(i,t,e)=>t in i?se(i,t,{enumerable:!0,configurable:!0,writable:!0,value:e}):i[t]=e,pt=(i,t)=>{for(var e in t||(t={}))ae.call(t,e)&&W(i,e,t[e]);if(yt)for(var e of yt(t))le.call(t,e)&&W(i,e,t[e]);return i},wt=(i,t)=>re(i,ne(t)),vt=(i,t,e)=>W(i,typeof t!="symbol"?t+"":t,e);function D(i,t){return typeof t=="function"?t(i):i}class bt extends _t{constructor(t){super(t),vt(this,"strategyHandler",new Map),vt(this,"Scheduler");const{enable_short_term:e}=this.parameters;this.Scheduler=e?ft:gt}params_handler_proxy(){const t=this;return{set:function(e,s,r){return s==="request_retention"&&Number.isFinite(r)?t.intervalModifier=t.calculate_interval_modifier(Number(r)):s==="enable_short_term"?t.Scheduler=r===!0?ft:gt:s==="w"&&(r=O(r,e.relearning_steps.length,e.enable_short_term),r=P(Array.from(r),e.relearning_steps.length,e.enable_short_term),t.forgetting_curve=T.bind(this,r),t.intervalModifier=t.calculate_interval_modifier(Number(e.request_retention))),Reflect.set(e,s,r),!0}}}useStrategy(t,e){return this.strategyHandler.set(t,e),this}clearStrategy(t){return t?this.strategyHandler.delete(t):this.strategyHandler.clear(),this}getScheduler(t,e){const r=this.strategyHandler.get(E.SCHEDULER)||this.Scheduler;return new r(t,e,this,this.strategyHandler)}repeat(t,e,s){const n=this.getScheduler(t,e).preview();return D(n,s)}next(t,e,s,r){const n=this.getScheduler(t,e),a=d.rating(s);if(a===o.Manual)throw new f("Cannot review a manual rating");const l=n.review(a);return D(l,r)}get_retrievability(t,e,s=!0){const r=d.card(t);e=e?d.time(e):new Date;const n=r.state!==h.New?Math.max(x(e,r.last_review,"days"),0):0,a=r.state!==h.New?this.forgetting_curve(n,+r.stability.toFixed(8)):0;return s?`${(a*100).toFixed(2)}%`:a}rollback(t,e,s){const r=d.card(t),n=d.review_log(e);if(n.rating===o.Manual)throw new f("Cannot rollback a manual rating");let a,l,u;switch(n.state){case h.New:a=n.due,l=void 0,u=0;break;case h.Learning:case h.Relearning:case h.Review:a=n.review,l=n.due,u=r.lapses-(n.rating===o.Again&&n.state===h.Review?1:0);break}const _=wt(pt({},r),{due:a,stability:n.stability,difficulty:n.difficulty,elapsed_days:n.last_elapsed_days,scheduled_days:n.scheduled_days,reps:Math.max(0,r.reps-1),lapses:Math.max(0,u),learning_steps:n.learning_steps,state:n.state,last_review:l});return D(_,s)}forget(t,e,s=!1,r){const n=d.card(t);e=d.time(e);const a=n.state===h.New?0:x(e,n.due,"days"),l={rating:o.Manual,state:n.state,due:n.due,stability:n.stability,difficulty:n.difficulty,elapsed_days:0,last_elapsed_days:n.elapsed_days,scheduled_days:a,learning_steps:n.learning_steps,review:e},_={card:wt(pt({},n),{due:e,stability:0,difficulty:0,elapsed_days:0,scheduled_days:0,reps:s?0:n.reps,lapses:s?0:n.lapses,learning_steps:0,state:h.New,last_review:n.last_review}),log:l};return D(_,r)}reschedule(t,e=[],s={}){const{recordLogHandler:r,reviewsOrderBy:n,skipManual:a=!0,now:l=new Date,update_memory_state:u=!1}=s;n&&typeof n=="function"&&e.sort(n),a&&(e=e.filter(z=>z.rating!==o.Manual));const _=new ie(this),m=_.reschedule(s.first_card||L(),e),y=m.length,S=d.card(t),g=_.calculateManualRecord(S,l,y?m[y-1]:void 0,u);return{collections:typeof r=="function"?m.map(r):m,reschedule_item:g?D(g,r):null}}}const oe=i=>new bt(i||{});c.AbstractScheduler=C,c.BasicLearningStepsStrategy=st,c.CLAMP_PARAMETERS=dt,c.ConvertStepUnitToMinutes=it,c.DefaultInitSeedStrategy=rt,c.FSRS=bt,c.FSRS5_DEFAULT_DECAY=U,c.FSRS6_DEFAULT_DECAY=ut,c.FSRSAlgorithm=_t,c.FSRSVersion=Ct,c.GenSeedStrategyWithCardId=Rt,c.Grades=k,c.INIT_S_MAX=N,c.Rating=o,c.S_MAX=Ut,c.S_MIN=b,c.State=h,c.StrategyMode=E,c.TypeConvert=d,c.W17_W18_Ceiling=q,c.checkParameters=jt,c.clamp=w,c.clipParameters=P,c.computeDecayFactor=Y,c.createEmptyCard=L,c.dateDiffInDays=et,c.date_diff=x,c.date_scheduler=p,c.default_enable_fuzz=lt,c.default_enable_short_term=I,c.default_learning_steps=ot,c.default_maximum_interval=at,c.default_relearning_steps=ct,c.default_request_retention=nt,c.default_w=j,c.fixDate=At,c.fixRating=It,c.fixState=Et,c.forgetting_curve=T,c.formatDate=J,c.fsrs=oe,c.generatorParameters=ht,c.get_fuzz_range=tt,c.migrateParameters=O,c.roundTo=v,c.show_diff_message=Q});
+
+</script>
 
 <script>
 const VOCAB = {"1":[{"greek":"ἀγάπη, ἡ","english":"love","cat":"Positive Emotions"},{"greek":"γῆ, ἡ","english":"earth, land, ground","cat":"Nature"},{"greek":"ζωή, ἡ","english":"life","cat":"Abstract Nouns"},{"greek":"φωνή, ἡ","english":"voice, sound","cat":"Seeing and Hearing"},{"greek":"ἀλήθεια, ἡ","english":"truth","cat":"Abstract Nouns"},{"greek":"ἁμαρτία, ἡ","english":"sin","cat":"God and the Church"},{"greek":"βασιλεία, ἡ","english":"kingdom, reign","cat":"God and the Church"},{"greek":"δόξα, ἡ","english":"glory, majesty","cat":"God and the Church"},{"greek":"ἐκκλησία, ἡ","english":"congregation, assembly, church","cat":"God and the Church"},{"greek":"ἡμέρα, ἡ","english":"day","cat":"Time"},{"greek":"καρδία, ἡ","english":"heart","cat":"Body"},{"greek":"δέ","english":"and, but, now","cat":"Words of Addition"},{"greek":"καί","english":"and, even, also","cat":"Words of Addition"},{"greek":"μέν","english":"on the one hand, indeed","cat":"Words of Addition"},{"greek":"ὁ, ἡ, τό","english":"the","cat":"Grammar"}],"2":[{"greek":"ἀδελφός, ὁ","english":"brother (and sister)","cat":"People"},{"greek":"ἄνθρωπος, ὁ","english":"man, human being, husband","cat":"People"},{"greek":"θεός, ὁ","english":"God","cat":"People"},{"greek":"κόσμος, ὁ","english":"world, universe; adornment","cat":"Nature"},{"greek":"κύριος, ὁ","english":"Lord, master, sir","cat":"God and the Church"},{"greek":"λόγος, ὁ","english":"word, message, account","cat":"Speaking and Writing"},{"greek":"νόμος, ὁ","english":"law, principle","cat":"Law and Politics"},{"greek":"οὐρανός, ὁ","english":"heaven, sky","cat":"Nature"},{"greek":"υἱός, ὁ","english":"son, descendant","cat":"People"},{"greek":"Χριστός, ὁ","english":"Christ, Messiah, Anointed One","cat":"People"},{"greek":"ἔργον, τό","english":"work, deed","cat":"Everyday Life"},{"greek":"εὐαγγέλιον, τό","english":"good news, gospel","cat":"God and the Church"},{"greek":"ἱερόν, τό","english":"temple, sanctuary","cat":"The City and Buildings"},{"greek":"σημεῖον , τό","english":"sign","cat":"Abstract Nouns"},{"greek":"τέκνον, τό","english":"child, son, descendant","cat":"People"}],"3":[{"greek":"εἰμί","english":"I am, exist","cat":"Existence and Position"},{"greek":"ἀκούω","english":"I hear, listen to, obey","cat":"Seeing and Hearing"},{"greek":"γινώσκω","english":"I know, understand, acknowledge","cat":"Thinking and Wanting"},{"greek":"γράφω","english":"I write","cat":"Speaking and Writing"},{"greek":"ἔχω","english":"I have, hold","cat":"Movement"},{"greek":"λέγω","english":"I say, speak","cat":"Speaking and Writing"},{"greek":"λαμβάνω","english":"I take, receive","cat":"Taking and Giving"},{"greek":"λύω","english":"I loose, destroy","cat":"Movement"},{"greek":"πιστεύω","english":"I believe, have faith/trust in","cat":"Thinking and Wanting"},{"greek":"ἀποκρίνομαι","english":"I answer, reply","cat":"Speaking and Writing"},{"greek":"γίνομαι","english":"I become, come, exist, am born","cat":"Existence and Position"},{"greek":"ἔρχομαι","english":"I come, go","cat":"Movement"},{"greek":"πορεύομαι","english":"I go, travel","cat":"Movement"},{"greek":"ἀλλά","english":"but, yet, nevertheless","cat":"Words of Contradiction"},{"greek":"ὅτι","english":"that, because","cat":"Conjunctions"}],"4":[{"greek":"ἄγω","english":"I lead, bring","cat":"Movement"},{"greek":"βλέπω","english":"I see, look at","cat":"Seeing and Hearing"},{"greek":"διδάσκω","english":"I teach","cat":"Speaking and Writing"},{"greek":"ἐγείρω","english":"I raise up","cat":"Movement"},{"greek":"κρίνω","english":"I judge, condemn","cat":"Law and Politics"},{"greek":"μένω","english":"I remain, abide, dwell","cat":"Existence and Position"},{"greek":"ὑπάγω","english":"I go away, depart","cat":"Movement"},{"greek":"δοῦλος, ὁ","english":"slave","cat":"People"},{"greek":"θάνατος, ὁ","english":"death","cat":"Abstract Nouns"},{"greek":"ψυχή, ἡ","english":"soul, life, living being","cat":"Abstract Nouns"},{"greek":"ὥρα, ἡ","english":"hour","cat":"Time"},{"greek":"εἰ","english":"if, whether","cat":"Conjunctions"},{"greek":"εἴτε","english":"if, whether","cat":"Conjunctions"},{"greek":"καθώς","english":"as, just as, even as","cat":"Conjunctions"},{"greek":"ὡς","english":"as, like","cat":"Conjunctions"}],"5":[{"greek":"βαπτίζω","english":"I baptize, immerse, dip","cat":"God and the Church"},{"greek":"θεραπεύω","english":"I heal","cat":"Everyday Life"},{"greek":"κράζω","english":"I cry out","cat":"Speaking and Writing"},{"greek":"ἄγγελος, ὁ","english":"angel, messenger","cat":"God and the Church"},{"greek":"μαθητής, ὁ","english":"disciple, follower","cat":"People"},{"greek":"ὄχλος, ὁ","english":"crowd","cat":"People"},{"greek":"προφήτης, ὁ","english":"prophet","cat":"Professions"},{"greek":"γάρ","english":"for, because","cat":"Conjunctions"},{"greek":"ἐκεῖ","english":"there, in that place","cat":"Existence and Position"},{"greek":"κἀγώ","english":"and I (καί + ἐγώ)","cat":"Pronouns"},{"greek":"οὖν","english":"then, so, therefore","cat":"Conjunctions"},{"greek":"οὕτως","english":"in this manner, thus, so","cat":"Conjunctions"},{"greek":"τέ","english":"and, but","cat":"Words of Addition"},{"greek":"οὐ, οὐκ, οὐχ","english":"no, not","cat":"Words of Contradiction"},{"greek":"οὐχί","english":"no! (emphatic)","cat":"Words of Contradiction"}],"6":[{"greek":"ἀγαπάω","english":"I love","cat":"Positive Emotions"},{"greek":"γεννάω","english":"I give birth to, bear, beget","cat":"Everyday Life"},{"greek":"ἐπερωτάω","english":"I ask","cat":"Speaking and Writing"},{"greek":"ἐρωτάω","english":"I ask, question, request","cat":"Speaking and Writing"},{"greek":"αἰτέω","english":"I ask, demand","cat":"Speaking and Writing"},{"greek":"ἀκολουθέω","english":"I follow","cat":"Movement"},{"greek":"ζητέω","english":"I seek, look for","cat":"Thinking and Wanting"},{"greek":"καλέω","english":"I call, invite, name","cat":"Speaking and Writing"},{"greek":"λαλέω","english":"I speak, say","cat":"Speaking and Writing"},{"greek":"μαρτυρέω","english":"I testify, bear witness","cat":"Speaking and Writing"},{"greek":"παρακαλέω","english":"I call, urge, comfort","cat":"Speaking and Writing"},{"greek":"περιπατέω","english":"I walk, live","cat":"Movement"},{"greek":"ποιέω","english":"I do, make","cat":"Introductory Verbs"},{"greek":"φοβέομαι","english":"I am afraid, fear, respect","cat":"Negative Emotions"},{"greek":"πληρόω","english":"I fill, fulfill, complete","cat":"Words of Quantity and Quality"}],"7":[{"greek":"ἀπό","english":"from, away from (gen)","cat":"Prepositions"},{"greek":"διά","english":"through (gen); because of (acc)","cat":"Prepositions"},{"greek":"εἰς","english":"into, among, for (acc)","cat":"Prepositions"},{"greek":"ἐκ","english":"from, out of (gen)","cat":"Prepositions"},{"greek":"ἐν","english":"in, on, at, by, with (dat)","cat":"Prepositions"},{"greek":"ἐπί","english":"on, over (gen); on, at, in (dat); on, to, for (acc)","cat":"Prepositions"},{"greek":"κατά","english":"down, against (gen); according to (acc)","cat":"Prepositions"},{"greek":"μετά","english":"with, among (gen); after (acc)","cat":"Prepositions"},{"greek":"παρά","english":"from (gen); beside (dat); on, at (acc)","cat":"Prepositions"},{"greek":"περί","english":"about, concerning (gen); around (acc)","cat":"Prepositions"},{"greek":"πρός","english":"to, toward (acc)","cat":"Prepositions"},{"greek":"σύν","english":"with (dat)","cat":"Prepositions"},{"greek":"ὑπέρ","english":"for (gen); above, beyond (acc)","cat":"Prepositions"},{"greek":"ὑπό","english":"by (gen); under, below (acc)","cat":"Prepositions"},{"greek":"ἐνώπιον","english":"before, in the presence of","cat":"Prepositions"}],"8":[{"greek":"αὐτός, -ή, -ό","english":"he, she, it; self, same","cat":"Pronouns"},{"greek":"ἐγώ, ἡμεῖς","english":"I; we","cat":"Pronouns"},{"greek":"ὅς, ἥ, ὅ","english":"who, which, that","cat":"Pronouns"},{"greek":"σύ, ὑμεῖς","english":"you (sg); you (pl)","cat":"Pronouns"},{"greek":"ἄρτος, ὁ","english":"bread, food","cat":"Everyday Life"},{"greek":"δικαιοσύνη, ἡ","english":"righteousness, justice","cat":"Abstract Nouns"},{"greek":"εἰρήνη, ἡ","english":"peace","cat":"Positive Emotions"},{"greek":"ἐξουσία , ἡ","english":"authority, right, power","cat":"Law and Politics"},{"greek":"θάλασσα, ἡ","english":"lake, sea","cat":"Nature"},{"greek":"λαός, ὁ","english":"people, crowd","cat":"People"},{"greek":"ὁδός, ἡ","english":"way, road","cat":"Everyday Life"},{"greek":"οἰκία, ἡ","english":"home, dwelling, family","cat":"Everyday Life"},{"greek":"οἶκος, ὁ","english":"house, household, family","cat":"Everyday Life"},{"greek":"ὀφθαλμός, ὁ","english":"eye","cat":"Body"},{"greek":"τόπος, ὁ","english":"place","cat":"Everyday Life"}],"9":[{"greek":"διώκω","english":"I pursue, persecute","cat":"Law and Politics"},{"greek":"δοξάζω","english":"I glorify, praise","cat":"God and the Church"},{"greek":"πέμπω","english":"I send","cat":"Movement"},{"greek":"πράσσω","english":"I do, practice","cat":"Introductory Verbs"},{"greek":"σῴζω","english":"I save, rescue, heal","cat":"God and the Church"},{"greek":"τηρέω","english":"I keep, guard, obey","cat":"Existence and Position"},{"greek":"ἀπόστολος, ὁ","english":"apostle, messenger","cat":"People"},{"greek":"ἐντολή, ἡ","english":"command","cat":"Law and Politics"},{"greek":"καιρός, ὁ","english":"time, season","cat":"Time"},{"greek":"κεφαλή, ἡ","english":"head","cat":"Body"},{"greek":"πρόσωπον, τό","english":"face, appearance","cat":"Body"},{"greek":"σάββατον, τό","english":"Sabbath, week","cat":"Everyday Life"},{"greek":"ἔτι","english":"still, yet, more","cat":"Time"},{"greek":"μᾶλλον","english":"more, rather","cat":"Words of Quantity and Quality"},{"greek":"οὐκέτι","english":"no longer","cat":"Words of Contradiction"}],"10":[{"greek":"ἀνοίγω","english":"I open","cat":"Everyday Life"},{"greek":"ἀπολύω","english":"I set free, dismiss, divorce","cat":"Law and Politics"},{"greek":"ἄρχω","english":"I rule, begin (mid)","cat":"Law and Politics"},{"greek":"προσεύχομαι","english":"I pray","cat":"God and the Church"},{"greek":"προσκυνέω","english":"I worship","cat":"God and the Church"},{"greek":"συνάγω","english":"I gather, bring together","cat":"Movement"},{"greek":"ἀρχή, ἡ","english":"beginning","cat":"Abstract Nouns"},{"greek":"δαιμόνιον, τό","english":"demon","cat":"God and the Church"},{"greek":"διδάσκαλος, ὁ","english":"teacher","cat":"Professions"},{"greek":"θρόνος, ὁ","english":"throne","cat":"God and the Church"},{"greek":"ἱμάτιον, τό","english":"clothing, garment","cat":"Everyday Life"},{"greek":"καρπός, ὁ","english":"fruit, crop","cat":"Nature"},{"greek":"πλοῖον, τό","english":"ship, boat","cat":"Everyday Life"},{"greek":"συναγωγή, ἡ","english":"synagogue, assembly","cat":"The City and Buildings"},{"greek":"χαρά, ἡ","english":"joy","cat":"Positive Emotions"}],"11":[{"greek":"ἀναβαίνω","english":"I go up, ascend","cat":"Movement"},{"greek":"ἀπέρχομαι","english":"I go away, depart","cat":"Movement"},{"greek":"ἀποθνῄσκω","english":"I die","cat":"Existence and Position"},{"greek":"βάλλω","english":"I throw, cast out","cat":"Movement"},{"greek":"εἰσέρχομαι","english":"I go in, enter","cat":"Movement"},{"greek":"ἐκβάλλω","english":"I drive/send out","cat":"Movement"},{"greek":"ἐσθίω","english":"I eat","cat":"Everyday Life"},{"greek":"ἐξέρχομαι","english":"I go out, depart, leave","cat":"Movement"},{"greek":"εὑρίσκω","english":"I find, discover","cat":"Thinking and Wanting"},{"greek":"καταβαίνω","english":"I go down, descend","cat":"Movement"},{"greek":"πίνω","english":"I drink","cat":"Everyday Life"},{"greek":"πίπτω","english":"I fall","cat":"Movement"},{"greek":"προσέρχομαι","english":"I go to, approach","cat":"Movement"},{"greek":"φέρω","english":"I bear, carry","cat":"Movement"},{"greek":"ἐπαγγελία, ἡ","english":"promise","cat":"Abstract Nouns"}],"12":[{"greek":"αἴρω","english":"I take up/away","cat":"Taking and Giving"},{"greek":"ἀπαγγέλλω","english":"I announce, report","cat":"Law and Politics"},{"greek":"ἀποκτείνω","english":"I kill, put to death","cat":"Law and Politics"},{"greek":"ἀποστέλλω","english":"I send out","cat":"Movement"},{"greek":"σπείρω","english":"I sow, plant","cat":"Nature"},{"greek":"γλῶσσα, ἡ","english":"language, tongue","cat":"Speaking and Writing"},{"greek":"γραφή, ἡ","english":"writing, Scripture","cat":"God and the Church"},{"greek":"λίθος, ὁ","english":"stone","cat":"Nature"},{"greek":"ναός, ὁ","english":"temple, sanctuary","cat":"The City and Buildings"},{"greek":"παραβολή, ἡ","english":"parable","cat":"Speaking and Writing"},{"greek":"σοφία, ἡ","english":"wisdom","cat":"Abstract Nouns"},{"greek":"σωτηρία, ἡ","english":"salvation, deliverance","cat":"God and the Church"},{"greek":"χρόνος, ὁ","english":"time","cat":"Time"},{"greek":"διό","english":"therefore, for this reason","cat":"Conjunctions"},{"greek":"εὐθύς","english":"immediately","cat":"Time"}],"13":[{"greek":"αἰών, -ῶνος, ὁ","english":"eternity, age, world","cat":"Time"},{"greek":"ἀνήρ, ἀνδρός, ὁ","english":"man, husband","cat":"People"},{"greek":"ἀρχιερεύς, -έως, ὁ","english":"high priest","cat":"Professions"},{"greek":"βασιλεύς, -έως, ὁ","english":"king","cat":"Professions"},{"greek":"πατήρ, πατρός, ὁ","english":"father, ancestor","cat":"People"},{"greek":"γυνή, γυναικός, ἡ","english":"woman, wife","cat":"People"},{"greek":"μήτηρ, -τρός, ἡ","english":"mother","cat":"People"},{"greek":"πίστις, -εως, ἡ","english":"faith, trust","cat":"God and the Church"},{"greek":"πόλις, -εως, ἡ","english":"city, town","cat":"The City and Buildings"},{"greek":"σάρξ, σαρκός, ἡ","english":"flesh, body, mortal nature","cat":"Body"},{"greek":"χάρις, -ιτος, ἡ","english":"grace, thanks","cat":"God and the Church"},{"greek":"ἔθνος, -ους, τό","english":"nation, people; Gentiles (pl)","cat":"People"},{"greek":"ὄνομα, -ατος, τό","english":"name","cat":"Abstract Nouns"},{"greek":"πνεῦμα, -ατος, τό","english":"Spirit, spirit, wind","cat":"God and the Church"},{"greek":"σῶμα, -ατος, τό","english":"body","cat":"Body"}],"14":[{"greek":"ἐγγίζω","english":"I approach, draw near","cat":"Movement"},{"greek":"ζάω","english":"I live","cat":"Existence and Position"},{"greek":"οἶδα","english":"I know, understand","cat":"Thinking and Wanting"},{"greek":"ὁράω","english":"I see, perceive","cat":"Seeing and Hearing"},{"greek":"πείθω","english":"I persuade, convince","cat":"Thinking and Wanting"},{"greek":"αἷμα, -ατος, τό","english":"blood","cat":"Body"},{"greek":"γραμματεύς, -εως, ὁ","english":"scribe","cat":"Professions"},{"greek":"δύναμις, -εως, ἡ","english":"power, miracle","cat":"Abstract Nouns"},{"greek":"πούς, ποδός, ὁ","english":"foot","cat":"Body"},{"greek":"πῦρ, -ός, τό","english":"fire","cat":"Nature"},{"greek":"ῥῆμα, -ατος, τό","english":"word, saying","cat":"Speaking and Writing"},{"greek":"στόμα, -ατος, ἡ","english":"mouth","cat":"Body"},{"greek":"ὕδωρ, -ατος, τό","english":"water","cat":"Nature"},{"greek":"φῶς, φωτός, τό","english":"light","cat":"Nature"},{"greek":"χείρ, χειρός, ἡ","english":"hand","cat":"Body"}],"15":[{"greek":"ἀγαθός, -ή, -όν","english":"good","cat":"Positive Emotions"},{"greek":"ἅγιος, -α, -ον","english":"holy; saints (pl  subst)","cat":"God and the Church"},{"greek":"ἄλλος, -η, -ο","english":"other, another, different","cat":"Words of Quantity and Quality"},{"greek":"δίκαιος, -α, -ον","english":"righteous, just","cat":"Personality"},{"greek":"ἕτερος, -α, -ον","english":"other, another, different","cat":"Words of Quantity and Quality"},{"greek":"καλός, -ή, -όν","english":"good, beautiful","cat":"Physical Qualities"},{"greek":"μέγας, μεγάλη, μέγα","english":"large, great","cat":"Words of Quantity and Quality"},{"greek":"νεκρός, -ά, -όν","english":"dead","cat":"Physical Qualities"},{"greek":"πᾶς, πᾶσα, πᾶν","english":"every, all","cat":"Words of Quantity and Quality"},{"greek":"πιστός, -ή, -όν","english":"faithful, believing","cat":"Personality"},{"greek":"πολύς, πολλή, πολύ","english":"much, many, large, great","cat":"Words of Quantity and Quality"},{"greek":"πονηρός, -ά, -όν","english":"evil, wicked","cat":"Personality"},{"greek":"νῦν","english":"now, at present","cat":"Time"},{"greek":"πάλιν","english":"again","cat":"Time"},{"greek":"ἤ","english":"or, than","cat":"Words of Addition"}],"16":[{"greek":"εὐαγγελίζω","english":"I announce good news, preach","cat":"God and the Church"},{"greek":"θεωρέω","english":"I gaze, behold, look at","cat":"Seeing and Hearing"},{"greek":"κάθημαι","english":"I sit","cat":"Existence and Position"},{"greek":"κηρύσσω","english":"I herald, proclaim, preach","cat":"Speaking and Writing"},{"greek":"ὑπάρχω","english":"I exist, am","cat":"Existence and Position"},{"greek":"αἰώνιος, -α, -ον","english":"eternal","cat":"Time"},{"greek":"ἕκαστος, -η, -ον","english":"each","cat":"Words of Quantity and Quality"},{"greek":"οὐδείς, οὐδεμία, οὐδέν","english":"no one, nothing (subst)","cat":"Words of Contradiction"},{"greek":"πρεσβύτερος, -α, -ον","english":"elder, older","cat":"Professions"},{"greek":"ἀμήν","english":"amen, truly, so be it","cat":"Grammar"},{"greek":"ἔξω","english":"outside","cat":"Existence and Position"},{"greek":"ἕως","english":"until, while","cat":"Time"},{"greek":"οὐδέ","english":"and not, neither, nor","cat":"Words of Contradiction"},{"greek":"οὔτε","english":"and not, neither, nor","cat":"Words of Contradiction"},{"greek":"τότε","english":"then","cat":"Time"}],"17":[{"greek":"φανερόω","english":"I reveal, make known, manifest","cat":"Speaking and Writing"},{"greek":"κρατέω","english":"I grasp, seize, arrest","cat":"Law and Politics"},{"greek":"εἷς, μία, ἕν","english":"one","cat":"Words of Quantity and Quality"},{"greek":"δύο","english":"two","cat":"Words of Quantity and Quality"},{"greek":"τρεῖς","english":"three","cat":"Words of Quantity and Quality"},{"greek":"τέσσαρες","english":"four","cat":"Words of Quantity and Quality"},{"greek":"πέντε","english":"five","cat":"Words of Quantity and Quality"},{"greek":"ἑπτά","english":"seven","cat":"Words of Quantity and Quality"},{"greek":"δέκα","english":"ten","cat":"Words of Quantity and Quality"},{"greek":"δώδεκα","english":"twelve","cat":"Words of Quantity and Quality"},{"greek":"πρῶτος, -η, -ον","english":"first","cat":"Words of Quantity and Quality"},{"greek":"δεύτερος, -α, -ον","english":"second","cat":"Words of Quantity and Quality"},{"greek":"τρίτος, -η, -ον","english":"third","cat":"Words of Quantity and Quality"},{"greek":"τέταρτος, -η, -ον","english":"fourth","cat":"Words of Quantity and Quality"},{"greek":"μή","english":"no, not","cat":"Words of Contradiction"}],"18":[{"greek":"προσφέρω","english":"I bring to, offer","cat":"Taking and Giving"},{"greek":"ἑτοιμάζω","english":"I prepare","cat":"Everyday Life"},{"greek":"δέω","english":"I bind","cat":"Law and Politics"},{"greek":"παιδίον, τό","english":"child","cat":"People"},{"greek":"ὄρος, -ους, τό","english":"mountain, hill","cat":"Nature"},{"greek":"ἐλπίς, -ίδος, ἡ","english":"hope","cat":"Positive Emotions"},{"greek":"μόνος, -η, -ον","english":"only, single, alone","cat":"Words of Quantity and Quality"},{"greek":"ὅλος, -η, -ον","english":"whole, entire, complete","cat":"Words of Quantity and Quality"},{"greek":"ἀγαπητός, -ή, -όν","english":"beloved","cat":"Positive Emotions"},{"greek":"μέσος, -η, - ον","english":"middle, midst","cat":"Words of Quantity and Quality"},{"greek":"λοιπός, -ή, -όν","english":"remaining, rest","cat":"Words of Quantity and Quality"},{"greek":"δεξιός, -ά, -όν","english":"right","cat":"Words of Quantity and Quality"},{"greek":"ἄρα","english":"so then","cat":"Conjunctions"},{"greek":"ἤδη","english":"already, now","cat":"Time"},{"greek":"ὧδε","english":"here","cat":"Existence and Position"}],"19":[{"greek":"ἀλλήλων","english":"of one another (alien)","cat":"Pronouns"},{"greek":"ἑαυτοῦ, -ῆς, -οῦ","english":"(of) himself, herself, itself","cat":"Pronouns"},{"greek":"ἐκεῖνος, -η, -ο","english":"that; those (pl)","cat":"Pronouns"},{"greek":"ἐμαυτοῦ, -ῆς","english":"myself","cat":"Pronouns"},{"greek":"οὗτος, αὕτη, τοῦτο","english":"this; these (pl)","cat":"Pronouns"},{"greek":"σεαυτοῦ, -ῆς","english":"(of) yourself","cat":"Pronouns"},{"greek":"τις, τι","english":"someone, certain","cat":"Pronouns"},{"greek":"τίς, τί","english":"who? which? what?","cat":"Question Words"},{"greek":"ἐμός, -ή, -όν","english":"my, mine","cat":"Pronouns"},{"greek":"ἔσχατος, -η, - ον","english":"last","cat":"Time"},{"greek":"ἴδιος, -α, -ον","english":"one’s own, peculiar","cat":"Pronouns"},{"greek":"κακός, -ή, -όν","english":"bad, evil","cat":"Personality"},{"greek":"ὅσος, -η, -ον","english":"as much as","cat":"Words of Quantity and Quality"},{"greek":"τοιοῦτος, -αύτη, οῦτον","english":"of such a kind, such as this","cat":"Words of Quantity and Quality"},{"greek":"πῶς","english":"how?","cat":"Question Words"}],"20":[{"greek":"ἁμαρτάνω","english":"I sin (ἥμαρτον)","cat":"God and the Church"},{"greek":"βούλομαι","english":"I wish, want, desire","cat":"Thinking and Wanting"},{"greek":"δεῖ","english":"It is necessary, one must/should","cat":"Introductory Verbs"},{"greek":"δοκέω","english":"I seem, suppose, think","cat":"Thinking and Wanting"},{"greek":"δύναμαι","english":"I am able, can","cat":"Introductory Verbs"},{"greek":"θέλω","english":"I want, wish, desire","cat":"Thinking and Wanting"},{"greek":"μέλλω","english":"I am about to, am going to","cat":"Time"},{"greek":"θέλημα, -ατος, τό","english":"will, wish, desire","cat":"Abstract Nouns"},{"greek":"νύξ, νυκτός, ἡ","english":"night","cat":"Time"},{"greek":"μακάριος, -α, -ον","english":"blessed, happy","cat":"Positive Emotions"},{"greek":"μηδείς, μηδεία, μηδέν","english":"no one, nothing (subst)","cat":"Words of Contradiction"},{"greek":"τυφλός, -ή, -όν","english":"blind; blind person (subst)","cat":"Physical Qualities"},{"greek":"πρό","english":"before, in front of (gen)","cat":"Prepositions"},{"greek":"μηδέ","english":"and not, nor","cat":"Words of Contradiction"},{"greek":"ὥστε","english":"so that","cat":"Conjunctions"}],"21":[{"greek":"δέχομαι","english":"I take, receive, welcome","cat":"Taking and Giving"},{"greek":"δικαιόω","english":"I declare righteous, justify","cat":"Law and Politics"},{"greek":"λογίζομαι","english":"I consider, reckon","cat":"Thinking and Wanting"},{"greek":"σταυρόω","english":"I crucify","cat":"God and the Church"},{"greek":"χαίρω","english":"I rejoice; greetings","cat":"Positive Emotions"},{"greek":"ἄν","english":"(particle of indefiniteness: untranslated)","cat":"Grammar"},{"greek":"ἐάν","english":"if, when","cat":"Conjunctions"},{"greek":"ἐὰν μή","english":"unless","cat":"Conjunctions"},{"greek":"ἵνα","english":"in order that, so that, that","cat":"Conjunctions"},{"greek":"ὅπου","english":"where","cat":"Conjunctions"},{"greek":"ὅπως","english":"in order that, that","cat":"Conjunctions"},{"greek":"ὅστις, ἥτις, ὅ τι","english":"whoever, whatever, who","cat":"Pronouns"},{"greek":"ὅταν","english":"whenever, when (ὅτε + ἄν)","cat":"Conjunctions"},{"greek":"ὅτε","english":"when","cat":"Conjunctions"},{"greek":"ποῦ","english":"where?","cat":"Question Words"}],"22":[{"greek":"ἀσπάζομαι","english":"I greet","cat":"Speaking and Writing"},{"greek":"ἐπιγινώσκω","english":"I know, understand","cat":"Thinking and Wanting"},{"greek":"ἐργάζομαι","english":"I work, do, perform","cat":"Everyday Life"},{"greek":"καθίζω","english":"I sit","cat":"Existence and Position"},{"greek":"κατοικέω","english":"I live, dwell","cat":"Existence and Position"},{"greek":"γενεά","english":"generation, family","cat":"Time"},{"greek":"ἔτος, -ους, τό","english":"year","cat":"Time"},{"greek":"θηρίον, τό","english":"animal, beast","cat":"Nature"},{"greek":"θλῖψις, -εως, ἡ","english":"tribulation, affliction","cat":"Negative Emotions"},{"greek":"χρεία, ἡ","english":"need","cat":"Abstract Nouns"},{"greek":"κρίσις, -εως, ἡ","english":"judgment, condemnation","cat":"Law and Politics"},{"greek":"φόβος, ὁ","english":"fear, reverence, respect","cat":"Negative Emotions"},{"greek":"φυλακή, ἡ","english":"watch, guard, prison","cat":"The City and Buildings"},{"greek":"ἔμπροσθεν","english":"in front of, before","cat":"Prepositions"},{"greek":"ἰδού","english":"behold, look, see","cat":"Grammar"}],"23":[{"greek":"ἀνίστημι","english":"I stand up, arise","cat":"Movement"},{"greek":"ἀποδίδωμι","english":"I give back, pay","cat":"Taking and Giving"},{"greek":"ἀπόλλυμι","english":"I destroy, am lost (mid)","cat":"Existence and Position"},{"greek":"ἀφίημι","english":"I forgive, let go, divorce","cat":"God and the Church"},{"greek":"δίδωμι","english":"I give","cat":"Taking and Giving"},{"greek":"ἵστημι","english":"I stand, set","cat":"Existence and Position"},{"greek":"παραδίδωμι","english":"I hand over, betray, entrust","cat":"Taking and Giving"},{"greek":"τίθημι","english":"I put, place, appoint","cat":"Existence and Position"},{"greek":"φημί","english":"I say, affirm","cat":"Speaking and Writing"},{"greek":"ἁμαρτωλός, -όν","english":"sinful, sinner (subst)","cat":"God and the Church"},{"greek":"ἔρημος, -όν","english":"desolate, desert, wilderness (subst)","cat":"Nature"},{"greek":"μικρός, -ά, -όν","english":"small","cat":"Physical Qualities"},{"greek":"ὅμοιος-α, -ον","english":"same nature, similar","cat":"Words of Quantity and Quality"},{"greek":"ἄχρι","english":"until","cat":"Prepositions"},{"greek":"οὐαί","english":"woe","cat":"Negative Emotions"}]};
@@ -527,10 +584,15 @@ const STREAK_KEY = 'oikos-streak';
 const MEMORY_BEST_KEY = 'oikos-memory-best';
 
 let state = {
-  screen: 'home',            // 'home' | 'setup' (step flow) | 'flashcard' (quiz) | 'cards' (flashcards) | 'memory' (game) | 'progress'
+  screen: 'home',            // 'home' | 'setup' | 'flashcard' (quiz) | 'cards' | 'memory' | 'review' (daily review) | 'progress'
   stats: {},                 // wordKey -> { seen, correct }
   streak: { count: 0, lastDate: null },
   memoryBest: null,          // fastest memory-game completion, in ms (null until one is finished)
+  fsrs: {                    // the spaced-repetition memory model, one card per word
+    cards: {},               // wordKey -> serialized ts-fsrs card
+    log: [],                 // one entry per rating given: { key, rating, review (UTC ISO) }
+    intro: { date: null, count: 0 }   // new cards introduced today, against NEW_CARDS_PER_DAY
+  },
   setup: {
     selectBy: 'chapters',     // 'chapters' | 'categories' -- how the word pool is chosen
     selectedChapters: new Set(),
@@ -544,7 +606,8 @@ let state = {
   quiz: null,                 // { settings, pool, items, index, score, answered, selectedOpt, typedValue, typedCorrect }
   cards: null,                // flashcard session: { selection, items, index, revealed }
   memory: null,               // memory game: { selection, pairs, tiles, flipped, matched, startedAt, finishedMs }
-  lastSession: 'quiz',        // 'quiz' | 'cards' | 'memory' -- which one the Review tab should open
+  review: null,               // daily review: { queue, index, revealed, reviewed, done }
+  lastSession: 'quiz',        // 'quiz' | 'cards' | 'memory' | 'review' -- which one the Review tab opens
   randomWord: null,           // { chapter, greek, english } shown when no quiz is selected
   randomWordRevealed: false
 };
@@ -564,6 +627,14 @@ async function loadData() {
   const rawBest = await storageAdapter.get(MEMORY_BEST_KEY);
   const best = rawBest === null || rawBest === undefined ? NaN : Number(rawBest);
   state.memoryBest = Number.isFinite(best) && best > 0 ? best : null;
+
+  const rawCards = await storageAdapter.get(FSRS_CARDS_KEY);
+  try { state.fsrs.cards = rawCards ? JSON.parse(rawCards) : {}; } catch (e) { state.fsrs.cards = {}; }
+  const rawLog = await storageAdapter.get(FSRS_LOG_KEY);
+  try { state.fsrs.log = rawLog ? JSON.parse(rawLog) : []; } catch (e) { state.fsrs.log = []; }
+  if (!Array.isArray(state.fsrs.log)) state.fsrs.log = [];
+  const rawIntro = await storageAdapter.get(FSRS_INTRO_KEY);
+  try { state.fsrs.intro = rawIntro ? JSON.parse(rawIntro) : { date: null, count: 0 }; } catch (e) { state.fsrs.intro = { date: null, count: 0 }; }
 }
 
 function saveStats() { storageAdapter.set(STATS_KEY, JSON.stringify(state.stats)); }
@@ -588,6 +659,195 @@ function recordAttempt(chapter, greek, correct) {
   if (correct) state.stats[k].correct += 1;
   saveStats();
 }
+
+/* ---------- spaced repetition (FSRS-6, via the vendored ts-fsrs) ----------
+   The four existing study modes are self-contained sessions and deliberately
+   stay that way: they do not feed the scheduler. Daily Review is the only
+   place an FSRS card is created or graded.
+
+   Scheduling is entirely the library's -- we persist the card it hands back
+   and hand it straight back on the next review. Nothing here reimplements
+   FSRS, and the parameters are the library's own FSRS-6 defaults (all 21 of
+   them), untrained. Personalised parameters only start to pay off after a few
+   hundred logged reviews, which is why the review log below is kept. */
+
+const FSRS_CARDS_KEY = 'oikos-fsrs-cards';
+const FSRS_LOG_KEY = 'oikos-fsrs-log';
+const FSRS_INTRO_KEY = 'oikos-fsrs-intro';
+
+/* how many never-before-seen words may enter the queue in a single day.
+   Standard SRS practice: without a cap the whole deck front-loads on day one
+   and the reviews all come due together a few days later. */
+const NEW_CARDS_PER_DAY = 10;
+
+/* the target probability of recall the scheduler aims for -- the library
+   default, and the value Anki ships with */
+const FSRS_DESIRED_RETENTION = 0.9;
+
+const scheduler = FSRS.fsrs({ request_retention: FSRS_DESIRED_RETENTION });
+const RATINGS = [
+  { value: FSRS.Rating.Again, label: 'Again', cls: 'rate-again' },
+  { value: FSRS.Rating.Hard,  label: 'Hard',  cls: 'rate-hard' },
+  { value: FSRS.Rating.Good,  label: 'Good',  cls: 'rate-good' },
+  { value: FSRS.Rating.Easy,  label: 'Easy',  cls: 'rate-easy' }
+];
+const FSRS_STATE_LABELS = ['New', 'Learning', 'Review', 'Relearning'];
+
+/* cards are stored as plain JSON (dates as ISO strings) and revived through the
+   library's own converter, so the shape always matches what ts-fsrs expects */
+function reviveCard(raw) {
+  try { return FSRS.TypeConvert.card(raw); } catch (e) { return null; }
+}
+
+function saveFsrsCards() { storageAdapter.set(FSRS_CARDS_KEY, JSON.stringify(state.fsrs.cards)); }
+function saveFsrsLog() { storageAdapter.set(FSRS_LOG_KEY, JSON.stringify(state.fsrs.log)); }
+function saveFsrsIntro() { storageAdapter.set(FSRS_INTRO_KEY, JSON.stringify(state.fsrs.intro)); }
+
+/* a word has an FSRS card only once it has been rated in Daily Review at least
+   once; everything else is State.New and lives only in the vocabulary */
+function fsrsCard(key) {
+  const raw = state.fsrs.cards[key];
+  return raw ? reviveCard(raw) : null;
+}
+
+/* how many new words have already been introduced today (resets at midnight,
+   local time -- the same day boundary the streak uses) */
+function newIntroducedToday() {
+  return state.fsrs.intro.date === todayStr() ? state.fsrs.intro.count : 0;
+}
+
+function noteNewCardIntroduced() {
+  const today = todayStr();
+  if (state.fsrs.intro.date !== today) state.fsrs.intro = { date: today, count: 0 };
+  state.fsrs.intro.count += 1;
+  saveFsrsIntro();
+}
+
+/* Eligibility: only chapters the student has already worked through at least
+   once in an existing mode. This keeps Daily Review in step with where they
+   actually are in the course rather than surfacing chapter 23 on day one. */
+function engagedChapters() {
+  return CHAPTERS.filter(ch => (VOCAB[ch] || []).some(w => {
+    const s = state.stats[wordKey(ch, w.greek.trim())];
+    return s && s.seen > 0;
+  }));
+}
+
+function eligibleWords() {
+  const out = [];
+  engagedChapters().forEach(ch => (VOCAB[ch] || []).forEach(w => {
+    out.push({ chapter: ch, greek: w.greek.trim(), english: w.english.trim(), cat: w.cat });
+  }));
+  return out;
+}
+
+/* Everything due right now, oldest-due first. Cards are only ever created by a
+   review, so anything in the store has been seen at least once. */
+function dueCards(now) {
+  const rows = [];
+  eligibleWords().forEach(w => {
+    const key = wordKey(w.chapter, w.greek);
+    const card = fsrsCard(key);
+    if (card && card.due <= now) rows.push({ word: w, key, card });
+  });
+  rows.sort((a, b) => a.card.due - b.card.due);
+  return rows;
+}
+
+/* Never-seen words waiting to be introduced, in course order (chapter, then the
+   order the textbook lists them), capped by what today has left. */
+function availableNewWords(limit) {
+  const out = [];
+  const words = eligibleWords();
+  for (const w of words) {
+    if (out.length >= limit) break;
+    const key = wordKey(w.chapter, w.greek);
+    if (!state.fsrs.cards[key]) out.push({ word: w, key, card: FSRS.createEmptyCard() });
+  }
+  return out;
+}
+
+function newQuotaLeft() {
+  return Math.max(0, NEW_CARDS_PER_DAY - newIntroducedToday());
+}
+
+/* A Daily Review session is (a) everything due today, then (b) up to the day's
+   remaining new-card allowance. */
+function buildReviewQueue() {
+  const now = new Date();
+  return dueCards(now).concat(availableNewWords(newQuotaLeft()));
+}
+
+/* what the home screen counts -- cheap enough to recompute on every render */
+function reviewDueCount() {
+  return dueCards(new Date()).length + availableNewWords(newQuotaLeft()).length;
+}
+
+/* the Progress-tab breakdown: every word in the vocabulary sits in exactly one
+   FSRS state, and words without a card are State.New by definition */
+function fsrsBreakdown() {
+  const counts = [0, 0, 0, 0];
+  const now = new Date();
+  let due = 0;
+  CHAPTERS.forEach(ch => (VOCAB[ch] || []).forEach(w => {
+    const card = fsrsCard(wordKey(ch, w.greek.trim()));
+    if (!card) { counts[FSRS.State.New] += 1; return; }
+    counts[card.state] += 1;
+    if (card.due <= now) due += 1;
+  }));
+  return { counts, due };
+}
+
+/* how many of the cards now scheduled come back within `days` days */
+function dueWithin(days) {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() + days);
+  let n = 0;
+  Object.values(state.fsrs.cards).forEach(raw => {
+    const card = reviveCard(raw);
+    if (card && card.due <= cutoff) n += 1;
+  });
+  return n;
+}
+
+/* Grade a card. ts-fsrs returns every possible outcome for the current card;
+   we persist the one the student chose and append the review to the log. */
+function rateCard(entry, rating) {
+  const now = new Date();
+  const isNew = !state.fsrs.cards[entry.key];
+  const result = scheduler.repeat(entry.card, now)[rating];
+  state.fsrs.cards[entry.key] = result.card;
+  saveFsrsCards();
+  /* FSRS does not use time-spent-per-card, so the log is just the grade and
+     when it was given -- stored in UTC so it survives a change of timezone */
+  state.fsrs.log.push({ key: entry.key, rating, review: now.toISOString() });
+  saveFsrsLog();
+  if (isNew) noteNewCardIntroduced();
+  return result.card;
+}
+
+/* the interval each button would produce, shown under it the way every other
+   SRS does -- it comes from the same scheduler call the rating will use */
+function ratingPreviews(entry) {
+  const now = new Date();
+  const scheduled = scheduler.repeat(entry.card, now);
+  const out = {};
+  RATINGS.forEach(r => { out[r.value] = formatInterval(scheduled[r.value].card.due, now); });
+  return out;
+}
+
+function formatInterval(due, from) {
+  const mins = Math.round((due - from) / 60000);
+  if (mins < 60) return Math.max(1, mins) + 'm';
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return hours + 'h';
+  const days = Math.round(hours / 24);
+  if (days < 30) return days + 'd';
+  const months = Math.round(days / 30);
+  if (months < 12) return months + 'mo';
+  return (days / 365).toFixed(days >= 365 * 10 ? 0 : 1) + 'y';
+}
+
 
 /* ---------- derived data ---------- */
 function chapterMastery(ch) {
@@ -835,6 +1095,7 @@ function goHome() { state.screen = 'home'; render(); }
 
 function goQuizTab() {
   const cards = cardsInProgress(), quiz = quizInProgress(), memory = !!state.memory;
+  if (state.review && (state.lastSession === 'review' || (!cards && !quiz && !memory))) { state.screen = 'review'; render(); return; }
   if (memory && (state.lastSession === 'memory' || (!cards && !quiz))) { state.screen = 'memory'; render(); return; }
   state.screen = (cards && (state.lastSession === 'cards' || !quiz)) ? 'cards' : 'flashcard';
   render();
@@ -866,6 +1127,52 @@ function shuffleRandomWord() {
 function revealRandomWord() {
   state.randomWordRevealed = true;
 }
+
+/* ---------- daily review session ----------
+   One word at a time, Greek -> English only in this first version. The card is
+   flipped to reveal the meaning, then graded on the four-point FSRS scale --
+   that grade, not a right/wrong mark, is what drives the schedule. */
+function startDailyReview() {
+  const queue = buildReviewQueue();
+  if (!queue.length) return;
+  stopMemoryTimer();
+  state.quiz = null;
+  state.cards = null;
+  state.memory = null;
+  state.review = { queue, index: 0, revealed: false, reviewed: 0, done: false };
+  state.lastSession = 'review';
+  state.screen = 'review';
+  render();
+}
+
+function reviewInProgress() {
+  return !!(state.review && !state.review.done);
+}
+
+function exitReview() {
+  state.review = null;
+  state.screen = 'home';
+  render();
+}
+
+/* grade the card in front of the student and move on. The queue was built once
+   at the start of the session, so a card rated Again comes back in the next
+   session rather than looping here -- keeps a session finite and predictable. */
+function submitRating(rating) {
+  const r = state.review;
+  if (!r || r.done || !r.revealed) return;
+  rateCard(r.queue[r.index], rating);
+  r.reviewed += 1;
+  bumpStreak();
+  if (r.index >= r.queue.length - 1) {
+    r.done = true;
+  } else {
+    r.index += 1;
+    r.revealed = false;
+  }
+  render();
+}
+
 
 /* ---------- quiz setup screen actions ---------- */
 function toggleSetupChapter(ch) {
@@ -1295,6 +1602,25 @@ function flipCard(id, frontKicker, frontText, backKicker, backText, backHint) {
   `;
 }
 
+/* Daily Review's entry point: its own action, separate from Start Learning,
+   because it is a different kind of session -- scheduled by FSRS rather than
+   chosen. It goes quiet rather than disappearing when there is nothing due. */
+function reviewCta() {
+  const due = reviewDueCount();
+  if (due === 0) {
+    return `<div class="review-caught-up text-muted">All caught up — nothing due for review.</div>`;
+  }
+  return `
+    <button class="review-cta" id="btn-daily-review">
+      <span>
+        <span class="review-cta-main">${due} word${due === 1 ? '' : 's'} due for review</span>
+        <span class="review-cta-sub">Daily Review · spaced repetition</span>
+      </span>
+      <span class="review-cta-count">${due}</span>
+    </button>
+  `;
+}
+
 function renderHome() {
   document.getElementById('screen').innerHTML = `
     <div class="fade-in">
@@ -1314,6 +1640,7 @@ function renderHome() {
             <span>Start Learning</span>
           </button>
           <button class="secondary-btn" id="btn-continue">Continue chapter ${continueChapter()}</button>
+          ${reviewCta()}
         </div>
       </div>
     </div>
@@ -1321,6 +1648,8 @@ function renderHome() {
 
   document.getElementById('btn-start-learning').addEventListener('click', openSetup);
   document.getElementById('btn-continue').addEventListener('click', quickResume);
+  const reviewBtn = document.getElementById('btn-daily-review');
+  if (reviewBtn) reviewBtn.addEventListener('click', startDailyReview);
 }
 
 /* ---------- step-by-step quiz setup ---------- */
@@ -1563,6 +1892,98 @@ function wireFlipCard(id, onFlip) {
   });
 }
 
+/* ---------- daily review screens ---------- */
+function renderDailyReview() {
+  const r = state.review;
+  if (!r) { goHome(); return; }
+  if (r.done) { renderReviewDone(); return; }
+
+  const total = r.queue.length;
+  const entry = r.queue[r.index];
+  const w = entry.word;
+  const pct = Math.round((r.index / total) * 100);
+  const isNew = !state.fsrs.cards[entry.key];
+  const previews = ratingPreviews(entry);
+
+  const rateButtons = RATINGS.map(rt => `
+    <button class="rate-btn ${rt.cls}" data-rating="${rt.value}">
+      <span class="rate-label">${rt.label}</span>
+      <span class="rate-when">${previews[rt.value]}</span>
+    </button>
+  `).join('');
+
+  document.getElementById('screen').innerHTML = `
+    <div class="fade-in">
+      ${renderHeader(false, 'Daily Review', true)}
+
+      <div class="progress-row">
+        <span>Card ${r.index + 1} of ${total}</span>
+        <span>${isNew ? 'New word' : 'Review'}</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+
+      ${flipCard('review-card', 'GREEK WORD — TAP TO REVEAL', w.greek, 'ENGLISH MEANING', w.english, `Chapter ${w.chapter} · ${w.greek}`)}
+
+      <div class="rate-hint text-muted" id="rate-hint">Tap the card, then rate how well you recalled it.</div>
+      <div class="rate-row" id="rate-row" hidden>${rateButtons}</div>
+    </div>
+  `;
+
+  wireFlipCard('review-card', () => {
+    r.revealed = true;
+    document.getElementById('rate-row').hidden = false;
+    document.getElementById('rate-hint').hidden = true;
+  });
+  document.querySelectorAll('#rate-row .rate-btn').forEach(btn => {
+    btn.addEventListener('click', () => submitRating(Number(btn.dataset.rating)));
+  });
+  document.getElementById('btn-exit-quiz').addEventListener('click', exitReview);
+}
+
+/* A light close, not a graded one: FSRS sessions have no score -- rating a word
+   Again is information for the scheduler, not a mistake to be marked down for. */
+function renderReviewDone() {
+  const r = state.review;
+  const tomorrow = dueWithin(1);
+  const week = dueWithin(7);
+
+  document.getElementById('screen').innerHTML = `
+    <div class="fade-in">
+      ${renderHeader(false, 'Daily Review', true)}
+
+      <div class="ring-panel glass">
+        ${glassLayer()}
+        <div class="glass-content">
+          <div class="kicker">REVIEW COMPLETE</div>
+          <div class="mem-done-time">${r.reviewed}</div>
+          <div class="ring-label text-muted">word${r.reviewed === 1 ? '' : 's'} reviewed</div>
+        </div>
+      </div>
+
+      <div class="list-panel glass">${glassLayer()}<div class="glass-content">
+        <div class="missed-row"><span>Due by tomorrow</span><span class="missed-english">${tomorrow}</span></div>
+        <div class="missed-row"><span>Due within a week</span><span class="missed-english">${week}</span></div>
+      </div></div>
+
+      <div class="card-actions">
+        <button class="ghost-btn" id="btn-review-home">Done</button>
+        ${reviewDueCount() > 0 ? `
+        <button class="start-btn" id="btn-review-again">
+          <div class="resume-fill"></div>
+          <div class="resume-edge"></div>
+          <span>Keep going</span>
+        </button>` : ''}
+      </div>
+    </div>
+  `;
+
+  document.getElementById('btn-review-home').addEventListener('click', exitReview);
+  document.getElementById('btn-exit-quiz').addEventListener('click', exitReview);
+  const again = document.getElementById('btn-review-again');
+  if (again) again.addEventListener('click', startDailyReview);
+}
+
+
 function renderQuizTab() {
   if (quizInProgress()) { renderFlashcard(); return; }
   if (cardsInProgress()) { renderCards(); return; }
@@ -1796,6 +2217,18 @@ function renderProgress() {
   const learned = learnedWordsCount();
   const progressPct = stats.totalWords > 0 ? Math.round((learned / stats.totalWords) * 100) : 0;
 
+  const srs = fsrsBreakdown();
+  const srsRows = FSRS_STATE_LABELS.map((label, i) => `
+      <div class="fsrs-row">
+        <span>${label}</span>
+        <span class="fsrs-count">${srs.counts[i]}</span>
+      </div>
+    `).join('') + `
+      <div class="fsrs-row is-due">
+        <span>Due today</span>
+        <span class="fsrs-count">${srs.due}</span>
+      </div>`;
+
   const chapterRows = CHAPTERS.map(c => {
     const pct = chapterMastery(c);
     return `
@@ -1843,6 +2276,9 @@ function renderProgress() {
       <div class="kicker" style="margin:0 0 10px">WORDS TO REVIEW</div>
       <div class="list-panel glass">${glassLayer()}<div class="glass-content">${missedHtml}</div></div>
 
+      <div class="kicker" style="margin:0 0 10px">SPACED REPETITION</div>
+      <div class="list-panel glass">${glassLayer()}<div class="glass-content">${srsRows}</div></div>
+
       <div class="kicker" style="margin:0 0 10px">MEMORY GAME</div>
       <div class="list-panel glass">${glassLayer()}<div class="glass-content">
         <div class="missed-row">
@@ -1859,7 +2295,7 @@ function renderProgress() {
 
 function renderTabBar() {
   document.getElementById('tab-home').classList.toggle('active', state.screen === 'home' || state.screen === 'setup');
-  document.getElementById('tab-review').classList.toggle('active', state.screen === 'flashcard' || state.screen === 'cards' || state.screen === 'memory');
+  document.getElementById('tab-review').classList.toggle('active', state.screen === 'flashcard' || state.screen === 'cards' || state.screen === 'memory' || state.screen === 'review');
   document.getElementById('tab-progress').classList.toggle('active', state.screen === 'progress');
 }
 
@@ -1869,6 +2305,7 @@ function render() {
   else if (state.screen === 'flashcard') renderQuizTab();
   else if (state.screen === 'cards') renderCards();
   else if (state.screen === 'memory') renderMemory();
+  else if (state.screen === 'review') renderDailyReview();
   else if (state.screen === 'progress') renderProgress();
   renderTabBar();
 }
