@@ -270,6 +270,11 @@
   .missed-row + .missed-row { border-top: 1px solid var(--hairline-soft); }
   .missed-greek { font-weight: 700; }
   .missed-english { text-align: right; }
+  .missed-right { display: flex; align-items: center; justify-content: flex-end; gap: 9px; text-align: right; min-width: 0; }
+  /* progress towards clearing a word off the review list */
+  .streak-dots { display: inline-flex; gap: 3px; flex-shrink: 0; }
+  .streak-dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--track); display: block; }
+  .streak-dots i.on { background: var(--green); }
   .empty-note { text-align: center; font-size: 13px; padding: 16px 0; }
 
   /* nav bar: full width, opaque, hairline top edge */
@@ -662,12 +667,30 @@ function bumpStreak() {
   saveStreak();
 }
 
+/* `streak` is the run of correct answers since the word was last missed. It is
+   what clears a word from the review list, so a single lucky answer among many
+   misses is not enough -- and one slip puts the word straight back. Stats saved
+   before this existed simply have no streak yet, which reads as zero. */
 function recordAttempt(chapter, greek, correct) {
   const k = wordKey(chapter, greek);
-  if (!state.stats[k]) state.stats[k] = { seen: 0, correct: 0 };
-  state.stats[k].seen += 1;
-  if (correct) state.stats[k].correct += 1;
+  if (!state.stats[k]) state.stats[k] = { seen: 0, correct: 0, streak: 0 };
+  const s = state.stats[k];
+  s.seen += 1;
+  if (correct) {
+    s.correct += 1;
+    s.streak = (s.streak || 0) + 1;
+  } else {
+    s.streak = 0;
+  }
   saveStats();
+}
+
+/* how many correct answers in a row retire a word from "words to review" */
+const REVIEW_CLEAR_STREAK = 3;
+
+function reviewStreak(chapter, greek) {
+  const s = state.stats[wordKey(chapter, greek)];
+  return s && s.streak ? s.streak : 0;
 }
 
 /* ---------- spaced repetition (FSRS-6, via the vendored ts-fsrs) ----------
@@ -961,10 +984,16 @@ function wordsToReview(limit) {
   CHAPTERS.forEach(ch => {
     (VOCAB[ch] || []).forEach(w => {
       const s = state.stats[wordKey(ch, w.greek)];
-      if (s && s.seen > 0 && s.correct < s.seen) {
+      /* a word leaves the list once it has come back correctly
+         REVIEW_CLEAR_STREAK times in a row; missing it again resets the run
+         and the word returns */
+      if (s && s.seen > 0 && s.correct < s.seen && (s.streak || 0) < REVIEW_CLEAR_STREAK) {
         /* chapter and cat come along so this list can be handed straight to a
            quiz, not just rendered on the Progress tab */
-        rows.push({ chapter: ch, greek: w.greek.trim(), english: w.english.trim(), cat: w.cat, accuracy: s.correct / s.seen });
+        rows.push({
+          chapter: ch, greek: w.greek.trim(), english: w.english.trim(), cat: w.cat,
+          accuracy: s.correct / s.seen, streak: s.streak || 0
+        });
       }
     });
   });
@@ -2325,11 +2354,20 @@ function renderProgress() {
   }).join('');
 
   const missed = wordsToReview(8);
+  /* a dot per correct answer still needed, so a word visibly works its way off
+     the list rather than just disappearing one day */
+  const streakDots = n => `
+    <span class="streak-dots" title="${n} of ${REVIEW_CLEAR_STREAK} correct in a row">
+      ${Array.from({ length: REVIEW_CLEAR_STREAK }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}
+    </span>`;
   const missedHtml = missed.length
     ? missed.map(m => `
         <div class="missed-row">
           <span class="missed-greek">${m.greek}</span>
-          <span class="missed-english text-muted">${m.english}</span>
+          <span class="missed-right">
+            <span class="missed-english text-muted">${m.english}</span>
+            ${streakDots(m.streak)}
+          </span>
         </div>
       `).join('')
     : '<div class="empty-note text-muted">No missed words yet — well done.</div>';
