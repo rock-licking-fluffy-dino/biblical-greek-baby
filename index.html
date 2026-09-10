@@ -480,7 +480,7 @@
     display: flex; flex-direction: column; align-items: center; gap: 3px;
   }
   .rate-btn:hover { border-color: var(--sage-300); background: var(--surface-2); }
-  .rate-label { font-size: 12.5px; font-weight: 700; }
+  .rate-label { font-size: 12.5px; font-weight: 700; white-space: nowrap; }
   .rate-when { font-size: 10px; font-weight: 600; color: var(--muted); font-feature-settings: 'tnum'; }
   .rate-btn.rate-again .rate-label { color: var(--muted); }
   .rate-btn.rate-good { background: var(--green-tint); border-color: var(--green-border); }
@@ -685,11 +685,16 @@ const NEW_CARDS_PER_DAY = 10;
 const FSRS_DESIRED_RETENTION = 0.9;
 
 const scheduler = FSRS.fsrs({ request_retention: FSRS_DESIRED_RETENTION });
+/* The four FSRS grades, named as what they actually report -- how well the
+   word came back -- rather than by the library's internal names. "Know it" in
+   particular is not a longer version of "Good": rating a new word Easy skips
+   the learning phase outright and schedules it more than a week away, so the
+   button says so. The intervals underneath are the scheduler's own. */
 const RATINGS = [
-  { value: FSRS.Rating.Again, label: 'Again', cls: 'rate-again' },
-  { value: FSRS.Rating.Hard,  label: 'Hard',  cls: 'rate-hard' },
-  { value: FSRS.Rating.Good,  label: 'Good',  cls: 'rate-good' },
-  { value: FSRS.Rating.Easy,  label: 'Easy',  cls: 'rate-easy' }
+  { value: FSRS.Rating.Again, label: 'Forgot',  cls: 'rate-again' },
+  { value: FSRS.Rating.Hard,  label: 'Hard',    cls: 'rate-hard' },
+  { value: FSRS.Rating.Good,  label: 'Good',    cls: 'rate-good' },
+  { value: FSRS.Rating.Easy,  label: 'Know it', cls: 'rate-easy' }
 ];
 const FSRS_STATE_LABELS = ['New', 'Learning', 'Review', 'Relearning'];
 
@@ -754,15 +759,39 @@ function dueCards(now) {
   return rows;
 }
 
-/* Never-seen words waiting to be introduced, in course order (chapter, then the
-   order the textbook lists them), capped by what today has left. */
+/* The order never-seen words are introduced in.
+
+   The Progress tab already surfaces "words to review" -- the ones an existing
+   mode has caught the student out on -- and those are exactly the words worth
+   handing to the scheduler first. So anything already answered wrong leads the
+   queue, worst-remembered first, and everything else follows in course order.
+
+   This only decides which words *enter* the scheduler and in what order. Once a
+   word has a card, FSRS owns when it comes back; past accuracy from the other
+   modes does not get to override the memory model. */
+function missRank(w) {
+  const s = state.stats[wordKey(w.chapter, w.greek)];
+  if (!s || s.seen === 0) return { missed: false, accuracy: 1 };
+  return { missed: s.correct < s.seen, accuracy: s.correct / s.seen };
+}
+
+function newCardOrder(words) {
+  return words
+    .map((w, i) => ({ w, i, ...missRank(w) }))
+    .sort((a, b) =>
+      (Number(b.missed) - Number(a.missed)) ||   // words already got wrong lead
+      (a.accuracy - b.accuracy) ||               // worst-remembered of those first
+      (a.i - b.i))                               // then course order
+    .map(r => r.w);
+}
+
+/* Never-seen words waiting to be introduced, capped by what today has left. */
 function availableNewWords(limit) {
   const out = [];
-  const words = eligibleWords();
+  const words = newCardOrder(eligibleWords().filter(w => !state.fsrs.cards[wordKey(w.chapter, w.greek)]));
   for (const w of words) {
     if (out.length >= limit) break;
-    const key = wordKey(w.chapter, w.greek);
-    if (!state.fsrs.cards[key]) out.push({ word: w, key, card: FSRS.createEmptyCard() });
+    out.push({ word: w, key: wordKey(w.chapter, w.greek), card: FSRS.createEmptyCard() });
   }
   return out;
 }
@@ -1904,6 +1933,7 @@ function renderDailyReview() {
   const pct = Math.round((r.index / total) * 100);
   const isNew = !state.fsrs.cards[entry.key];
   const previews = ratingPreviews(entry);
+  const label = isNew ? (missRank(w).missed ? 'New word · often missed' : 'New word') : 'Review';
 
   const rateButtons = RATINGS.map(rt => `
     <button class="rate-btn ${rt.cls}" data-rating="${rt.value}">
@@ -1918,7 +1948,7 @@ function renderDailyReview() {
 
       <div class="progress-row">
         <span>Card ${r.index + 1} of ${total}</span>
-        <span>${isNew ? 'New word' : 'Review'}</span>
+        <span>${label}</span>
       </div>
       <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
 
