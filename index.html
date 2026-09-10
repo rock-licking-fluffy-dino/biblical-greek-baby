@@ -472,6 +472,16 @@
     margin-top: 12px; text-align: center; font-size: 11.5px; font-weight: 500; line-height: 1.5;
   }
 
+  /* the optional weak-words action: same shape as the due action, deliberately
+     quieter, so a scheduled review always reads as the primary one */
+  .review-cta.is-practice {
+    background: transparent; border-color: var(--hairline); color: var(--ink); margin-top: 8px;
+  }
+  .review-cta.is-practice:hover { border-color: var(--sage-300); background: var(--surface-2); }
+  .review-cta.is-practice .review-cta-count {
+    background: var(--surface-2); border: 1px solid var(--hairline); color: var(--muted);
+  }
+
   /* the four-grade rating row -- revealed once the card is flipped */
   .rate-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 18px; }
   .rate-btn {
@@ -952,7 +962,9 @@ function wordsToReview(limit) {
     (VOCAB[ch] || []).forEach(w => {
       const s = state.stats[wordKey(ch, w.greek)];
       if (s && s.seen > 0 && s.correct < s.seen) {
-        rows.push({ greek: w.greek, english: w.english, accuracy: s.correct / s.seen });
+        /* chapter and cat come along so this list can be handed straight to a
+           quiz, not just rendered on the Progress tab */
+        rows.push({ chapter: ch, greek: w.greek.trim(), english: w.english.trim(), cat: w.cat, accuracy: s.correct / s.seen });
       }
     });
   });
@@ -1083,10 +1095,14 @@ function makeQuizItems(sourceItems, pool, settings) {
   });
 }
 
+/* `settings.items`, when given, names the exact words to ask; the selection
+   then only supplies the pool the multiple-choice distractors are drawn from.
+   Without it the words are drawn from the selection as before. */
 function startQuiz(settings) {
   const pool = poolForSelection(settings.selection);
-  const n = Math.min(settings.count, pool.length);
-  const chosen = shuffle(pool).slice(0, n);
+  const source = settings.items && settings.items.length ? settings.items : shuffle(pool);
+  const n = Math.min(settings.count, source.length);
+  const chosen = source.slice(0, n);
   stopMemoryTimer();
   state.cards = null;
   state.memory = null;
@@ -1104,6 +1120,26 @@ function startQuiz(settings) {
   };
   state.screen = 'flashcard';
   render();
+}
+
+/* ---------- review-your-weak-words quiz ----------
+   Deliberately not an FSRS session: this drills the words the four quiz modes
+   have caught the student out on -- the same list the Progress tab shows --
+   through the ordinary Multiple Choice machinery, and feeds the ordinary
+   accuracy stats. The scheduler is not involved and no card is touched, so
+   answering here can never disturb a word's spacing. */
+const REVIEW_QUIZ_SIZE = 10;
+
+function startReviewQuiz() {
+  const words = wordsToReview(REVIEW_QUIZ_SIZE);
+  if (!words.length) return;
+  startQuiz({
+    selection: chapterSelection(CHAPTERS),  // distractors may come from anywhere
+    items: shuffle(words),                  // worst-ranked words, asked in random order
+    count: REVIEW_QUIZ_SIZE,
+    direction: 'mixed',
+    mode: 'mc'
+  });
 }
 
 function quickResume() {
@@ -1637,7 +1673,23 @@ function flipCard(id, frontKicker, frontText, backKicker, backText, backHint) {
 function reviewCta() {
   const due = reviewDueCount();
   if (due === 0) {
-    return `<div class="review-caught-up text-muted">All caught up — nothing due for review.</div>`;
+    /* Daily Review done for today -- offer the weak words instead of a dead
+       end. Styled as the quieter option, since it is optional practice rather
+       than something the schedule is asking for. */
+    const weak = wordsToReview(REVIEW_QUIZ_SIZE).length;
+    if (weak === 0) {
+      return `<div class="review-caught-up text-muted">All caught up — nothing due for review.</div>`;
+    }
+    return `
+      <div class="review-caught-up text-muted">All caught up — nothing due today.</div>
+      <button class="review-cta is-practice" id="btn-review-quiz">
+        <span>
+          <span class="review-cta-main">Review ${weak} word${weak === 1 ? '' : 's'} you've missed</span>
+          <span class="review-cta-sub">Multiple choice · Greek ⇄ English</span>
+        </span>
+        <span class="review-cta-count">${weak}</span>
+      </button>
+    `;
   }
   return `
     <button class="review-cta" id="btn-daily-review">
@@ -1679,6 +1731,8 @@ function renderHome() {
   document.getElementById('btn-continue').addEventListener('click', quickResume);
   const reviewBtn = document.getElementById('btn-daily-review');
   if (reviewBtn) reviewBtn.addEventListener('click', startDailyReview);
+  const weakBtn = document.getElementById('btn-review-quiz');
+  if (weakBtn) weakBtn.addEventListener('click', startReviewQuiz);
 }
 
 /* ---------- step-by-step quiz setup ---------- */
