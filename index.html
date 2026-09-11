@@ -97,8 +97,8 @@
     color: var(--ink);
     background: var(--bg);
   }
-  body { min-height: 100vh; }
-  #app { max-width: 480px; margin: 0 auto; position: relative; min-height: 100vh; }
+  body { min-height: 100vh; min-height: 100dvh; }
+  #app { max-width: 480px; margin: 0 auto; position: relative; min-height: 100vh; min-height: 100dvh; }
   #screen { padding: calc(env(safe-area-inset-top) + 34px) 22px 132px; }
 
   a { color: var(--green-text); }
@@ -277,12 +277,21 @@
   .streak-dots i.on { background: var(--green); }
   .empty-note { text-align: center; font-size: 13px; padding: 16px 0; }
 
-  /* nav bar: full width, opaque, hairline top edge */
-  .tab-bar-wrap { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: flex; justify-content: center; pointer-events: none; }
+  /* nav bar: full width, opaque, hairline top edge.
+     the WRAP carries the background, the border and the bottom safe-area pad --
+     the buttons stay capped at 480px, but the bar itself spans the viewport, so
+     a window wider than 480px but still on the mobile layout (landscape phone,
+     split-screen laptop) has no page background showing beside the nav. */
+  .tab-bar-wrap {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+    display: flex; justify-content: center; pointer-events: auto;
+    background: var(--surface); border-top: 1px solid var(--hairline);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
   .tab-bar {
     position: relative; pointer-events: auto; display: flex; width: 100%; max-width: 480px;
-    background: var(--surface); border-top: 1px solid var(--hairline);
-    padding: 12px 0 calc(env(safe-area-inset-bottom) + 14px);
+    background: transparent; border-top: none;
+    padding: 12px 0 14px;
   }
   .tab-bar .glass-fill, .tab-bar .glass-edge { display: none; }
   .tab-btn {
@@ -298,6 +307,7 @@
   .home-screen {
     display: flex; flex-direction: column; justify-content: center;
     min-height: calc(100vh - env(safe-area-inset-top) - 240px);
+    min-height: calc(100dvh - env(safe-area-inset-top) - 240px);
   }
   .greeting {
     margin: 0; font-weight: 800; letter-spacing: -0.035em; line-height: 1.02;
@@ -597,10 +607,14 @@
     .header-row { justify-content: flex-end; min-height: 38px; margin-bottom: 22px; }
 
     /* ---- the rail ---- */
-    .tab-bar-wrap { top: 0; bottom: 0; left: 0; right: auto; width: 88px; display: block; }
+    .tab-bar-wrap {
+      top: 0; bottom: 0; left: 0; right: auto; width: 88px; display: block;
+      background: transparent; border-top: none; padding-bottom: 0;
+    }
     .tab-bar {
       flex-direction: column; align-items: center; justify-content: flex-start;
       width: 88px; max-width: none; height: 100%; gap: 6px;
+      background: var(--surface);
       border-top: none; border-right: 1px solid var(--hairline);
       padding: 26px 0 calc(env(safe-area-inset-bottom) + 20px);
     }
@@ -612,7 +626,8 @@
     .tab-btn svg { width: 24px; height: 24px; }
 
     /* ---- home ---- */
-    .home-screen { min-height: calc(100vh - env(safe-area-inset-top) - 180px); }
+    .home-screen { min-height: calc(100vh - env(safe-area-inset-top) - 180px);
+      min-height: calc(100dvh - env(safe-area-inset-top) - 180px); }
     .greeting { font-size: 62px; }
     .stat-rings { margin-top: 38px; }
     .stat-ring { padding: 26px 10px 22px; }
