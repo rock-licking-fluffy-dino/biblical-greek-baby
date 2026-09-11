@@ -514,26 +514,356 @@
 
   .fade-in { animation: oikos-fade 0.18s ease; }
   @keyframes oikos-fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  /* ===================================================================
+     RESPONSIVE TIERS
+     Base (above) is the phone layout and is left alone, bar the category
+     grid, which is a deliberate change at all three tiers.
+
+     Token note: the brief for this work used a different set of token
+     names to the ones in :root. They map straight across, so nothing new
+     is introduced here:
+       border → --hairline          border-soft → --hairline-soft
+       surface-hover → --surface-2  border-hover → --sage-300
+       accent → --green-solid       accent-soft → --green-tint
+       accent-ink → --green-text    accent-line → --green
+       accent-dark → --green-press
+     =================================================================== */
+
+  /* Pieces that only exist on a wider tier stay out of the way on the phone.
+     They are rendered at every width so the tier is decided by CSS alone. */
+  .nav-brand,
+  .tab-label-full,
+  .key-hint,
+  .prompt-meta,
+  .opt-key,
+  .rate-key,
+  .side-panel,
+  .stat-ring-label-lg,
+  .hint-key,
+  .nav-arrow,
+  .session-keys,
+  .typed-note,
+  .setup-esc { display: none; }
+
+  /* ---------- category cells: a uniform grid at every tier ----------
+     Replaces the text-width pill chips. Same cell language as the chapter
+     number grid: one border, one fill, one selected state. */
+  .categories-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .cat-chip {
+    display: flex; flex-direction: column; justify-content: space-between; gap: 6px;
+    /* stretch, not the inline-pill's centre, so the name sits flush left */
+    align-items: stretch;
+    text-align: left; padding: 11px; min-height: 62px; border-radius: var(--r-sm);
+    font-size: 11.5px; line-height: 1.25; cursor: pointer; user-select: none;
+    font-family: var(--font-sans); font-weight: 600;
+    background: var(--surface); border: 1px solid var(--hairline); color: var(--ink);
+  }
+  .cat-name { display: block; }
+  .cat-count { display: block; font-size: 10px; font-weight: 700; color: var(--muted); font-feature-settings: 'tnum'; }
+
+  /* ---------- side panels (desktop only, hidden above) ---------- */
+  .side-panel-card {
+    border-radius: var(--r-card); border: 1px solid var(--hairline); background: var(--surface);
+    box-shadow: var(--shadow-card); padding: 16px 18px;
+  }
+  .side-panel-card + .side-panel-card { margin-top: 14px; }
+  .side-panel .kicker { display: block; margin-bottom: 10px; }
+  .side-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 7px 0; font-size: 12.5px; color: var(--muted); }
+  .side-row + .side-row { border-top: 1px solid var(--hairline-soft); }
+  .side-row-value { font-weight: 700; color: var(--ink); font-feature-settings: 'tnum'; }
+  .side-note { margin-top: 12px; font-size: 11.5px; line-height: 1.5; color: var(--muted); }
+
+  /* ---------- key hints: one uniform chip, desktop only ---------- */
+  .key-hint {
+    font-size: 10.5px; font-weight: 700; line-height: 1; color: var(--muted);
+    border: 1px solid var(--hairline); border-radius: 5px; padding: 4px 6px;
+    font-family: var(--font-sans); white-space: nowrap;
+  }
+  .key-hint.on-accent { color: color-mix(in srgb, var(--on-green) 70%, transparent); border-color: color-mix(in srgb, var(--on-green) 34%, transparent); }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+
+  /* focus ring for the memory board — outline, so the tile never shifts */
+  .mem-tile.is-focused { outline: 2px solid var(--green); outline-offset: 2px; border-radius: var(--r-sm); }
+
+  /* ===================================================================
+     TABLET — 768px and up. 88px icon rail, content capped at 720px.
+     =================================================================== */
+  @media (min-width: 768px) {
+    #app { max-width: none; margin: 0; padding-left: 88px; }
+    #screen { max-width: 720px; margin: 0 auto; padding: calc(env(safe-area-inset-top) + 40px) 28px 72px; }
+
+    /* the wordmark lives in the rail now */
+    .header-brand { display: none; }
+    .header-row { justify-content: flex-end; min-height: 38px; margin-bottom: 22px; }
+
+    /* ---- the rail ---- */
+    .tab-bar-wrap { top: 0; bottom: 0; left: 0; right: auto; width: 88px; display: block; }
+    .tab-bar {
+      flex-direction: column; align-items: center; justify-content: flex-start;
+      width: 88px; max-width: none; height: 100%; gap: 6px;
+      border-top: none; border-right: 1px solid var(--hairline);
+      padding: 26px 0 calc(env(safe-area-inset-bottom) + 20px);
+    }
+    .nav-brand { display: block; writing-mode: vertical-rl; transform: rotate(180deg); margin-bottom: 28px; }
+    .nav-brand .app-title { font-size: 13px; }
+    .nav-brand .app-tagline { display: none; }
+    .tab-btn { flex: 0 0 auto; width: 64px; padding: 12px 0; border-radius: var(--r-sm); gap: 6px; }
+    .tab-btn.active { background: var(--green-tint); color: var(--green-text); }
+    .tab-btn svg { width: 24px; height: 24px; }
+
+    /* ---- home ---- */
+    .home-screen { min-height: calc(100vh - env(safe-area-inset-top) - 180px); }
+    .greeting { font-size: 62px; }
+    .stat-rings { margin-top: 38px; }
+    .stat-ring { padding: 26px 10px 22px; }
+    .stat-ring-label { font-size: 11.5px; margin-top: 11px; }
+    .stat-caption { font-size: 12px; margin-top: 16px; }
+    .home-actions { margin-top: 38px; }
+    .home-actions .start-btn { padding: 20px 0; }
+    .home-actions .start-btn span { font-size: 16px; }
+
+    /* ---- setup ---- */
+    .setup-panel { padding: 26px; }
+    .step-title { font-size: 28px; }
+    .step-hint { font-size: 13.5px; }
+    .chapters-grid { grid-template-columns: repeat(8, 1fr); gap: 8px; }
+    .chapter-chip { padding: 13px 0; font-size: 12.5px; }
+    .categories-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .cat-chip { padding: 14px; min-height: 68px; font-size: 13px; }
+    .cat-count { font-size: 11px; }
+    .seg-btn { padding: 13px 10px; font-size: 13.5px; }
+
+    /* ---- study screens ---- */
+    .prompt-word { font-size: 66px; }
+    .prompt-word.is-english { font-size: 42px; }
+    .prompt-panel { padding: 52px 28px; }
+    .options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .option-content { font-size: 16px; }
+    .typed-input { padding: 19px; font-size: 17px; }
+    .typed-submit span { font-size: 14.5px; }
+    .flip-inner { min-height: 300px; }
+    .flip .prompt-word { font-size: 72px; }
+    .card-actions { gap: 14px; }
+
+    /* memory: four to a row, centred rather than filling the width */
+    .mem-grid { gap: 16px; align-content: flex-start; }
+    .mem-tile { flex: 0 0 150px; box-sizing: border-box; }
+    .mem-face { padding: 12px; }
+    .mem-back { font-size: 15.5px; }
+    .mem-back.is-greek { font-size: 20px; }
+    .mem-front svg { width: 34px; height: 34px; }
+
+    /* daily review: the grade row stays four across, it is a scale */
+    .rate-row { gap: 10px; }
+    .rate-btn { padding: 16px 6px 14px; }
+
+    /* ---- progress ---- */
+    .prog-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 18px;
+      grid-template-areas: "rings rings" "review srs" "memory memory" "chapters chapters"; }
+    .prog-rings { grid-area: rings; }
+    .prog-review { grid-area: review; }
+    .prog-srs { grid-area: srs; }
+    .prog-memory { grid-area: memory; }
+    .prog-chapters { grid-area: chapters; }
+    .prog-chapters .glass-content { columns: 2; column-gap: 28px; }
+    .prog-chapters .chapter-row { break-inside: avoid; }
+    .prog-chapters .chapter-row + .chapter-row { border-top: none; }
+  }
+
+  /* ===================================================================
+     DESKTOP — 1180px and up. 220px labelled sidebar, content capped at
+     1180px, hover states and keyboard hints switch on here.
+     =================================================================== */
+  @media (min-width: 1180px) {
+    #app { padding-left: 220px; }
+    #screen { max-width: 1180px; padding: 48px 40px 80px; }
+
+    /* ---- the sidebar ---- */
+    .tab-bar-wrap { width: 220px; }
+    .tab-bar { width: 220px; align-items: stretch; padding: 30px 16px calc(env(safe-area-inset-bottom) + 22px); gap: 4px; }
+    .nav-brand { writing-mode: horizontal-tb; transform: none; margin: 0 6px 30px; }
+    .nav-brand .app-title { font-size: 15px; }
+    .nav-brand .app-tagline { display: block; font-size: 10.5px; }
+    .tab-btn {
+      width: auto; flex-direction: row; align-items: center; justify-content: flex-start;
+      gap: 12px; padding: 13px 12px; border-radius: var(--r-sm);
+    }
+    .tab-btn svg { width: 22px; height: 22px; }
+    .tab-label { display: none; }
+    .tab-label-full { display: block; font-size: 13px; font-weight: 600; }
+
+    /* key hints are always visible here, never below */
+    .key-hint, .prompt-meta, .opt-key, .rate-key, .side-panel,
+    .nav-arrow, .session-keys, .typed-note, .setup-esc { display: block; }
+    .key-hint, .opt-key, .rate-key, .nav-arrow { display: inline-block; }
+    .hint-tap { display: none; }
+    .hint-key { display: inline; }
+
+    /* ---- home: one centred column, not a split ---- */
+    .home-screen { max-width: 1000px; margin: 0 auto; }
+    .greeting { font-size: 88px; font-weight: 800; letter-spacing: -0.04em; text-align: left; }
+    .stat-rings { margin-top: 44px; }
+    .stat-ring { padding: 34px 16px 30px; }
+    .stat-ring svg { width: 168px; height: 168px; }
+    .stat-ring-label { display: none; }
+    .stat-ring-label-lg { display: block; margin-top: 16px; }
+    .srl-figure { display: block; font-size: 15px; font-weight: 600; color: var(--ink); font-feature-settings: 'tnum'; }
+    .srl-qualifier { display: block; font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+    /* the numbers live in the ring labels here, so the caption would repeat them */
+    .stat-caption { display: none; }
+    .home-actions { margin-top: 38px; }
+    .home-actions .start-btn { position: relative; padding: 24px 0; }
+    .home-actions .start-btn span { font-size: 17px; }
+    .start-btn .key-hint, .typed-submit .key-hint { font-size: 10.5px; font-weight: 700; }
+    .start-btn .kh-btn { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); z-index: 2; }
+    .home-actions-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+    .home-actions-row > .secondary-btn,
+    .home-actions-row > .review-cta { flex: 1 1 0; min-width: 0; margin-top: 0; width: auto; }
+    /* flex-basis: 0 is content-box, so the two halves are only equal when their
+       horizontal padding matches -- the CTA's 16px, on a centred label */
+    .home-actions-row > .secondary-btn { padding-left: 16px; padding-right: 16px; }
+    .home-actions-row > .review-caught-up { flex: 1 1 100%; margin-top: 0; }
+
+    /* ---- setup ---- */
+    .setup-panel { padding: 34px 36px; }
+    .setup-topbar { gap: 14px; }
+    .step-title { font-size: 34px; }
+    .chapters-grid { grid-template-columns: repeat(12, 1fr); gap: 8px; }
+    .categories-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .cat-chip { font-size: 13.5px; }
+    .setup-panel .start-btn.step-next { position: relative; padding: 19px 0; }
+
+    /* ---- multiple choice: prompt beside the answers ---- */
+    .prompt-word { font-size: 84px; }
+    .prompt-word.is-english { font-size: 54px; }
+    .quiz-body.is-mc {
+      display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 40px; align-items: center;
+    }
+    .quiz-body.is-mc .prompt-panel { margin-bottom: 0; }
+    .quiz-body.is-mc .options { gap: 14px; }
+    .prompt-meta { margin-top: 14px; font-size: 11.5px; color: var(--muted); }
+    .option-btn { min-height: 120px; padding: 14px 18px 18px; display: flex; }
+    .option-btn .option-content { flex: 1; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 0; font-size: 17px; }
+    .opt-key { font-size: 11px; font-weight: 800; color: var(--muted); border: 1px solid var(--hairline); border-radius: 5px; padding: 3px 7px; line-height: 1; }
+    .option-icon { position: absolute; right: 16px; bottom: 18px; }
+
+    /* ---- type answer: one column, the eye runs Greek → caret ---- */
+    .quiz-body.is-typed { max-width: 820px; margin: 0 auto; }
+    .quiz-body.is-typed .typed-input-wrap .glass-edge { border: 1.5px solid var(--green); }
+    .typed-input { padding: 22px; font-size: 19px; }
+    .typed-submit { position: relative; padding: 0 28px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .typed-submit span { font-size: 14.5px; }
+    .typed-submit .key-hint { position: relative; z-index: 1; }
+    .typed-note { text-align: center; font-size: 12px; color: var(--muted); margin-top: 12px; }
+
+    /* ---- flashcards: a quiet column beside the card ---- */
+    .cards-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 32px; align-items: start; }
+    .flip-inner { min-height: 420px; }
+    .flip .prompt-word { font-size: 104px; }
+    .card-actions .start-btn { position: relative; }
+
+    /* ---- memory: 5 x 2, centred ---- */
+    .mem-grid { display: grid; grid-template-columns: repeat(5, 200px); gap: 24px; justify-content: center; align-content: flex-start; }
+    .mem-tile { flex: none; width: 200px; }
+    .mem-back { font-size: 17.5px; }
+    .mem-back.is-greek { font-size: 24px; }
+    .mem-front svg { width: 40px; height: 40px; }
+    .session-keys { font-size: 11.5px; color: var(--muted); }
+
+    /* ---- daily review ---- */
+    .review-layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 32px; align-items: start; }
+    .review-layout .flip-inner { min-height: 340px; }
+    .review-layout .prompt-word.is-english { font-size: 54px; }
+    .rate-row { gap: 12px; margin-top: 20px; }
+    .rate-btn { padding: 14px 8px 16px; gap: 6px; }
+    .rate-key { font-size: 11px; font-weight: 800; color: var(--muted); border: 1px solid var(--hairline); border-radius: 5px; padding: 3px 7px; line-height: 1; }
+    .rate-label { font-size: 13.5px; }
+
+    /* ---- progress: rings and the memory best in one row, lists beside ---- */
+    .prog-grid { grid-template-columns: 1fr 1fr 1fr; column-gap: 20px;
+      grid-template-areas: "rings rings memory" "review review chapters" "srs srs chapters"; }
+    .prog-srs .glass-content { columns: 2; column-gap: 28px; }
+    .prog-srs .fsrs-row { break-inside: avoid; }
+    .prog-chapters .glass-content { column-gap: 34px; }
+    .prog-memory .mem-done-time { font-size: 34px; }
+  }
+
+  /* ===================================================================
+     HOVER — desktop pointers only, so a tap never leaves a stuck state.
+     Existing timing is reused; no transforms, lifts or scale.
+     =================================================================== */
+  @media (hover: hover) and (min-width: 1180px) {
+    .tab-btn:hover { background: var(--surface-2); color: var(--ink); }
+    .tab-btn.active:hover { background: var(--green-tint); color: var(--green-text); }
+
+    .cat-chip:not(.selected):hover { border-color: var(--sage-300); background: var(--surface-2); }
+    .cat-chip.selected:hover { background: var(--green-solid); border-color: var(--green-solid); }
+    .chapter-chip.selectable:not(.selected):hover { border-color: var(--sage-300); background: var(--surface-2); }
+    .chapter-chip.selected:hover { background: var(--green-solid); border-color: var(--green-solid); }
+
+    .option-btn:not(:disabled):hover .option-edge { border-color: var(--sage-300); }
+    .option-btn:not(:disabled):hover .option-fill { background: var(--surface-2); }
+    .mem-tile:not(.is-flipped):not(.is-matched):hover .mem-face { border-color: var(--sage-300); background: var(--surface-2); }
+    .rate-btn:hover { border-color: var(--sage-300); background: var(--surface-2); }
+
+    .start-btn:not(:disabled):hover .resume-fill,
+    .typed-submit:not(:disabled):hover .resume-fill,
+    .resume-btn:not(:disabled):hover .resume-fill { background: var(--green-press); }
+
+    .ghost-btn:not(:disabled):hover,
+    .secondary-btn:hover,
+    .back-btn:hover,
+    .icon-btn:hover { background: var(--green-tint); }
+
+    .chapter-row:hover, .missed-row:hover, .fsrs-row:hover { background: var(--surface-2); }
+  }
+
+  /* hover belongs to pointers: on a touch screen a tap must not leave a
+     stuck hover state, so the base hovers are neutralised there */
+  @media (hover: none) {
+    .icon-btn:hover { background: var(--surface); }
+    button.pill:hover .glass-fill { background: var(--surface); }
+    .chapter-chip.selectable:hover { border-color: var(--hairline); background: var(--surface); }
+    .chapter-chip.selectable.selected:hover { border-color: var(--green-solid); background: var(--green-solid); }
+    .start-btn:not(:disabled):hover .resume-fill,
+    .typed-submit:not(:disabled):hover .resume-fill { background: var(--green-solid); }
+    .option-btn:not(:disabled):hover .option-edge { border-color: var(--hairline); }
+    .option-btn:not(:disabled):hover .option-fill { background: var(--surface); }
+    .choice-btn:hover { border-color: var(--hairline); background: var(--surface); }
+    .choice-btn.active:hover { border-color: var(--green-solid); background: var(--green-solid); }
+    .cat-chip:hover { border-color: var(--hairline); background: var(--surface); }
+    .cat-chip.selected:hover { border-color: var(--green-solid); background: var(--green-solid); }
+    .ghost-btn:not(:disabled):hover, .secondary-btn:hover, .back-btn:hover { background: transparent; }
+    .rate-btn:hover { border-color: var(--hairline); background: var(--surface); }
+    .rate-btn.rate-good:hover { border-color: var(--green-border); background: var(--green-tint); }
+    .review-cta:hover { border-color: var(--green-border); }
+    .review-cta.is-practice:hover { border-color: var(--hairline); background: transparent; }
+  }
 </style>
 </head>
 <body>
 <div id="app">
   <div id="screen"></div>
   <div class="tab-bar-wrap">
-    <div class="tab-bar">
+    <nav class="tab-bar" aria-label="Main">
+      <div class="nav-brand">
+        <p class="app-title">Oikos</p>
+        <div class="app-tagline">Learning to belong in God's Word</div>
+      </div>
       <button class="tab-btn" id="tab-home" title="Home">
         <svg viewBox="0 0 20 20" fill="none"><path d="M2.5 8.5 10 2l7.5 6.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 8v8.5h4.5V12h3v4.5H16V8" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span class="tab-label">HOME</span>
+        <span class="tab-label">HOME</span><span class="tab-label-full">Home</span>
       </button>
       <button class="tab-btn" id="tab-review" title="Review">
         <svg viewBox="0 0 20 20" fill="none"><rect x="2.5" y="5.5" width="12" height="9" rx="1.5" transform="rotate(-6 8.5 10)" stroke="currentColor" stroke-width="1.5"/><rect x="5.5" y="4" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.9"/></svg>
-        <span class="tab-label">REVIEW</span>
+        <span class="tab-label">REVIEW</span><span class="tab-label-full">Review</span>
       </button>
       <button class="tab-btn" id="tab-progress" title="Progress">
         <svg viewBox="0 0 20 20" fill="none"><path d="M3 17V10M9 17V4.5M15 17V12.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        <span class="tab-label">PROGRESS</span>
+        <span class="tab-label">PROGRESS</span><span class="tab-label-full">Progress</span>
       </button>
-    </div>
+    </nav>
   </div>
 </div>
 
@@ -1442,6 +1772,7 @@ function newMemorySession(selection) {
 function startMemory() {
   const session = newMemorySession(selectionFromSetup());
   if (!session) return;
+  memoryFocus = 0;
   stopMemoryTimer();
   state.quiz = null;
   state.cards = null;
@@ -1487,6 +1818,7 @@ function exitMemory() {
 
 function replayMemory() {
   stopMemoryTimer();
+  memoryFocus = 0;
   const session = state.memory ? newMemorySession(state.memory.selection) : null;
   if (!session) { goHome(); return; }
   state.memory = session;
@@ -1640,25 +1972,39 @@ function homeStats() {
   const learned = learnedWordsCount();
   const learnedPct = st.totalWords > 0 ? Math.round((learned / st.totalWords) * 100) : 0;
   const chapterPct = st.totalChapters > 0 ? Math.round((st.chaptersMastered / st.totalChapters) * 100) : 0;
+  const days = state.streak.count;
+  /* two wordings on purpose: the phone keeps the short label and the caption
+     line beneath the card; the desktop tier drops that caption and carries the
+     same numbers in the ring labels instead, so the three cells read as one row */
   const rings = [
-    { svg: statRing(learnedPct + '%', learnedPct), label: 'words<br>learned' },
-    { svg: statRing(String(state.streak.count), null), label: 'day<br>streak' },
-    { svg: statRing(chapterPct + '%', chapterPct), label: 'chapters<br>mastered' }
+    { svg: statRing(learnedPct + '%', learnedPct), label: 'words<br>learned',
+      figure: `${learned} of ${st.totalWords}`, qualifier: 'learned' },
+    { svg: statRing(String(days), null), label: 'day<br>streak',
+      figure: `${days} day${days === 1 ? '' : 's'}`, qualifier: 'in a row' },
+    { svg: statRing(chapterPct + '%', chapterPct), label: 'chapters<br>mastered',
+      figure: `${st.chaptersMastered} of ${st.totalChapters} chapters`, qualifier: 'mastered' }
   ];
   return `
     <div class="stat-rings">
-      ${rings.map(r => `<div class="stat-ring">${r.svg}<div class="stat-ring-label">${r.label}</div></div>`).join('')}
+      ${rings.map(r => `<div class="stat-ring">${r.svg}
+        <div class="stat-ring-label">${r.label}</div>
+        <div class="stat-ring-label-lg"><span class="srl-figure">${r.figure}</span><span class="srl-qualifier">${r.qualifier}</span></div>
+      </div>`).join('')}
     </div>
     <div class="stat-caption">${learned} of ${st.totalWords} words<span class="sep">\u00b7</span>${st.chaptersMastered} of ${st.totalChapters} chapters</div>
   `;
 }
 
-function renderHeader(isHome, pillLabel, showClose, pillId) {
+function renderHeader(isHome, pillLabel, showClose, pillId, sessionHint) {
   let right = '';
   if (showClose) {
-    right = `<button class="icon-btn" id="btn-exit-quiz" title="Close" aria-label="Close">
-         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2.5 2.5l11 11M13.5 2.5l-11 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-       </button>`;
+    right = `<div class="header-right">
+         ${sessionHint ? `<span class="session-keys">${sessionHint}</span>` : ''}
+         <span class="key-hint">Esc to exit</span>
+         <button class="icon-btn" id="btn-exit-quiz" title="Close" aria-label="Close">
+           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2.5 2.5l11 11M13.5 2.5l-11 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+         </button>
+       </div>`;
   } else if (!isHome) {
     const inner = `${glassLayer()}<div class="glass-content">${pillLabel}</div>`;
     right = pillId
@@ -1667,7 +2013,7 @@ function renderHeader(isHome, pillLabel, showClose, pillId) {
   }
   return `
     <div class="header-row">
-      <div>
+      <div class="header-brand">
         <p class="app-title">Oikos</p>
         <div class="app-tagline">Learning to belong in God's Word</div>
       </div>
@@ -1748,9 +2094,12 @@ function renderHome() {
             <div class="resume-fill"></div>
             <div class="resume-edge"></div>
             <span>Start Learning</span>
+            <span class="key-hint on-accent kh-btn">↵</span>
           </button>
-          <button class="secondary-btn" id="btn-continue">Continue chapter ${continueChapter()}</button>
-          ${reviewCta()}
+          <div class="home-actions-row">
+            <button class="secondary-btn" id="btn-continue">Continue chapter ${continueChapter()}</button>
+            ${reviewCta()}
+          </div>
         </div>
       </div>
     </div>
@@ -1826,7 +2175,7 @@ function renderSetup() {
     hint = 'Pick one, several, or all of them.';
     const grid = byCategory
       ? `<div class="categories-grid">${CATEGORIES.map(c =>
-          `<button class="cat-chip ${s.selectedCategories.has(c.name) ? 'selected' : ''}" data-cat="${c.name}">${c.name}<span class="cat-count">${c.count}</span></button>`
+          `<button class="cat-chip ${s.selectedCategories.has(c.name) ? 'selected' : ''}" data-cat="${c.name}"><span class="cat-name">${c.name}</span><span class="cat-count">${c.count} word${c.count === 1 ? '' : 's'}</span></button>`
         ).join('')}</div>`
       : `<div class="chapters-grid">${CHAPTERS.map(c =>
           `<button class="chapter-chip selectable ${s.selectedChapters.has(c) ? 'selected' : ''}" data-ch="${c}">${c}</button>`
@@ -1852,6 +2201,7 @@ function renderSetup() {
         <div class="resume-fill"></div>
         <div class="resume-edge"></div>
         <span>${chosenCount ? `Next — ${selectionLabel(selection)}, ${poolSize} words` : emptyLabel}</span>
+        ${chosenCount ? '<span class="key-hint on-accent kh-btn">↵</span>' : ''}
       </button>
     `;
   } else if (s.step === 2) {
@@ -1898,6 +2248,7 @@ function renderSetup() {
         <div class="resume-fill"></div>
         <div class="resume-edge"></div>
         <span>${canStart ? 'Start Learning' : (byCategory ? 'Select more categories' : 'Select more chapters')}</span>
+        ${canStart ? '<span class="key-hint on-accent kh-btn">↵</span>' : ''}
       </button>
     `;
   }
@@ -1916,6 +2267,7 @@ function renderSetup() {
               <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M10 2.5 4.5 8l5.5 5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
             <span class="step-count">Step ${stepIndex + 1}</span>
+            <span class="setup-esc key-hint">Esc to leave setup</span>
           </div>
           <div class="step-track"><div class="step-fill" style="width:${pct}%"></div></div>
 
@@ -1956,6 +2308,18 @@ function renderSetup() {
   }
 }
 
+/* what the session is drawing from, for the desktop side panel:
+   the chapter numbers, or the category names when that is how it was chosen */
+function sessionSourceRow(sel) {
+  if (!sel) return '';
+  const byCat = sel.by === 'categories';
+  const list = byCat ? sel.categories : sel.chapters;
+  if (!list.length) return '';
+  const label = byCat ? (list.length === 1 ? 'Category' : 'Categories') : (list.length === 1 ? 'Chapter' : 'Chapters');
+  const value = list.length > 4 ? `${list.length} selected` : list.join(', ');
+  return `<div class="side-row"><span>${label}</span><span class="side-row-value">${value}</span></div>`;
+}
+
 /* ---------- flashcard session ---------- */
 function renderCards() {
   const c = state.cards;
@@ -1975,15 +2339,35 @@ function renderCards() {
       </div>
       <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
 
-      ${flipCard('flip-card', 'GREEK WORD — TAP TO FLIP', w.greek, 'ENGLISH MEANING', w.english, `Chapter ${w.chapter} · ${w.greek}`)}
+      <div class="cards-layout">
+        <div>
+          ${flipCard('flip-card', 'GREEK WORD — <span class="hint-tap">TAP TO FLIP</span><span class="hint-key">SPACE TO FLIP</span>', w.greek, 'ENGLISH MEANING', w.english, `Chapter ${w.chapter} · ${w.greek}`)}
 
-      <div class="card-actions">
-        <button class="ghost-btn" id="btn-prev-card" ${c.index === 0 ? 'disabled' : ''}>Previous</button>
-        <button class="start-btn" id="btn-next-card" style="margin-top:0">
-          <div class="resume-fill"></div>
-          <div class="resume-edge"></div>
-          <span>${isLast ? 'Finish' : 'Next card'}</span>
-        </button>
+          <div class="card-actions">
+            <button class="ghost-btn" id="btn-prev-card" ${c.index === 0 ? 'disabled' : ''}><span class="nav-arrow">←&nbsp;</span>Previous</button>
+            <button class="start-btn" id="btn-next-card" style="margin-top:0">
+              <div class="resume-fill"></div>
+              <div class="resume-edge"></div>
+              <span>${isLast ? 'Finish' : 'Next card'}<span class="nav-arrow">&nbsp;→</span></span>
+            </button>
+          </div>
+        </div>
+
+        <aside class="side-panel">
+          <div class="side-panel-card">
+            <span class="kicker">THIS SESSION</span>
+            ${sessionSourceRow(c.selection)}
+            <div class="side-row"><span>Cards</span><span class="side-row-value">${total}</span></div>
+            <div class="side-row"><span>Reviewed</span><span class="side-row-value">${c.index}</span></div>
+          </div>
+          <div class="side-panel-card">
+            <span class="kicker">KEYS</span>
+            <div class="side-row"><span>Flip card</span><span class="key-hint">Space</span></div>
+            <div class="side-row"><span>Previous</span><span class="key-hint">←</span></div>
+            <div class="side-row"><span>Next</span><span class="key-hint">→</span></div>
+            <div class="side-row"><span>Exit</span><span class="key-hint">Esc</span></div>
+          </div>
+        </aside>
       </div>
     </div>
   `;
@@ -2018,8 +2402,9 @@ function renderDailyReview() {
   const previews = ratingPreviews(entry);
   const label = isNew ? (missRank(w).missed ? 'New word · often missed' : 'New word') : 'Review';
 
-  const rateButtons = RATINGS.map(rt => `
+  const rateButtons = RATINGS.map((rt, i) => `
     <button class="rate-btn ${rt.cls}" data-rating="${rt.value}">
+      <span class="rate-key">${i + 1}</span>
       <span class="rate-label">${rt.label}</span>
       <span class="rate-when">${previews[rt.value]}</span>
     </button>
@@ -2035,10 +2420,24 @@ function renderDailyReview() {
       </div>
       <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
 
-      ${flipCard('review-card', 'GREEK WORD — TAP TO REVEAL', w.greek, 'ENGLISH MEANING', w.english, `Chapter ${w.chapter} · ${w.greek}`)}
+      <div class="review-layout">
+        <div>
+          ${flipCard('review-card', 'GREEK WORD — <span class="hint-tap">TAP TO REVEAL</span><span class="hint-key">SPACE TO REVEAL</span>', w.greek, 'ENGLISH MEANING', w.english, `Chapter ${w.chapter} · ${w.greek}`)}
 
-      <div class="rate-hint text-muted" id="rate-hint">Tap the card, then rate how well you recalled it.</div>
-      <div class="rate-row" id="rate-row" hidden>${rateButtons}</div>
+          <div class="rate-hint text-muted" id="rate-hint">Tap the card, then rate how well you recalled it.</div>
+          <div class="rate-row" id="rate-row" hidden>${rateButtons}</div>
+        </div>
+
+        <aside class="side-panel">
+          <div class="side-panel-card">
+            <span class="kicker">THIS SESSION</span>
+            <div class="side-row"><span>Reviewed</span><span class="side-row-value">${r.reviewed}</span></div>
+            <div class="side-row"><span>Remaining</span><span class="side-row-value">${total - r.index}</span></div>
+            <div class="side-row"><span>New today</span><span class="side-row-value">${newIntroducedToday()} of ${NEW_CARDS_PER_DAY}</span></div>
+            <div class="side-note">Space reveals the card. 1–4 grade it once revealed.</div>
+          </div>
+        </aside>
+      </div>
     </div>
   `;
 
@@ -2141,7 +2540,7 @@ function renderFlashcard() {
 
   let bodyHtml;
   if (q.settings.mode === 'mc') {
-    const optionsHtml = current.options.map(opt => {
+    const optionsHtml = current.options.map((opt, optIndex) => {
       let cls = '', icon = '';
       if (q.answered) {
         if (opt === current.correctAnswer) {
@@ -2158,7 +2557,7 @@ function renderFlashcard() {
         <button class="option-btn ${cls}" data-opt="${opt.replace(/"/g, '&quot;')}" ${q.answered ? 'disabled' : ''}>
           <div class="option-fill"></div>
           <div class="option-edge"></div>
-          <div class="option-content"><span>${opt}</span>${icon}</div>
+          <div class="option-content"><span class="opt-key">${optIndex + 1}</span><span>${opt}</span>${icon}</div>
         </button>
       `;
     }).join('');
@@ -2178,8 +2577,10 @@ function renderFlashcard() {
         <button class="typed-submit" id="typed-submit" ${q.answered ? 'disabled' : ''}>
           <div class="resume-fill"></div>
           <span>Check</span>
+          <span class="key-hint on-accent">↵</span>
         </button>
       </div>
+      <div class="typed-note">Enter checks your answer, then Enter again for the next word</div>
       <div class="typed-feedback text-muted">${feedback}</div>
     `;
   }
@@ -2194,15 +2595,18 @@ function renderFlashcard() {
       </div>
       <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
 
-      <div class="prompt-panel glass">
-        ${glassLayer()}
-        <div class="glass-content">
-          <div class="kicker">${tag}</div>
-          <div class="prompt-word ${isEnglishPrompt ? 'is-english' : ''}" style="margin-top:12px">${current.prompt}</div>
+      <div class="quiz-body ${q.settings.mode === 'mc' ? 'is-mc' : 'is-typed'}">
+        <div class="prompt-panel glass">
+          ${glassLayer()}
+          <div class="glass-content">
+            <div class="kicker">${tag}</div>
+            <div class="prompt-word ${isEnglishPrompt ? 'is-english' : ''}" style="margin-top:12px">${current.prompt}</div>
+            ${q.settings.mode === 'mc' ? `<div class="prompt-meta">Chapter ${current.item.chapter} · ${current.item.cat}</div>` : ''}
+          </div>
         </div>
-      </div>
 
-      ${bodyHtml}
+        <div>${bodyHtml}</div>
+      </div>
     </div>
   `;
 
@@ -2257,7 +2661,7 @@ function renderMemory() {
 
   document.getElementById('screen').innerHTML = `
     <div class="fade-in">
-      ${renderHeader(false, 'Memory Game', true)}
+      ${renderHeader(false, 'Memory Game', true, null, 'Arrow keys move · Space flips · R replays')}
 
       <div class="progress-row">
         <span id="mem-count">Pairs ${m.matched} of ${m.pairs}</span>
@@ -2272,6 +2676,7 @@ function renderMemory() {
   document.querySelectorAll('.mem-tile').forEach(el => {
     el.addEventListener('click', () => flipMemoryTile(el.dataset.tile));
   });
+  paintMemoryFocus();
   document.getElementById('btn-exit-quiz').addEventListener('click', exitMemory);
 }
 
@@ -2284,7 +2689,7 @@ function renderMemoryDone() {
 
   document.getElementById('screen').innerHTML = `
     <div class="fade-in">
-      ${renderHeader(false, 'Memory Game', true)}
+      ${renderHeader(false, 'Memory Game', true, null, 'R deals a new board')}
 
       <div class="ring-panel glass">
         ${glassLayer()}
@@ -2376,41 +2781,51 @@ function renderProgress() {
     <div class="fade-in">
       ${renderHeader(false, 'Progress')}
 
-      <div class="rings-row">
-        <div class="ring-panel glass">
-          ${glassLayer()}
-          <div class="glass-content">
-            <div class="kicker">ACCURACY</div>
-            ${ringSvg(stats.accuracy)}
-            <div class="ring-label text-muted">${stats.wordsSeen} words answered</div>
+      <div class="prog-grid">
+        <div class="rings-row prog-rings">
+          <div class="ring-panel glass">
+            ${glassLayer()}
+            <div class="glass-content">
+              <div class="kicker">ACCURACY</div>
+              ${ringSvg(stats.accuracy)}
+              <div class="ring-label text-muted">${stats.wordsSeen} words answered</div>
+            </div>
+          </div>
+          <div class="ring-panel glass">
+            ${glassLayer()}
+            <div class="glass-content">
+              <div class="kicker">PROGRESS</div>
+              ${ringSvg(progressPct)}
+              <div class="ring-label text-muted">${learned} of ${stats.totalWords} words learned</div>
+            </div>
           </div>
         </div>
-        <div class="ring-panel glass">
-          ${glassLayer()}
-          <div class="glass-content">
-            <div class="kicker">PROGRESS</div>
-            ${ringSvg(progressPct)}
-            <div class="ring-label text-muted">${learned} of ${stats.totalWords} words learned</div>
-          </div>
-        </div>
+
+        <section class="prog-block prog-review">
+          <div class="kicker" style="margin:0 0 10px">WORDS TO REVIEW</div>
+          <div class="list-panel glass">${glassLayer()}<div class="glass-content">${missedHtml}</div></div>
+        </section>
+
+        <section class="prog-block prog-srs">
+          <div class="kicker" style="margin:0 0 10px">SPACED REPETITION</div>
+          <div class="list-panel glass">${glassLayer()}<div class="glass-content">${srsRows}</div></div>
+        </section>
+
+        <section class="prog-block prog-memory">
+          <div class="kicker" style="margin:0 0 10px">MEMORY GAME</div>
+          <div class="list-panel glass">${glassLayer()}<div class="glass-content">
+            <div class="missed-row">
+              <span>Best time</span>
+              <span class="missed-english ${state.memoryBest === null ? 'text-muted' : ''}">${state.memoryBest === null ? 'Not played yet' : formatTime(state.memoryBest)}</span>
+            </div>
+          </div></div>
+        </section>
+
+        <section class="prog-block prog-chapters">
+          <div class="kicker" style="margin:0 0 10px">BY CHAPTER</div>
+          <div class="list-panel glass" style="margin-bottom:0">${glassLayer()}<div class="glass-content">${chapterRows}</div></div>
+        </section>
       </div>
-
-      <div class="kicker" style="margin:0 0 10px">WORDS TO REVIEW</div>
-      <div class="list-panel glass">${glassLayer()}<div class="glass-content">${missedHtml}</div></div>
-
-      <div class="kicker" style="margin:0 0 10px">SPACED REPETITION</div>
-      <div class="list-panel glass">${glassLayer()}<div class="glass-content">${srsRows}</div></div>
-
-      <div class="kicker" style="margin:0 0 10px">MEMORY GAME</div>
-      <div class="list-panel glass">${glassLayer()}<div class="glass-content">
-        <div class="missed-row">
-          <span>Best time</span>
-          <span class="missed-english ${state.memoryBest === null ? 'text-muted' : ''}">${state.memoryBest === null ? 'Not played yet' : formatTime(state.memoryBest)}</span>
-        </div>
-      </div></div>
-
-      <div class="kicker" style="margin:0 0 10px">BY CHAPTER</div>
-      <div class="list-panel glass" style="margin-bottom:0">${glassLayer()}<div class="glass-content">${chapterRows}</div></div>
     </div>
   `;
 }
@@ -2431,6 +2846,155 @@ function render() {
   else if (state.screen === 'progress') renderProgress();
   renderTabBar();
 }
+
+/* ---------- keyboard: desktop only ----------
+   Every handler is gated on the desktop breakpoint, so the touch tiers behave
+   exactly as they did. Typing into a field swallows everything but Escape --
+   Type Answer's own Enter is wired to the input itself and is left alone. */
+const desktopQuery = window.matchMedia('(min-width: 1180px)');
+function isDesktop() { return desktopQuery.matches; }
+
+/* which board tile the focus ring is on. UI-only, so it stays out of `state`. */
+let memoryFocus = 0;
+
+function paintMemoryFocus() {
+  const tiles = [...document.querySelectorAll('.mem-tile')];
+  if (!tiles.length) return;
+  memoryFocus = Math.max(0, Math.min(memoryFocus, tiles.length - 1));
+  tiles.forEach((el, i) => el.classList.toggle('is-focused', isDesktop() && i === memoryFocus));
+}
+
+function moveMemoryFocus(delta) {
+  const tiles = document.querySelectorAll('.mem-tile');
+  if (!tiles.length) return;
+  memoryFocus = Math.max(0, Math.min(memoryFocus + delta, tiles.length - 1));
+  paintMemoryFocus();
+}
+
+/* what is actually in front of the student -- the Review tab resolves to
+   whichever session is open, so the screen name alone is not enough */
+function activeScreenKind() {
+  if (state.screen === 'setup') return 'setup';
+  if (state.screen === 'memory') return state.memory && state.memory.finishedMs !== null ? 'memory-done' : 'memory';
+  if (state.screen === 'review') return state.review && !state.review.done ? 'review' : 'review-done';
+  if (state.screen === 'cards') return cardsInProgress() ? 'cards' : null;
+  if (state.screen === 'flashcard') {
+    if (quizInProgress()) return state.quiz.settings.mode === 'mc' ? 'mc' : 'typed';
+    if (cardsInProgress()) return 'cards';
+  }
+  return null;
+}
+
+/* Escape raises exactly what the close button raises, confirm included */
+function escapeAction(kind) {
+  if (kind === 'setup') return goHome;
+  if (kind === 'memory' || kind === 'memory-done') return exitMemory;
+  if (kind === 'review' || kind === 'review-done') return exitReview;
+  if (kind === 'cards') return exitCards;
+  if (kind === 'mc' || kind === 'typed') return exitQuiz;
+  return null;
+}
+
+function clickNth(selector, n) {
+  const els = document.querySelectorAll(selector);
+  if (els[n]) els[n].click();
+}
+
+function handleShortcut(e) {
+  if (!isDesktop()) return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+  const kind = activeScreenKind();
+  if (!kind) return;
+
+  if (e.key === 'Escape') {
+    const exit = escapeAction(kind);
+    if (exit) { e.preventDefault(); exit(); }
+    return;
+  }
+
+  /* past here, a focused field owns the keyboard */
+  const el = document.activeElement;
+  if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return;
+
+  const digit = /^[1-9]$/.test(e.key) ? Number(e.key) : 0;
+
+  if (kind === 'mc') {
+    if (digit >= 1 && digit <= 4) { e.preventDefault(); clickNth('.option-btn', digit - 1); }
+    return;
+  }
+
+  if (kind === 'cards') {
+    if (e.key === ' ' || e.key === 'Spacebar') {
+      e.preventDefault();
+      const card = document.getElementById('flip-card');
+      if (card) card.click();
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      if (state.cards && state.cards.index > 0) prevCard();
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      nextCard();
+    }
+    return;
+  }
+
+  if (kind === 'review') {
+    if (e.key === ' ' || e.key === 'Spacebar') {
+      e.preventDefault();
+      if (!state.review.revealed) {
+        const card = document.getElementById('review-card');
+        if (card) card.click();
+      }
+    } else if (digit >= 1 && digit <= 4 && state.review.revealed) {
+      e.preventDefault();
+      clickNth('#rate-row .rate-btn', digit - 1);
+    }
+    return;
+  }
+
+  if (kind === 'memory') {
+    const tiles = document.querySelectorAll('.mem-tile');
+    if (!tiles.length) return;
+    const cols = 5;   /* the desktop board is 5 x 2, and this only runs there */
+    if (e.key === 'ArrowLeft') { e.preventDefault(); moveMemoryFocus(-1); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); moveMemoryFocus(1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); moveMemoryFocus(-cols); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); moveMemoryFocus(cols); }
+    else if (e.key === ' ' || e.key === 'Spacebar' || e.key === 'Enter') {
+      e.preventDefault();
+      const tile = tiles[memoryFocus];
+      if (tile) flipMemoryTile(tile.dataset.tile);
+    }
+    return;
+  }
+
+  if (kind === 'memory-done') {
+    if (e.key === 'r' || e.key === 'R') { e.preventDefault(); memoryFocus = 0; replayMemory(); }
+    return;
+  }
+
+  if (kind === 'setup') {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const next = document.getElementById('btn-step-next') || document.getElementById('btn-launch');
+      if (next) { if (!next.disabled) next.click(); }
+      else setupNext();
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      setupBack();
+    } else if (digit >= 1 && digit <= 4) {
+      /* the format, direction and word-count steps only -- step 1 is a grid */
+      const step = state.setup.step;
+      const sel = step === 2 ? '[data-mode]' : step === 3 ? '[data-dir]' : step === 4 ? '[data-count]' : null;
+      if (sel) { e.preventDefault(); clickNth(sel, digit - 1); }
+    }
+  }
+}
+
+document.addEventListener('keydown', handleShortcut);
+/* crossing the breakpoint with a board open clears or restores the ring */
+desktopQuery.addEventListener('change', () => { if (state.screen === 'memory') paintMemoryFocus(); });
 
 document.getElementById('tab-home').addEventListener('click', goHome);
 document.getElementById('tab-review').addEventListener('click', goQuizTab);
