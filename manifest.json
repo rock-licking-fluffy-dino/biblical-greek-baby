@@ -1,6 +1,6 @@
 {
-  "name": "OIKOS",
-  "short_name": "OIKOS",
+  "name": "Oikos",
+  "short_name": "Oikos",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
