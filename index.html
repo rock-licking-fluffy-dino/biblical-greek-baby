@@ -1140,6 +1140,52 @@
   .pg-ref-table td { color: var(--ink); line-height: 1.5; min-width: 260px; }
   .pg-ref-wrap { border-radius: var(--r-card); border: 1px solid var(--hairline); background: var(--surface); box-shadow: var(--shadow-card); overflow-x: auto; padding: 4px 16px; }
 
+  /* ---------- the collection ----------
+     Every word in the course, one square each, in course order. Each chapter
+     is its own row, so a gap reads as a hole in a row rather than as a break
+     in a wall, and the chapter numbers run down the side. */
+  .coll-head { text-align: center; margin: 4px 0 22px; }
+  .coll-count { font-size: clamp(44px, 14vw, 58px); font-weight: 800; line-height: 1; letter-spacing: -0.04em; font-feature-settings: 'tnum'; }
+  .coll-of { font-size: 14px; font-weight: 600; color: var(--muted); margin-top: 8px; }
+  .coll-wrap { display: flex; flex-direction: column; gap: 4px; margin: 0 auto; max-width: 560px; }
+  .coll-row { display: flex; align-items: center; gap: 8px; }
+  .coll-ch {
+    flex: 0 0 18px; text-align: right; font-size: 9.5px; font-weight: 600;
+    color: var(--faint); font-feature-settings: 'tnum';
+  }
+  .coll-squares { flex: 1 1 auto; display: grid; grid-template-columns: repeat(15, 1fr); gap: 4px; }
+  .coll-sq {
+    aspect-ratio: 1; border-radius: 3px; padding: 0; border: 0; cursor: pointer;
+    background: var(--sage-300); box-sizing: border-box; font-family: var(--font-sans);
+  }
+  .coll-sq.is-learned { background: var(--green); }
+  .coll-sq.is-new { background: var(--bg); border: 1px solid var(--hairline); }
+  .coll-sq.is-picked { outline: 2px solid var(--green-text); outline-offset: 2px; }
+  /* the detail holds its height whether or not a square is chosen, so the
+     grid above it never jumps as words are tapped through */
+  .coll-detail {
+    margin: 22px auto 0; max-width: 560px; min-height: 92px; padding: 16px 18px;
+    border-radius: var(--r-card); background: var(--surface); border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-card); display: flex; align-items: center; gap: 14px;
+  }
+  .coll-detail-main { flex: 1 1 auto; min-width: 0; }
+  .coll-greek { display: block; font-size: 20px; font-weight: 800; line-height: 1.25; word-break: break-word; }
+  .coll-english { display: block; font-size: 13.5px; color: var(--muted); margin-top: 5px; line-height: 1.45; }
+  .coll-meta { display: block; font-size: 11px; color: var(--faint); margin-top: 7px; font-feature-settings: 'tnum'; }
+  .coll-empty { font-size: 13px; color: var(--muted); text-align: center; width: 100%; line-height: 1.5; }
+  .coll-legend { margin: 18px auto 0; max-width: 560px; }
+
+  /* the way in, from the foot of the vocabulary tab */
+  .coll-link {
+    width: 100%; box-sizing: border-box; margin-bottom: 18px; padding: 16px 18px; cursor: pointer;
+    text-align: left; font-family: var(--font-sans); color: var(--ink); border-radius: var(--r-card);
+    background: var(--surface); border: 1px solid var(--green-border); box-shadow: var(--shadow-card);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .coll-link:hover { border-color: var(--sage-300); }
+  .coll-link-title { display: block; font-size: 15px; font-weight: 800; }
+  .coll-link-sub { display: block; font-size: 12px; margin-top: 3px; color: var(--muted); font-feature-settings: 'tnum'; }
+
   /* ---------- a finished chapter ----------
      The one screen in the app that is only a milestone. Same sage, same
      Archivo, same radii as everything else: a tutor noticing the work is
@@ -1340,6 +1386,13 @@
      because the layout breakpoints near the top of this sheet are declared
      before the components they would otherwise override. */
   @media (min-width: 768px) {
+    /* the squares grow to a comfortable tap size and then stop: past about
+       32px the collection stops reading as one thing */
+    .coll-wrap, .coll-detail, .coll-legend { max-width: 560px; }
+    .coll-squares { gap: 5px; }
+    .coll-row { gap: 10px; }
+    .coll-ch { flex-basis: 22px; font-size: 11px; }
+    .coll-greek { font-size: 24px; }
     .pg-map-grid, .group-grid { grid-template-columns: repeat(10, 34px); justify-content: start; gap: 7px; }
     .prog-chapter-grid { grid-template-columns: repeat(8, 52px); justify-content: start; gap: 8px; }
     .day-squares { grid-template-columns: repeat(7, 18px); }
@@ -2183,6 +2236,7 @@ let state = {
   streak: { count: 0, lastDate: null },
   chaptersDone: [],          // chapters whose completion has already been celebrated, so it fires once
   celebrate: null,           // { chapters: [n, ...], i } while a completion screen is up
+  collectionPick: null,      // 'chapter::greek' of the square open on the collection screen
   days: [],                  // 'YYYY-MM-DD' for every day a session was finished, ascending
   sessions: [],              // one record per finished session, ascending -- see recordSession
   memoryBest: null,          // fastest memory-game completion, in ms (null until one is finished)
@@ -4550,6 +4604,15 @@ function renderMemoryDone() {
   document.getElementById('btn-exit-quiz').addEventListener('click', exitMemory);
 }
 
+/* a dot per correct answer still needed, so a word visibly works its way off
+   the review list rather than just disappearing one day */
+function streakDotsHtml(n) {
+  return `
+    <span class="streak-dots" title="${n} of ${REVIEW_CLEAR_STREAK} correct in a row">
+      ${Array.from({ length: REVIEW_CLEAR_STREAK }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}
+    </span>`;
+}
+
 /* the small ring a session summary sits on */
 function ringSvg(pct) {
   const circ = 2 * Math.PI * 54;
@@ -4778,19 +4841,13 @@ function renderProgress() {
 
   const all = wordsToReview(0);
   const missed = state.progressExpand.weak ? all : all.slice(0, SHORT_LIST);
-  /* a dot per correct answer still needed, so a word visibly works its way off
-     the list rather than just disappearing one day */
-  const streakDots = n => `
-    <span class="streak-dots" title="${n} of ${REVIEW_CLEAR_STREAK} correct in a row">
-      ${Array.from({ length: REVIEW_CLEAR_STREAK }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}
-    </span>`;
   const missedHtml = missed.length
     ? missed.map(m => `
         <div class="missed-row" style="padding:13px 18px">
           <span class="missed-greek">${m.greek}</span>
           <span class="missed-right">
             <span class="missed-english text-muted">${m.english}</span>
-            ${streakDots(m.streak)}
+            ${streakDotsHtml(m.streak)}
           </span>
         </div>
       `).join('')
@@ -4836,6 +4893,15 @@ function renderProgress() {
         </section>
 
         <section class="prog-block prog-srs">
+          <button class="coll-link" id="btn-collection">
+            <span class="hub-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2.5" y="2.5" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.9"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.2" fill="currentColor"/><rect x="2.5" y="11.5" width="6" height="6" rx="1.2" fill="currentColor"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.9"/></svg></span>
+            <span style="flex:1 1 auto;min-width:0">
+              <span class="coll-link-title">The collection</span>
+              <span class="coll-link-sub">All ${stats.totalWords} words at once, in course order</span>
+            </span>
+            <span class="pg-chevron"><svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1.5 1.5 6.5 6.5l-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </button>
+
           <div class="kicker" style="margin:0 0 10px">DETAIL</div>
           <div class="panel-card">
             <div class="panel-row">
@@ -4857,7 +4923,87 @@ function renderProgress() {
   `;
 
   document.getElementById('btn-replay-onboarding').addEventListener('click', replayOnboarding);
+  document.getElementById('btn-collection').addEventListener('click', goCollection);
   wireProgressTabs();
+}
+
+/* ---------- the collection ----------
+   Every word in the course at once, in the order it is taught. This is the
+   long view: what the terms add up to, and where the gaps are. A word is a
+   square, a chapter is a row, and nothing is aggregated away. */
+function goCollection() { state.screen = 'collection'; render(); }
+function exitCollection() { state.collectionPick = null; state.screen = 'progress'; render(); }
+
+function renderCollection() {
+  const learned = learnedWordsCount();
+  const total = CHAPTERS.reduce((n, ch) => n + (VOCAB[ch] || []).length, 0);
+
+  const rows = CHAPTERS.map(ch => {
+    const squares = (VOCAB[ch] || []).map(w => {
+      const st = state.stats[wordKey(ch, w.greek)];
+      const key = wordKey(ch, w.greek);
+      const cls = wordLearned(ch, w.greek) ? 'is-learned' : (st && st.seen > 0 ? '' : 'is-new');
+      return `<button class="coll-sq ${cls} ${state.collectionPick === key ? 'is-picked' : ''}"
+        data-word="${escapeHtml(key)}" aria-label="${escapeHtml(w.greek)}" title="${escapeHtml(w.greek)}"></button>`;
+    }).join('');
+    return `
+      <div class="coll-row">
+        <span class="coll-ch">${ch}</span>
+        <div class="coll-squares">${squares}</div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('screen').innerHTML = `
+    <div class="fade-in">
+      ${renderHeader(false, 'Collection', true)}
+
+      <div class="coll-head">
+        <div class="coll-count">${learned}</div>
+        <div class="coll-of">of ${total} words learned</div>
+      </div>
+
+      <div class="coll-wrap">${rows}</div>
+
+      <div class="coll-detail" id="coll-detail">${collectionDetailHtml()}</div>
+
+      <div class="coll-legend pg-legend">
+        <span><i style="background:var(--bg);border:1px solid var(--hairline)"></i>Not met yet</span>
+        <span><i style="background:var(--sage-300)"></i>Met</span>
+        <span><i style="background:var(--green)"></i>Learned</span>
+      </div>
+    </div>
+  `;
+
+  document.querySelectorAll('[data-word]').forEach(el => {
+    el.addEventListener('click', () => {
+      state.collectionPick = state.collectionPick === el.dataset.word ? null : el.dataset.word;
+      render();
+    });
+  });
+  document.getElementById('btn-exit-quiz').addEventListener('click', exitCollection);
+}
+
+function collectionDetailHtml() {
+  const key = state.collectionPick;
+  if (!key) return '<span class="coll-empty">Tap a square to see the word. Each row is a chapter, in the order the course teaches them.</span>';
+  const [chRaw, greek] = key.split('::');
+  const ch = Number(chRaw);
+  const word = (VOCAB[ch] || []).find(w => w.greek === greek);
+  if (!word) return '<span class="coll-empty">Tap a square to see the word.</span>';
+  const st = state.stats[key];
+  const seen = st ? st.seen : 0;
+  const status = wordLearned(ch, word.greek)
+    ? 'Learned'
+    : (seen > 0 ? `Met · ${seen} attempt${seen === 1 ? '' : 's'}` : 'Not met yet');
+  return `
+    <span class="coll-detail-main">
+      <span class="coll-greek">${word.greek}</span>
+      <span class="coll-english">${word.english}</span>
+      <span class="coll-meta">Chapter ${ch} · ${escapeHtml(word.cat)} · ${status}</span>
+    </span>
+    ${streakDotsHtml(st ? (st.streak || 0) : 0)}
+  `;
 }
 
 /* ---------- a finished chapter ----------
@@ -4915,7 +5061,8 @@ function renderTabBar() {
     state.screen === 'grammarDrill' || state.screen === 'grammarRef' ||
     state.screen === 'grammarQuiz');
   document.getElementById('tab-review').classList.toggle('active', state.screen === 'flashcard' || state.screen === 'cards' || state.screen === 'memory' || state.screen === 'review');
-  document.getElementById('tab-progress').classList.toggle('active', state.screen === 'progress');
+  document.getElementById('tab-progress').classList.toggle('active',
+    state.screen === 'progress' || state.screen === 'collection');
 }
 
 /* ---------- first-run onboarding walkthrough ----------
@@ -6021,6 +6168,7 @@ function render() {
   else if (state.screen === 'grammarRef') renderGrammarReference();
   else if (state.screen === 'grammarQuiz') renderGrammarQuiz();
   else if (state.screen === 'chapterDone') renderChapterDone();
+  else if (state.screen === 'collection') renderCollection();
   else if (state.screen === 'progress') renderProgress();
   renderTabBar();
   if (state.onboarding.active) renderOnboarding();
@@ -6058,6 +6206,7 @@ function activeScreenKind() {
   if (state.screen === 'review') return state.review && !state.review.done ? 'review' : 'review-done';
   if (state.screen === 'grammarDrill') return state.grammar && state.grammar.done ? 'grammar-done' : 'grammar-drill';
   if (state.screen === 'chapterDone') return 'chapter-done';
+  if (state.screen === 'collection') return 'collection';
   if (state.screen === 'grammarRef') return 'grammar-ref';
   if (state.screen === 'grammarList') return 'grammar-list';
   if (state.screen === 'grammarQuiz') return state.grammarQuiz && state.grammarQuiz.done ? 'grammar-quiz-done' : 'grammar-quiz';
@@ -6077,6 +6226,7 @@ function escapeAction(kind) {
   if (kind === 'memory' || kind === 'memory-done') return exitMemory;
   if (kind === 'review' || kind === 'review-done') return exitReview;
   if (kind === 'chapter-done') return closeCelebration;
+  if (kind === 'collection') return exitCollection;
   if (kind === 'grammar-list' || kind === 'grammar-ref') return goGrammar;
   if (kind === 'grammar-drill' || kind === 'grammar-done') return goGrammarList;
   if (kind === 'grammar-quiz' || kind === 'grammar-quiz-done') return exitGrammarQuiz;
