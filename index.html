@@ -344,19 +344,7 @@
     font-size: clamp(38px, 12vw, 46px);
   }
   .home-slogan { display: none; }
-  .stat-rings {
-    display: flex; margin: 32px 0 0;
-    background: var(--surface); border: 1px solid var(--hairline);
-    border-radius: var(--r-card); box-shadow: var(--shadow-card);
-  }
-  .stat-ring { flex: 1; text-align: center; padding: 20px 6px 16px; }
-  .stat-ring + .stat-ring { border-left: 1px solid var(--hairline-soft); }
-  .stat-ring-label { font-size: 10.5px; line-height: 1.3; margin-top: 9px; color: var(--muted); font-weight: 500; }
-  .stat-caption { text-align: center; font-size: 11px; margin-top: 14px; color: var(--faint); font-weight: 500; font-feature-settings: 'tnum'; }
-  .stat-caption .sep, .progress-row .sep { color: var(--track); margin: 0 6px; }
-  .home-actions { margin-top: 34px; }
-  .home-actions .start-btn { margin-top: 0; padding: 18px 0; }
-  .home-actions .start-btn span { font-size: 15px; }
+  .progress-row .sep { color: var(--track); margin: 0 6px; }
   .secondary-btn {
     width: 100%; margin-top: 10px; padding: 16px 0; border-radius: var(--r-btn); cursor: pointer;
     font-family: var(--font-sans); font-size: 14px; font-weight: 700; color: var(--green-text);
@@ -665,13 +653,6 @@
     .home-screen { min-height: calc(100vh - env(safe-area-inset-top) - 180px);
       min-height: calc(100dvh - env(safe-area-inset-top) - 180px); }
     .greeting { font-size: 62px; }
-    .stat-rings { margin-top: 38px; }
-    .stat-ring { padding: 26px 10px 22px; }
-    .stat-ring-label { font-size: 11.5px; margin-top: 11px; }
-    .stat-caption { font-size: 12px; margin-top: 16px; }
-    .home-actions { margin-top: 38px; }
-    .home-actions .start-btn { padding: 20px 0; }
-    .home-actions .start-btn span { font-size: 16px; }
 
     /* ---- setup ---- */
     .setup-panel { padding: 26px; }
@@ -754,27 +735,8 @@
     /* ---- home: one centred column, not a split ---- */
     .home-screen { max-width: 1000px; margin: 0 auto; }
     .greeting { font-size: 88px; font-weight: 800; letter-spacing: -0.04em; text-align: left; }
-    .stat-rings { margin-top: 44px; }
-    .stat-ring { padding: 34px 16px 30px; }
-    .stat-ring svg { width: 168px; height: 168px; }
-    .stat-ring-label { display: none; }
-    .stat-ring-label-lg { display: block; margin-top: 16px; }
-    .srl-figure { display: block; font-size: 15px; font-weight: 600; color: var(--ink); font-feature-settings: 'tnum'; }
-    .srl-qualifier { display: block; font-size: 12.5px; color: var(--muted); margin-top: 3px; }
-    /* the numbers live in the ring labels here, so the caption would repeat them */
-    .stat-caption { display: none; }
-    .home-actions { margin-top: 38px; }
-    .home-actions .start-btn { position: relative; padding: 24px 0; }
-    .home-actions .start-btn span { font-size: 17px; }
     .start-btn .key-hint, .typed-submit .key-hint { font-size: 10.5px; font-weight: 700; }
     .start-btn .kh-btn { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); z-index: 2; }
-    .home-actions-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
-    .home-actions-row > .secondary-btn,
-    .home-actions-row > .review-cta { flex: 1 1 0; min-width: 0; margin-top: 0; width: auto; }
-    /* flex-basis: 0 is content-box, so the two halves are only equal when their
-       horizontal padding matches -- the CTA's 16px, on a centred label */
-    .home-actions-row > .secondary-btn { padding-left: 16px; padding-right: 16px; }
-    .home-actions-row > .review-caught-up { flex: 1 1 100%; margin-top: 0; }
 
     /* ---- setup ---- */
     .setup-panel { padding: 34px 36px; }
@@ -1007,6 +969,166 @@
   @media (prefers-reduced-motion: reduce) {
     .onb-track { transition: none; }
   }
+
+  /* ---------- home hub ----------
+     Daily Review keeps the top of the screen to itself -- it is the daily
+     habit, and the reorg must not bury it -- and the two modules sit under it
+     as cards: tap the body for that module's own screen, tap the inset action
+     for the one shortcut worth having. */
+  .hub-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 22px; }
+  .hub-card {
+    position: relative; width: 100%; text-align: left; cursor: pointer; padding: 18px;
+    border-radius: var(--r-card); background: var(--surface); border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-card); font-family: var(--font-sans); color: var(--ink);
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .hub-card:hover { border-color: var(--sage-300); }
+  .hub-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .hub-title { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; }
+  .hub-go { font-size: 11.5px; font-weight: 700; color: var(--green-text); white-space: nowrap; }
+  .hub-snapshot { display: flex; align-items: center; gap: 16px; }
+  .hub-figures { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .hub-figure { font-size: 13px; font-weight: 600; font-feature-settings: 'tnum'; }
+  .hub-figure .hub-qualifier { color: var(--muted); font-weight: 500; }
+  .hub-rings { display: flex; gap: 6px; flex-shrink: 0; }
+  .hub-rings svg { width: 64px; height: 64px; }
+  .hub-action { margin-top: 0; }
+  .hub-note { font-size: 11.5px; line-height: 1.5; }
+
+  /* ---------- grammar: picker ---------- */
+  .pg-intro { font-size: 12.5px; line-height: 1.55; margin: 0 0 16px; }
+  .pg-group + .pg-group { margin-top: 20px; }
+  .pg-group > .kicker { display: block; margin: 0 0 10px; }
+  .pg-sub { font-size: 11px; font-weight: 700; color: var(--muted); margin: 14px 0 8px; letter-spacing: 0.06em; text-transform: uppercase; }
+  .pg-list { border-radius: var(--r-card); overflow: hidden; border: 1px solid var(--hairline); background: var(--surface); box-shadow: var(--shadow-card); }
+  .pg-row {
+    display: flex; align-items: center; gap: 12px; width: 100%; padding: 13px 16px;
+    background: transparent; border: none; cursor: pointer; text-align: left;
+    font-family: var(--font-sans); color: var(--ink);
+  }
+  .pg-row + .pg-row { border-top: 1px solid var(--hairline-soft); }
+  .pg-row:hover { background: var(--surface-2); }
+  .pg-row-main { flex: 1; min-width: 0; }
+  .pg-row-label { font-size: 14px; font-weight: 700; line-height: 1.3; }
+  .pg-row-example { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .pg-row-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .pg-tag {
+    font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 999px;
+    background: var(--surface-2); border: 1px solid var(--hairline); color: var(--muted); white-space: nowrap;
+  }
+  .pg-tag.is-clean { background: var(--green-tint); border-color: var(--green-border); color: var(--green-text); }
+  .pg-row.is-future .pg-row-label, .pg-row.is-future .pg-row-example { color: var(--muted); }
+  .pg-chevron { color: var(--faint); display: flex; flex-shrink: 0; }
+
+  /* ---------- grammar: sort-the-table ----------
+     One component for every paradigm in the set: the shape comes entirely from
+     rowLabels / colLabels / cells, so a 4x2 noun, a 4x6 participle, a 5x1
+     infinitive list and a 6x5 didomi grid all render through the same code.
+     Wide grids scroll sideways with the row labels pinned, which is the only
+     way 6 gender/number columns can stay legible on a phone. */
+  .pg-drill-head { margin-bottom: 14px; }
+  .pg-drill-title { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; }
+  .pg-drill-example { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+  .pg-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -22px; padding: 0 22px 4px; }
+  .pg-grid { display: grid; gap: 4px; min-width: min-content; }
+  .pg-colhead, .pg-rowhead, .pg-corner {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--muted); display: flex; align-items: center; padding: 6px 4px; line-height: 1.25;
+  }
+  .pg-colhead { justify-content: center; text-align: center; }
+  .pg-rowhead, .pg-corner {
+    position: sticky; left: 0; z-index: 2; background: var(--bg);
+    padding-right: 8px; min-width: 52px;
+  }
+  .pg-cell {
+    position: relative; min-height: 58px; border-radius: var(--r-sm);
+    border: 1px dashed var(--hairline); background: var(--surface-2);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 2px; padding: 6px 5px; text-align: center; min-width: 92px;
+    transition: background 150ms ease, border-color 150ms ease;
+  }
+  .pg-cell.is-over { border-color: var(--sage-300); background: var(--green-tint); border-style: solid; }
+  .pg-cell.is-filled {
+    border-style: solid; border-color: var(--green-border); background: var(--green-tint);
+    animation: pg-settle 300ms cubic-bezier(.2,.7,.3,1) both;
+  }
+  /* a miss is colourless, like .option-btn.is-wrong -- this palette has no red */
+  .pg-cell.is-miss { border-style: solid; border-color: var(--hairline); background: var(--surface-2); animation: pg-nudge 320ms cubic-bezier(.2,.7,.3,1); }
+  .pg-form { font-size: 13.5px; font-weight: 700; line-height: 1.25; word-break: break-word; }
+  .pg-cell.is-filled .pg-form { color: var(--green-text); }
+  .pg-gloss { font-size: 10px; line-height: 1.25; color: var(--muted); font-weight: 500; }
+  @keyframes pg-settle {
+    0% { transform: scale(0.94); opacity: 0.5; }
+    55% { transform: scale(1.04); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes pg-nudge {
+    0%, 100% { transform: translateX(0); }
+    30% { transform: translateX(-4px); }
+    65% { transform: translateX(4px); }
+  }
+
+  .pg-stack-label { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 20px 0 10px; }
+  .pg-stack-count { font-size: 11px; font-weight: 700; color: var(--muted); font-feature-settings: 'tnum'; }
+  .pg-stack { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pg-card {
+    padding: 11px 13px; border-radius: var(--r-btn); cursor: grab; touch-action: none;
+    background: var(--surface); border: 1px solid var(--hairline); box-shadow: var(--shadow-card);
+    font-family: var(--font-sans); font-size: 14.5px; font-weight: 700; color: var(--ink);
+    transition: transform 180ms cubic-bezier(.2,.7,.3,1), border-color 150ms ease, background 150ms ease;
+  }
+  .pg-card:hover { border-color: var(--sage-300); }
+  .pg-card.is-selected { border-color: var(--green); background: var(--green-tint); color: var(--green-text); }
+  .pg-card.is-lifted { opacity: 0.3; }
+  .pg-card.is-bounced { animation: pg-bounce 320ms cubic-bezier(.2,.7,.3,1); }
+  @keyframes pg-bounce {
+    0% { transform: scale(1.06); }
+    50% { transform: scale(0.96); }
+    100% { transform: scale(1); }
+  }
+  .pg-ghost {
+    position: fixed; z-index: 60; pointer-events: none; margin: 0;
+    box-shadow: 0 6px 18px rgba(32,30,29,0.18); border-color: var(--green-border);
+    background: var(--green-tint); color: var(--green-text); cursor: grabbing;
+  }
+  .pg-hint { font-size: 11.5px; line-height: 1.5; margin-top: 14px; }
+  .pg-drill-empty { font-size: 12.5px; text-align: center; padding: 14px 0; }
+
+  /* ---------- grammar: reference table ---------- */
+  .pg-ref-note { font-size: 12px; line-height: 1.55; margin: 0 0 14px; }
+  .pg-ref-table { border-collapse: collapse; width: max-content; min-width: 100%; font-size: 12px; }
+  .pg-ref-table th, .pg-ref-table td { border-top: 1px solid var(--hairline-soft); padding: 11px 12px; text-align: left; vertical-align: top; }
+  .pg-ref-table thead th { border-top: none; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--green-text); font-weight: 600; white-space: nowrap; }
+  .pg-ref-table tbody th { font-weight: 700; white-space: nowrap; position: sticky; left: 0; background: var(--surface); }
+  .pg-ref-table td { color: var(--ink); line-height: 1.5; min-width: 260px; }
+  .pg-ref-wrap { border-radius: var(--r-card); border: 1px solid var(--hairline); background: var(--surface); box-shadow: var(--shadow-card); overflow-x: auto; padding: 4px 16px; }
+
+  /* ---------- grammar: progress sub-tabs ---------- */
+  .prog-tabs { display: flex; gap: 6px; margin-bottom: 18px; }
+  .pg-stat-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; font-size: 13.5px; }
+  .pg-stat-row + .pg-stat-row { border-top: 1px solid var(--hairline-soft); }
+  .pg-stat-name { min-width: 0; }
+  .pg-stat-example { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .pg-stat-figures { flex-shrink: 0; text-align: right; font-size: 11.5px; color: var(--muted); font-feature-settings: 'tnum'; }
+
+  @media (min-width: 720px) {
+    .hub-grid { flex-direction: row; }
+    .hub-card { flex: 1 1 0; min-width: 0; }
+    .pg-scroll { margin: 0; padding: 0 0 4px; }
+    .pg-rowhead, .pg-corner { min-width: 64px; font-size: 11.5px; }
+    .pg-cell { min-height: 68px; min-width: 104px; }
+    .pg-form { font-size: 15px; }
+    .pg-drill-title { font-size: 26px; }
+    .pg-row-label { font-size: 15px; }
+  }
+
+  @media (min-width: 1180px) {
+    .hub-grid { gap: 16px; margin-top: 28px; }
+    .hub-card { padding: 24px; }
+    .hub-title { font-size: 21px; }
+    .hub-rings svg { width: 76px; height: 76px; }
+    .pg-cell { min-height: 76px; min-width: 124px; }
+  }
 </style>
 </head>
 <body>
@@ -1070,6 +1192,733 @@ const CATEGORY_NAMES = CATEGORIES.map(c => c.name);
    legible grid on a phone, so it deliberately ignores the 10/20/30 setting */
 const MEMORY_PAIRS = 5;
 
+/* ---------- grammar paradigms ----------
+   Declension and conjugation tables from Merkle & Plummer, *Beginning with
+   New Testament Greek*, appendix (pp. 283, 286-293). A different content type
+   from the vocabulary above: fixed-shape grids reproduced whole, so they get
+   their own structure, their own drill and their own section of the app
+   rather than being folded into VOCAB.
+
+   Each paradigm is { id, category, subcategory?, label, example, rowLabels,
+   colLabels, cells }, where a cell is keyed "<rowLabel>|<colLabel>" and holds
+   { form, article?, gloss? }. `article` is nouns only; `gloss` is absent from
+   several tables (the didomi grids, the subjunctives, the imperatives'
+   pronoun neighbours), so nothing may assume it is there.
+
+   The forms were transcribed from photographs of the printed pages and the
+   diacritics have not been proofed against the book -- see the note in the
+   Grammar picker. Do not "correct" a form here without the book open. */
+const PARADIGMS = [
+  { id: "noun-1decl-eta", category: "noun",
+    label: "First Declension Noun — Eta Pattern", example: "φωνή, ἡ (voice)",
+    rowLabels: ["NOM", "GEN", "DAT", "ACC"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "NOM|Singular": {"article": "ἡ", "form": "φωνή", "gloss": "the voice"},
+      "GEN|Singular": {"article": "τῆς", "form": "φωνῆς", "gloss": "of the voice"},
+      "DAT|Singular": {"article": "τῇ", "form": "φωνῇ", "gloss": "to/for the voice"},
+      "ACC|Singular": {"article": "τὴν", "form": "φωνήν", "gloss": "the voice"},
+      "NOM|Plural": {"article": "αἱ", "form": "φωναί", "gloss": "the voices"},
+      "GEN|Plural": {"article": "τῶν", "form": "φωνῶν", "gloss": "of the voices"},
+      "DAT|Plural": {"article": "ταῖς", "form": "φωναῖς", "gloss": "to/for the voices"},
+      "ACC|Plural": {"article": "τὰς", "form": "φωνάς", "gloss": "the voices"}
+    } },
+  { id: "noun-1decl-alpha", category: "noun",
+    label: "First Declension Noun — Alpha Pattern", example: "καρδία, ἡ (heart)",
+    rowLabels: ["NOM", "GEN", "DAT", "ACC"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "NOM|Singular": {"article": "ἡ", "form": "καρδία", "gloss": "the heart"},
+      "GEN|Singular": {"article": "τῆς", "form": "καρδίας", "gloss": "of the heart"},
+      "DAT|Singular": {"article": "τῇ", "form": "καρδίᾳ", "gloss": "to/for the heart"},
+      "ACC|Singular": {"article": "τὴν", "form": "καρδίαν", "gloss": "the heart"},
+      "NOM|Plural": {"article": "αἱ", "form": "καρδίαι", "gloss": "the hearts"},
+      "GEN|Plural": {"article": "τῶν", "form": "καρδιῶν", "gloss": "of the hearts"},
+      "DAT|Plural": {"article": "ταῖς", "form": "καρδίαις", "gloss": "to/for the hearts"},
+      "ACC|Plural": {"article": "τὰς", "form": "καρδίας", "gloss": "the hearts"}
+    } },
+  { id: "noun-2decl-masc", category: "noun",
+    label: "Second Declension Noun — Masculine", example: "λόγος, ὁ (word)",
+    rowLabels: ["NOM", "GEN", "DAT", "ACC"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "NOM|Singular": {"article": "ὁ", "form": "λόγος", "gloss": "the word"},
+      "GEN|Singular": {"article": "τοῦ", "form": "λόγου", "gloss": "of the word"},
+      "DAT|Singular": {"article": "τῷ", "form": "λόγῳ", "gloss": "to/for the word"},
+      "ACC|Singular": {"article": "τὸν", "form": "λόγον", "gloss": "the word"},
+      "NOM|Plural": {"article": "οἱ", "form": "λόγοι", "gloss": "the words"},
+      "GEN|Plural": {"article": "τῶν", "form": "λόγων", "gloss": "of the words"},
+      "DAT|Plural": {"article": "τοῖς", "form": "λόγοις", "gloss": "to/for the words"},
+      "ACC|Plural": {"article": "τοὺς", "form": "λόγους", "gloss": "the words"}
+    } },
+  { id: "noun-2decl-neut", category: "noun",
+    label: "Second Declension Noun — Neuter", example: "τέκνον, τό (child)",
+    rowLabels: ["NOM", "GEN", "DAT", "ACC"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "NOM|Singular": {"article": "τὸ", "form": "τέκνον", "gloss": "the child"},
+      "GEN|Singular": {"article": "τοῦ", "form": "τέκνου", "gloss": "of the child"},
+      "DAT|Singular": {"article": "τῷ", "form": "τέκνῳ", "gloss": "to/for the child"},
+      "ACC|Singular": {"article": "τὸ", "form": "τέκνον", "gloss": "the child"},
+      "NOM|Plural": {"article": "τὰ", "form": "τέκνα", "gloss": "the children"},
+      "GEN|Plural": {"article": "τῶν", "form": "τέκνων", "gloss": "of the children"},
+      "DAT|Plural": {"article": "τοῖς", "form": "τέκνοις", "gloss": "to/for the children"},
+      "ACC|Plural": {"article": "τὰ", "form": "τέκνα", "gloss": "the children"}
+    } },
+  { id: "pronoun-demonstrative-near", category: "pronoun",
+    label: "Near Demonstrative Pronoun", example: "οὗτος (this)",
+    rowLabels: ["NOM", "GEN", "DAT", "ACC"],
+    colLabels: ["Sg. MASC", "Sg. FEM", "Sg. NEUT", "Pl. MASC", "Pl. FEM", "Pl. NEUT"],
+    cells: {
+      "NOM|Sg. MASC": {"form": "οὗτος"},
+      "GEN|Sg. MASC": {"form": "τούτου"},
+      "DAT|Sg. MASC": {"form": "τούτῳ"},
+      "ACC|Sg. MASC": {"form": "τοῦτον"},
+      "NOM|Sg. FEM": {"form": "αὕτη"},
+      "GEN|Sg. FEM": {"form": "ταύτης"},
+      "DAT|Sg. FEM": {"form": "ταύτῃ"},
+      "ACC|Sg. FEM": {"form": "ταύτην"},
+      "NOM|Sg. NEUT": {"form": "τοῦτο"},
+      "GEN|Sg. NEUT": {"form": "τούτου"},
+      "DAT|Sg. NEUT": {"form": "τούτῳ"},
+      "ACC|Sg. NEUT": {"form": "τοῦτο"},
+      "NOM|Pl. MASC": {"form": "οὗτοι"},
+      "GEN|Pl. MASC": {"form": "τούτων"},
+      "DAT|Pl. MASC": {"form": "τούτοις"},
+      "ACC|Pl. MASC": {"form": "τούτους"},
+      "NOM|Pl. FEM": {"form": "αὗται"},
+      "GEN|Pl. FEM": {"form": "τούτων"},
+      "DAT|Pl. FEM": {"form": "ταύταις"},
+      "ACC|Pl. FEM": {"form": "ταύτας"},
+      "NOM|Pl. NEUT": {"form": "ταῦτα"},
+      "GEN|Pl. NEUT": {"form": "τούτων"},
+      "DAT|Pl. NEUT": {"form": "τούτοις"},
+      "ACC|Pl. NEUT": {"form": "ταῦτα"}
+    } },
+  { id: "pronoun-interrogative-indefinite", category: "pronoun",
+    label: "Interrogative / Indefinite Pronouns", example: "τίς / τις (who? / someone)",
+    rowLabels: ["NOM", "GEN", "DAT", "ACC"],
+    colLabels: ["Sg. MASC/FEM", "Sg. NEUT", "Pl. MASC/FEM", "Pl. NEUT"],
+    cells: {
+      "NOM|Sg. MASC/FEM": {"form": "τίς / τις"},
+      "GEN|Sg. MASC/FEM": {"form": "τίνος / τινός"},
+      "DAT|Sg. MASC/FEM": {"form": "τίνι / τινί"},
+      "ACC|Sg. MASC/FEM": {"form": "τίνα / τινα"},
+      "NOM|Sg. NEUT": {"form": "τί / τι"},
+      "GEN|Sg. NEUT": {"form": "τίνος / τινός"},
+      "DAT|Sg. NEUT": {"form": "τίνι / τινί"},
+      "ACC|Sg. NEUT": {"form": "τί / τι"},
+      "NOM|Pl. MASC/FEM": {"form": "τίνες / τινές"},
+      "GEN|Pl. MASC/FEM": {"form": "τίνων / τινῶν"},
+      "DAT|Pl. MASC/FEM": {"form": "τίσι(ν) / τισί(ν)"},
+      "ACC|Pl. MASC/FEM": {"form": "τίνας / τινάς"},
+      "NOM|Pl. NEUT": {"form": "τίνα / τινά"},
+      "GEN|Pl. NEUT": {"form": "τίνων / τινῶν"},
+      "DAT|Pl. NEUT": {"form": "τίσι(ν) / τισί(ν)"},
+      "ACC|Pl. NEUT": {"form": "τίνα / τινά"}
+    } },
+  { id: "verb-pres-act-ind", category: "verb", subcategory: "indicative",
+    label: "Present Active Indicative", example: "λύω (I loose)",
+    rowLabels: ["1ST", "2ND", "3RD"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "1ST|Singular": {"form": "λύω", "gloss": "I am loosing"},
+      "2ND|Singular": {"form": "λύεις", "gloss": "you are loosing"},
+      "3RD|Singular": {"form": "λύει", "gloss": "he/she/it is loosing"},
+      "1ST|Plural": {"form": "λύομεν", "gloss": "we are loosing"},
+      "2ND|Plural": {"form": "λύετε", "gloss": "you are loosing"},
+      "3RD|Plural": {"form": "λύουσι(ν)", "gloss": "they are loosing"}
+    } },
+  { id: "verb-pres-midpass-ind", category: "verb", subcategory: "indicative",
+    label: "Present Middle/Passive Indicative", example: "λύομαι (I am being loosed)",
+    rowLabels: ["1ST", "2ND", "3RD"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "1ST|Singular": {"form": "λύομαι", "gloss": "I am being loosed"},
+      "2ND|Singular": {"form": "λύῃ", "gloss": "you are being loosed"},
+      "3RD|Singular": {"form": "λύεται", "gloss": "he/she/it is being loosed"},
+      "1ST|Plural": {"form": "λυόμεθα", "gloss": "we are being loosed"},
+      "2ND|Plural": {"form": "λύεσθε", "gloss": "you are being loosed"},
+      "3RD|Plural": {"form": "λύονται", "gloss": "they are being loosed"}
+    } },
+  { id: "verb-pres-ind-eimi", category: "verb", subcategory: "indicative",
+    label: "Present Indicative — εἰμί", example: "εἰμί (I am)",
+    rowLabels: ["1ST", "2ND", "3RD"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "1ST|Singular": {"form": "εἰμί", "gloss": "I am"},
+      "2ND|Singular": {"form": "εἶ", "gloss": "you are"},
+      "3RD|Singular": {"form": "ἐστίν", "gloss": "he/she/it is"},
+      "1ST|Plural": {"form": "ἐσμέν", "gloss": "we are"},
+      "2ND|Plural": {"form": "ἐστέ", "gloss": "you are"},
+      "3RD|Plural": {"form": "εἰσίν", "gloss": "they are"}
+    } },
+  { id: "verb-impf-act-ind", category: "verb", subcategory: "indicative",
+    label: "Imperfect Active Indicative", example: "ἔλυον (I was loosing)",
+    rowLabels: ["1ST", "2ND", "3RD"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "1ST|Singular": {"form": "ἔλυον", "gloss": "I was loosing"},
+      "2ND|Singular": {"form": "ἔλυες", "gloss": "you were loosing"},
+      "3RD|Singular": {"form": "ἔλυε(ν)", "gloss": "he/she/it was loosing"},
+      "1ST|Plural": {"form": "ἐλύομεν", "gloss": "we were loosing"},
+      "2ND|Plural": {"form": "ἐλύετε", "gloss": "you were loosing"},
+      "3RD|Plural": {"form": "ἔλυον", "gloss": "they were loosing"}
+    } },
+  { id: "verb-impf-midpass-ind", category: "verb", subcategory: "indicative",
+    label: "Imperfect Middle/Passive Indicative", example: "ἐλυόμην (I was being loosed)",
+    rowLabels: ["1ST", "2ND", "3RD"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "1ST|Singular": {"form": "ἐλυόμην", "gloss": "I was being loosed"},
+      "2ND|Singular": {"form": "ἐλύου", "gloss": "you were being loosed"},
+      "3RD|Singular": {"form": "ἐλύετο", "gloss": "he/she/it was being loosed"},
+      "1ST|Plural": {"form": "ἐλυόμεθα", "gloss": "we were being loosed"},
+      "2ND|Plural": {"form": "ἐλύεσθε", "gloss": "you were being loosed"},
+      "3RD|Plural": {"form": "ἐλύοντο", "gloss": "they were being loosed"}
+    } },
+  { id: "verb-impf-ind-eimi", category: "verb", subcategory: "indicative",
+    label: "Imperfect Indicative — εἰμί", example: "ἤμην (I was)",
+    rowLabels: ["1ST", "2ND", "3RD"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "1ST|Singular": {"form": "ἤμην", "gloss": "I was"},
+      "2ND|Singular": {"form": "ἦς", "gloss": "you were"},
+      "3RD|Singular": {"form": "ἦν", "gloss": "he/she/it was"},
+      "1ST|Plural": {"form": "ἦμεν", "gloss": "we were"},
+      "2ND|Plural": {"form": "ἦτε", "gloss": "you were"},
+      "3RD|Plural": {"form": "ἦσαν", "gloss": "they were"}
+    } },
+  { id: "verb-fut-act-ind", category: "verb", subcategory: "indicative",
+    label: "Future Active Indicative", example: "λύσω (I will loose)",
+    rowLabels: ["1ST", "2ND", "3RD"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "1ST|Singular": {"form": "λύσω", "gloss": "I will loose"},
+      "2ND|Singular": {"form": "λύσεις", "gloss": "you will loose"},
+      "3RD|Singular": {"form": "λύσει", "gloss": "he/she/it will loose"},
+      "1ST|Plural": {"form": "λύσομεν", "gloss": "we will loose"},
+      "2ND|Plural": {"form": "λύσετε", "gloss": "you will loose"},
+      "3RD|Plural": {"form": "λύσουσι(ν)", "gloss": "they will loose"}
+    } },
+  { id: "verb-fut-mid-ind", category: "verb", subcategory: "indicative",
+    label: "Future Middle Indicative", example: "λύσομαι (I will loose for myself)",
+    rowLabels: ["1ST", "2ND", "3RD"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "1ST|Singular": {"form": "λύσομαι", "gloss": "I will loose (for) myself"},
+      "2ND|Singular": {"form": "λύσῃ", "gloss": "you will loose (for) yourself"},
+      "3RD|Singular": {"form": "λύσεται", "gloss": "he/she/it will loose (for) him-/her-/itself"},
+      "1ST|Plural": {"form": "λυσόμεθα", "gloss": "we will loose (for) ourselves"},
+      "2ND|Plural": {"form": "λύσεσθε", "gloss": "you will loose (for) yourselves"},
+      "3RD|Plural": {"form": "λύσονται", "gloss": "they will loose (for) themselves"}
+    } },
+  { id: "verb-fut-pass-ind", category: "verb", subcategory: "indicative",
+    label: "Future Passive Indicative", example: "λυθήσομαι (I will be loosed)",
+    rowLabels: ["1ST", "2ND", "3RD"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "1ST|Singular": {"form": "λυθήσομαι", "gloss": "I will be loosed"},
+      "2ND|Singular": {"form": "λυθήσῃ", "gloss": "you will be loosed"},
+      "3RD|Singular": {"form": "λυθήσεται", "gloss": "he/she/it will be loosed"},
+      "1ST|Plural": {"form": "λυθησόμεθα", "gloss": "we will be loosed"},
+      "2ND|Plural": {"form": "λυθήσεσθε", "gloss": "you will be loosed"},
+      "3RD|Plural": {"form": "λυθήσονται", "gloss": "they will be loosed"}
+    } },
+  { id: "verb-aor-act-ind", category: "verb", subcategory: "indicative",
+    label: "Aorist Active Indicative", example: "ἔλυσα (I loosed)",
+    rowLabels: ["1ST", "2ND", "3RD"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "1ST|Singular": {"form": "ἔλυσα", "gloss": "I loosed"},
+      "2ND|Singular": {"form": "ἔλυσας", "gloss": "you loosed"},
+      "3RD|Singular": {"form": "ἔλυσε(ν)", "gloss": "he/she/it loosed"},
+      "1ST|Plural": {"form": "ἐλύσαμεν", "gloss": "we loosed"},
+      "2ND|Plural": {"form": "ἐλύσατε", "gloss": "you loosed"},
+      "3RD|Plural": {"form": "ἔλυσαν", "gloss": "they loosed"}
+    } },
+  { id: "verb-aor-mid-ind", category: "verb", subcategory: "indicative",
+    label: "Aorist Middle Indicative", example: "ἐλυσάμην (I loosed for myself)",
+    rowLabels: ["1ST", "2ND", "3RD"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "1ST|Singular": {"form": "ἐλυσάμην", "gloss": "I loosed (for) myself"},
+      "2ND|Singular": {"form": "ἐλύσω", "gloss": "you loosed (for) yourself"},
+      "3RD|Singular": {"form": "ἐλύσατο", "gloss": "he/she/it loosed (for) him-/her-/itself"},
+      "1ST|Plural": {"form": "ἐλυσάμεθα", "gloss": "we loosed (for) ourselves"},
+      "2ND|Plural": {"form": "ἐλύσασθε", "gloss": "you loosed (for) yourselves"},
+      "3RD|Plural": {"form": "ἐλύσαντο", "gloss": "they loosed (for) themselves"}
+    } },
+  { id: "verb-aor-pass-ind", category: "verb", subcategory: "indicative",
+    label: "Aorist Passive Indicative", example: "ἐλύθην (I was loosed)",
+    rowLabels: ["1ST", "2ND", "3RD"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "1ST|Singular": {"form": "ἐλύθην", "gloss": "I was loosed"},
+      "2ND|Singular": {"form": "ἐλύθης", "gloss": "you were loosed"},
+      "3RD|Singular": {"form": "ἐλύθη", "gloss": "he/she/it was loosed"},
+      "1ST|Plural": {"form": "ἐλύθημεν", "gloss": "we were loosed"},
+      "2ND|Plural": {"form": "ἐλύθητε", "gloss": "you were loosed"},
+      "3RD|Plural": {"form": "ἐλύθησαν", "gloss": "they were loosed"}
+    } },
+  { id: "verb-2aor-act-ind-lambano", category: "verb", subcategory: "indicative",
+    label: "Second Aorist Active Indicative — λαμβάνω", example: "ἔλαβον (I took)",
+    rowLabels: ["1ST", "2ND", "3RD"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "1ST|Singular": {"form": "ἔλαβον", "gloss": "I took"},
+      "2ND|Singular": {"form": "ἔλαβες", "gloss": "you took"},
+      "3RD|Singular": {"form": "ἔλαβε(ν)", "gloss": "he/she/it took"},
+      "1ST|Plural": {"form": "ἐλάβομεν", "gloss": "we took"},
+      "2ND|Plural": {"form": "ἐλάβετε", "gloss": "you took"},
+      "3RD|Plural": {"form": "ἔλαβον", "gloss": "they took"}
+    } },
+  { id: "verb-2aor-mid-ind-ginomai", category: "verb", subcategory: "indicative",
+    label: "Second Aorist Middle Indicative — γίνομαι", example: "ἐγενόμην (I became)",
+    rowLabels: ["1ST", "2ND", "3RD"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "1ST|Singular": {"form": "ἐγενόμην", "gloss": "I became"},
+      "2ND|Singular": {"form": "ἐγένου", "gloss": "you became"},
+      "3RD|Singular": {"form": "ἐγένετο", "gloss": "he/she/it became"},
+      "1ST|Plural": {"form": "ἐγενόμεθα", "gloss": "we became"},
+      "2ND|Plural": {"form": "ἐγένεσθε", "gloss": "you became"},
+      "3RD|Plural": {"form": "ἐγένοντο", "gloss": "they became"}
+    } },
+  { id: "verb-perf-act-ind", category: "verb", subcategory: "indicative",
+    label: "Perfect Active Indicative", example: "λέλυκα (I have loosed)",
+    rowLabels: ["1ST", "2ND", "3RD"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "1ST|Singular": {"form": "λέλυκα", "gloss": "I have loosed"},
+      "2ND|Singular": {"form": "λέλυκας", "gloss": "you have loosed"},
+      "3RD|Singular": {"form": "λέλυκε(ν)", "gloss": "he/she/it has loosed"},
+      "1ST|Plural": {"form": "λελύκαμεν", "gloss": "we have loosed"},
+      "2ND|Plural": {"form": "λελύκατε", "gloss": "you have loosed"},
+      "3RD|Plural": {"form": "λελύκασι(ν) / λέλυκαν", "gloss": "they have loosed"}
+    } },
+  { id: "verb-perf-midpass-ind", category: "verb", subcategory: "indicative",
+    label: "Perfect Middle/Passive Indicative", example: "λέλυμαι (I have been loosed)",
+    rowLabels: ["1ST", "2ND", "3RD"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "1ST|Singular": {"form": "λέλυμαι", "gloss": "I have been loosed"},
+      "2ND|Singular": {"form": "λέλυσαι", "gloss": "you have been loosed"},
+      "3RD|Singular": {"form": "λέλυται", "gloss": "he/she/it has been loosed"},
+      "1ST|Plural": {"form": "λελύμεθα", "gloss": "we have been loosed"},
+      "2ND|Plural": {"form": "λέλυσθε", "gloss": "you have been loosed"},
+      "3RD|Plural": {"form": "λέλυνται", "gloss": "they have been loosed"}
+    } },
+  { id: "verb-didomi-act-ind", category: "verb", subcategory: "indicative",
+    label: "Active Indicative Forms of δίδωμι", example: "δίδωμι (I give)",
+    rowLabels: ["1S", "2S", "3S", "1P", "2P", "3P"],
+    colLabels: ["Present", "Imperfect", "Future", "Aorist", "Perfect"],
+    cells: {
+      "1S|Present": {"form": "δίδωμι"},
+      "2S|Present": {"form": "δίδως"},
+      "3S|Present": {"form": "δίδωσι(ν)"},
+      "1P|Present": {"form": "δίδομεν"},
+      "2P|Present": {"form": "δίδοτε"},
+      "3P|Present": {"form": "διδόασι(ν)"},
+      "1S|Imperfect": {"form": "ἐδίδουν"},
+      "2S|Imperfect": {"form": "ἐδίδους"},
+      "3S|Imperfect": {"form": "ἐδίδου"},
+      "1P|Imperfect": {"form": "ἐδίδομεν"},
+      "2P|Imperfect": {"form": "ἐδίδοτε"},
+      "3P|Imperfect": {"form": "ἐδίδοσαν"},
+      "1S|Future": {"form": "δώσω"},
+      "2S|Future": {"form": "δώσεις"},
+      "3S|Future": {"form": "δώσει"},
+      "1P|Future": {"form": "δώσομεν"},
+      "2P|Future": {"form": "δώσετε"},
+      "3P|Future": {"form": "δώσουσι(ν)"},
+      "1S|Aorist": {"form": "ἔδωκα"},
+      "2S|Aorist": {"form": "ἔδωκας"},
+      "3S|Aorist": {"form": "ἔδωκε(ν)"},
+      "1P|Aorist": {"form": "ἐδώκαμεν"},
+      "2P|Aorist": {"form": "ἐδώκατε"},
+      "3P|Aorist": {"form": "ἔδωκαν"},
+      "1S|Perfect": {"form": "δέδωκα"},
+      "2S|Perfect": {"form": "δέδωκας"},
+      "3S|Perfect": {"form": "δέδωκε(ν)"},
+      "1P|Perfect": {"form": "δεδώκαμεν"},
+      "2P|Perfect": {"form": "δεδώκατε"},
+      "3P|Perfect": {"form": "δέδωκαν"}
+    } },
+  { id: "ptc-pres-act", category: "participle",
+    label: "Present Active Participle", example: "λύων (loosing)",
+    rowLabels: ["NOM", "GEN", "DAT", "ACC"],
+    colLabels: ["Sg. MASC", "Sg. FEM", "Sg. NEUT", "Pl. MASC", "Pl. FEM", "Pl. NEUT"],
+    cells: {
+      "NOM|Sg. MASC": {"form": "λύων"},
+      "GEN|Sg. MASC": {"form": "λύοντος"},
+      "DAT|Sg. MASC": {"form": "λύοντι"},
+      "ACC|Sg. MASC": {"form": "λύοντα"},
+      "NOM|Sg. FEM": {"form": "λύουσα"},
+      "GEN|Sg. FEM": {"form": "λυούσης"},
+      "DAT|Sg. FEM": {"form": "λυούσῃ"},
+      "ACC|Sg. FEM": {"form": "λύουσαν"},
+      "NOM|Sg. NEUT": {"form": "λῦον"},
+      "GEN|Sg. NEUT": {"form": "λύοντος"},
+      "DAT|Sg. NEUT": {"form": "λύοντι"},
+      "ACC|Sg. NEUT": {"form": "λῦον"},
+      "NOM|Pl. MASC": {"form": "λύοντες"},
+      "GEN|Pl. MASC": {"form": "λυόντων"},
+      "DAT|Pl. MASC": {"form": "λύουσι(ν)"},
+      "ACC|Pl. MASC": {"form": "λύοντας"},
+      "NOM|Pl. FEM": {"form": "λύουσαι"},
+      "GEN|Pl. FEM": {"form": "λυουσῶν"},
+      "DAT|Pl. FEM": {"form": "λυούσαις"},
+      "ACC|Pl. FEM": {"form": "λυούσας"},
+      "NOM|Pl. NEUT": {"form": "λύοντα"},
+      "GEN|Pl. NEUT": {"form": "λυόντων"},
+      "DAT|Pl. NEUT": {"form": "λύουσι(ν)"},
+      "ACC|Pl. NEUT": {"form": "λύοντα"}
+    } },
+  { id: "ptc-pres-midpass", category: "participle",
+    label: "Present Middle/Passive Participle", example: "λυόμενος (being loosed)",
+    rowLabels: ["NOM", "GEN", "DAT", "ACC"],
+    colLabels: ["Sg. MASC", "Sg. FEM", "Sg. NEUT", "Pl. MASC", "Pl. FEM", "Pl. NEUT"],
+    cells: {
+      "NOM|Sg. MASC": {"form": "λυόμενος"},
+      "GEN|Sg. MASC": {"form": "λυομένου"},
+      "DAT|Sg. MASC": {"form": "λυομένῳ"},
+      "ACC|Sg. MASC": {"form": "λυόμενον"},
+      "NOM|Sg. FEM": {"form": "λυομένη"},
+      "GEN|Sg. FEM": {"form": "λυομένης"},
+      "DAT|Sg. FEM": {"form": "λυομένῃ"},
+      "ACC|Sg. FEM": {"form": "λυομένην"},
+      "NOM|Sg. NEUT": {"form": "λυόμενον"},
+      "GEN|Sg. NEUT": {"form": "λυομένου"},
+      "DAT|Sg. NEUT": {"form": "λυομένῳ"},
+      "ACC|Sg. NEUT": {"form": "λυόμενον"},
+      "NOM|Pl. MASC": {"form": "λυόμενοι"},
+      "GEN|Pl. MASC": {"form": "λυομένων"},
+      "DAT|Pl. MASC": {"form": "λυομένοις"},
+      "ACC|Pl. MASC": {"form": "λυομένους"},
+      "NOM|Pl. FEM": {"form": "λυόμεναι"},
+      "GEN|Pl. FEM": {"form": "λυομένων"},
+      "DAT|Pl. FEM": {"form": "λυομέναις"},
+      "ACC|Pl. FEM": {"form": "λυομένας"},
+      "NOM|Pl. NEUT": {"form": "λυόμενα"},
+      "GEN|Pl. NEUT": {"form": "λυομένων"},
+      "DAT|Pl. NEUT": {"form": "λυομένοις"},
+      "ACC|Pl. NEUT": {"form": "λυόμενα"}
+    } },
+  { id: "ptc-1aor-act", category: "participle",
+    label: "First Aorist Active Participle", example: "λύσας (having loosed)",
+    rowLabels: ["NOM", "GEN", "DAT", "ACC"],
+    colLabels: ["Sg. MASC", "Sg. FEM", "Sg. NEUT", "Pl. MASC", "Pl. FEM", "Pl. NEUT"],
+    cells: {
+      "NOM|Sg. MASC": {"form": "λύσας"},
+      "GEN|Sg. MASC": {"form": "λύσαντος"},
+      "DAT|Sg. MASC": {"form": "λύσαντι"},
+      "ACC|Sg. MASC": {"form": "λύσαντα"},
+      "NOM|Sg. FEM": {"form": "λύσασα"},
+      "GEN|Sg. FEM": {"form": "λυσάσης"},
+      "DAT|Sg. FEM": {"form": "λυσάσῃ"},
+      "ACC|Sg. FEM": {"form": "λύσασαν"},
+      "NOM|Sg. NEUT": {"form": "λῦσαν"},
+      "GEN|Sg. NEUT": {"form": "λύσαντος"},
+      "DAT|Sg. NEUT": {"form": "λύσαντι"},
+      "ACC|Sg. NEUT": {"form": "λῦσαν"},
+      "NOM|Pl. MASC": {"form": "λύσαντες"},
+      "GEN|Pl. MASC": {"form": "λυσάντων"},
+      "DAT|Pl. MASC": {"form": "λύσασι(ν)"},
+      "ACC|Pl. MASC": {"form": "λύσαντας"},
+      "NOM|Pl. FEM": {"form": "λύσασαι"},
+      "GEN|Pl. FEM": {"form": "λυσασῶν"},
+      "DAT|Pl. FEM": {"form": "λυσάσαις"},
+      "ACC|Pl. FEM": {"form": "λυσάσας"},
+      "NOM|Pl. NEUT": {"form": "λύσαντα"},
+      "GEN|Pl. NEUT": {"form": "λυσάντων"},
+      "DAT|Pl. NEUT": {"form": "λύσασι(ν)"},
+      "ACC|Pl. NEUT": {"form": "λύσαντα"}
+    } },
+  { id: "ptc-1aor-mid", category: "participle",
+    label: "First Aorist Middle Participle", example: "λυσάμενος (having loosed for himself)",
+    rowLabels: ["NOM", "GEN", "DAT", "ACC"],
+    colLabels: ["Sg. MASC", "Sg. FEM", "Sg. NEUT", "Pl. MASC", "Pl. FEM", "Pl. NEUT"],
+    cells: {
+      "NOM|Sg. MASC": {"form": "λυσάμενος"},
+      "GEN|Sg. MASC": {"form": "λυσαμένου"},
+      "DAT|Sg. MASC": {"form": "λυσαμένῳ"},
+      "ACC|Sg. MASC": {"form": "λυσάμενον"},
+      "NOM|Sg. FEM": {"form": "λυσαμένη"},
+      "GEN|Sg. FEM": {"form": "λυσαμένης"},
+      "DAT|Sg. FEM": {"form": "λυσαμένῃ"},
+      "ACC|Sg. FEM": {"form": "λυσαμένην"},
+      "NOM|Sg. NEUT": {"form": "λυσάμενον"},
+      "GEN|Sg. NEUT": {"form": "λυσαμένου"},
+      "DAT|Sg. NEUT": {"form": "λυσαμένῳ"},
+      "ACC|Sg. NEUT": {"form": "λυσάμενον"},
+      "NOM|Pl. MASC": {"form": "λυσάμενοι"},
+      "GEN|Pl. MASC": {"form": "λυσαμένων"},
+      "DAT|Pl. MASC": {"form": "λυσαμένοις"},
+      "ACC|Pl. MASC": {"form": "λυσαμένους"},
+      "NOM|Pl. FEM": {"form": "λυσάμεναι"},
+      "GEN|Pl. FEM": {"form": "λυσαμένων"},
+      "DAT|Pl. FEM": {"form": "λυσαμέναις"},
+      "ACC|Pl. FEM": {"form": "λυσαμένας"},
+      "NOM|Pl. NEUT": {"form": "λυσάμενα"},
+      "GEN|Pl. NEUT": {"form": "λυσαμένων"},
+      "DAT|Pl. NEUT": {"form": "λυσαμένοις"},
+      "ACC|Pl. NEUT": {"form": "λυσάμενα"}
+    } },
+  { id: "ptc-1aor-pass", category: "participle",
+    label: "First Aorist Passive Participle", example: "λυθείς (having been loosed)",
+    rowLabels: ["NOM", "GEN", "DAT", "ACC"],
+    colLabels: ["Sg. MASC", "Sg. FEM", "Sg. NEUT", "Pl. MASC", "Pl. FEM", "Pl. NEUT"],
+    cells: {
+      "NOM|Sg. MASC": {"form": "λυθείς"},
+      "GEN|Sg. MASC": {"form": "λυθέντος"},
+      "DAT|Sg. MASC": {"form": "λυθέντι"},
+      "ACC|Sg. MASC": {"form": "λυθέντα"},
+      "NOM|Sg. FEM": {"form": "λυθεῖσα"},
+      "GEN|Sg. FEM": {"form": "λυθείσης"},
+      "DAT|Sg. FEM": {"form": "λυθείσῃ"},
+      "ACC|Sg. FEM": {"form": "λυθεῖσαν"},
+      "NOM|Sg. NEUT": {"form": "λυθέν"},
+      "GEN|Sg. NEUT": {"form": "λυθέντος"},
+      "DAT|Sg. NEUT": {"form": "λυθέντι"},
+      "ACC|Sg. NEUT": {"form": "λυθέν"},
+      "NOM|Pl. MASC": {"form": "λυθέντες"},
+      "GEN|Pl. MASC": {"form": "λυθέντων"},
+      "DAT|Pl. MASC": {"form": "λυθεῖσι(ν)"},
+      "ACC|Pl. MASC": {"form": "λυθέντας"},
+      "NOM|Pl. FEM": {"form": "λυθεῖσαι"},
+      "GEN|Pl. FEM": {"form": "λυθεισῶν"},
+      "DAT|Pl. FEM": {"form": "λυθείσαις"},
+      "ACC|Pl. FEM": {"form": "λυθείσας"},
+      "NOM|Pl. NEUT": {"form": "λυθέντα"},
+      "GEN|Pl. NEUT": {"form": "λυθέντων"},
+      "DAT|Pl. NEUT": {"form": "λυθεῖσι(ν)"},
+      "ACC|Pl. NEUT": {"form": "λυθέντα"}
+    } },
+  { id: "ptc-perf-act", category: "participle",
+    label: "Perfect Active Participle", example: "λελυκώς (having loosed)",
+    rowLabels: ["NOM", "GEN", "DAT", "ACC"],
+    colLabels: ["Sg. MASC", "Sg. FEM", "Sg. NEUT", "Pl. MASC", "Pl. FEM", "Pl. NEUT"],
+    cells: {
+      "NOM|Sg. MASC": {"form": "λελυκώς"},
+      "GEN|Sg. MASC": {"form": "λελυκότος"},
+      "DAT|Sg. MASC": {"form": "λελυκότι"},
+      "ACC|Sg. MASC": {"form": "λελυκότα"},
+      "NOM|Sg. FEM": {"form": "λελυκυῖα"},
+      "GEN|Sg. FEM": {"form": "λελυκυίας"},
+      "DAT|Sg. FEM": {"form": "λελυκυίᾳ"},
+      "ACC|Sg. FEM": {"form": "λελυκυῖαν"},
+      "NOM|Sg. NEUT": {"form": "λελυκός"},
+      "GEN|Sg. NEUT": {"form": "λελυκότος"},
+      "DAT|Sg. NEUT": {"form": "λελυκότι"},
+      "ACC|Sg. NEUT": {"form": "λελυκός"},
+      "NOM|Pl. MASC": {"form": "λελυκότες"},
+      "GEN|Pl. MASC": {"form": "λελυκότων"},
+      "DAT|Pl. MASC": {"form": "λελυκόσι(ν)"},
+      "ACC|Pl. MASC": {"form": "λελυκότας"},
+      "NOM|Pl. FEM": {"form": "λελυκυῖαι"},
+      "GEN|Pl. FEM": {"form": "λελυκυιῶν"},
+      "DAT|Pl. FEM": {"form": "λελυκυίαις"},
+      "ACC|Pl. FEM": {"form": "λελυκυίας"},
+      "NOM|Pl. NEUT": {"form": "λελυκότα"},
+      "GEN|Pl. NEUT": {"form": "λελυκότων"},
+      "DAT|Pl. NEUT": {"form": "λελυκόσι(ν)"},
+      "ACC|Pl. NEUT": {"form": "λελυκότα"}
+    } },
+  { id: "ptc-perf-midpass", category: "participle",
+    label: "Perfect Middle/Passive Participle", example: "λελυμένος (having been loosed)",
+    rowLabels: ["NOM", "GEN", "DAT", "ACC"],
+    colLabels: ["Sg. MASC", "Sg. FEM", "Sg. NEUT", "Pl. MASC", "Pl. FEM", "Pl. NEUT"],
+    cells: {
+      "NOM|Sg. MASC": {"form": "λελυμένος"},
+      "GEN|Sg. MASC": {"form": "λελυμένου"},
+      "DAT|Sg. MASC": {"form": "λελυμένῳ"},
+      "ACC|Sg. MASC": {"form": "λελυμένον"},
+      "NOM|Sg. FEM": {"form": "λελυμένη"},
+      "GEN|Sg. FEM": {"form": "λελυμένης"},
+      "DAT|Sg. FEM": {"form": "λελυμένῃ"},
+      "ACC|Sg. FEM": {"form": "λελυμένην"},
+      "NOM|Sg. NEUT": {"form": "λελυμένον"},
+      "GEN|Sg. NEUT": {"form": "λελυμένου"},
+      "DAT|Sg. NEUT": {"form": "λελυμένῳ"},
+      "ACC|Sg. NEUT": {"form": "λελυμένον"},
+      "NOM|Pl. MASC": {"form": "λελυμένοι"},
+      "GEN|Pl. MASC": {"form": "λελυμένων"},
+      "DAT|Pl. MASC": {"form": "λελυμένοις"},
+      "ACC|Pl. MASC": {"form": "λελυμένους"},
+      "NOM|Pl. FEM": {"form": "λελυμέναι"},
+      "GEN|Pl. FEM": {"form": "λελυμένων"},
+      "DAT|Pl. FEM": {"form": "λελυμέναις"},
+      "ACC|Pl. FEM": {"form": "λελυμένας"},
+      "NOM|Pl. NEUT": {"form": "λελυμένα"},
+      "GEN|Pl. NEUT": {"form": "λελυμένων"},
+      "DAT|Pl. NEUT": {"form": "λελυμένοις"},
+      "ACC|Pl. NEUT": {"form": "λελυμένα"}
+    } },
+  { id: "infinitives-pres-aor", category: "infinitive",
+    label: "Present and Aorist Infinitives", example: "λύειν (to loose)",
+    rowLabels: ["Present Active", "Present Middle/Passive", "Aorist Active", "Aorist Middle", "Aorist Passive"],
+    colLabels: ["Infinitive"],
+    cells: {
+      "Present Active|Infinitive": {"form": "λύειν", "gloss": "to loose, or to be loosing"},
+      "Present Middle/Passive|Infinitive": {"form": "λύεσθαι", "gloss": "to loose (for) oneself / to be loosed"},
+      "Aorist Active|Infinitive": {"form": "λῦσαι", "gloss": "to loose"},
+      "Aorist Middle|Infinitive": {"form": "λύσασθαι", "gloss": "to loose (for) oneself"},
+      "Aorist Passive|Infinitive": {"form": "λυθῆναι", "gloss": "to be loosed"}
+    } },
+  { id: "verb-pres-act-sub", category: "verb", subcategory: "subjunctive",
+    label: "Present Active Subjunctive", example: "λύω (subj.)",
+    rowLabels: ["1ST", "2ND", "3RD"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "1ST|Singular": {"form": "λύω"},
+      "2ND|Singular": {"form": "λύῃς"},
+      "3RD|Singular": {"form": "λύῃ"},
+      "1ST|Plural": {"form": "λύωμεν"},
+      "2ND|Plural": {"form": "λύητε"},
+      "3RD|Plural": {"form": "λύωσι(ν)"}
+    } },
+  { id: "verb-pres-midpass-sub", category: "verb", subcategory: "subjunctive",
+    label: "Present Middle/Passive Subjunctive", example: "λύωμαι (subj.)",
+    rowLabels: ["1ST", "2ND", "3RD"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "1ST|Singular": {"form": "λύωμαι"},
+      "2ND|Singular": {"form": "λύῃ"},
+      "3RD|Singular": {"form": "λύηται"},
+      "1ST|Plural": {"form": "λυώμεθα"},
+      "2ND|Plural": {"form": "λύησθε"},
+      "3RD|Plural": {"form": "λύωνται"}
+    } },
+  { id: "verb-aor-act-sub", category: "verb", subcategory: "subjunctive",
+    label: "Aorist Active Subjunctive", example: "λύσω (subj.)",
+    rowLabels: ["1ST", "2ND", "3RD"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "1ST|Singular": {"form": "λύσω"},
+      "2ND|Singular": {"form": "λύσῃς"},
+      "3RD|Singular": {"form": "λύσῃ"},
+      "1ST|Plural": {"form": "λύσωμεν"},
+      "2ND|Plural": {"form": "λύσητε"},
+      "3RD|Plural": {"form": "λύσωσι(ν)"}
+    } },
+  { id: "verb-aor-mid-sub", category: "verb", subcategory: "subjunctive",
+    label: "Aorist Middle Subjunctive", example: "λύσωμαι (subj.)",
+    rowLabels: ["1ST", "2ND", "3RD"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "1ST|Singular": {"form": "λύσωμαι"},
+      "2ND|Singular": {"form": "λύσῃ"},
+      "3RD|Singular": {"form": "λύσηται"},
+      "1ST|Plural": {"form": "λυσώμεθα"},
+      "2ND|Plural": {"form": "λύσησθε"},
+      "3RD|Plural": {"form": "λύσωνται"}
+    } },
+  { id: "verb-aor-pass-sub", category: "verb", subcategory: "subjunctive",
+    label: "Aorist Passive Subjunctive", example: "λυθῶ (subj.)",
+    rowLabels: ["1ST", "2ND", "3RD"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "1ST|Singular": {"form": "λυθῶ"},
+      "2ND|Singular": {"form": "λυθῇς"},
+      "3RD|Singular": {"form": "λυθῇ"},
+      "1ST|Plural": {"form": "λυθῶμεν"},
+      "2ND|Plural": {"form": "λυθῆτε"},
+      "3RD|Plural": {"form": "λυθῶσι(ν)"}
+    } },
+  { id: "verb-pres-act-imp", category: "verb", subcategory: "imperative",
+    label: "Present Active Imperative", example: "λῦε (loose!)",
+    rowLabels: ["2ND", "3RD"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "2ND|Singular": {"form": "λῦε", "gloss": "loose (be loosing)"},
+      "3RD|Singular": {"form": "λυέτω", "gloss": "let him/her loose (let him be loosing)"},
+      "2ND|Plural": {"form": "λύετε", "gloss": "loose (be loosing)"},
+      "3RD|Plural": {"form": "λυέτωσαν", "gloss": "let them loose (let them be loosing)"}
+    } },
+  { id: "verb-pres-midpass-imp", category: "verb", subcategory: "imperative",
+    label: "Present Middle/Passive Imperative", example: "λύου (be loosed!)",
+    rowLabels: ["2ND", "3RD"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "2ND|Singular": {"form": "λύου", "gloss": "be loosed"},
+      "3RD|Singular": {"form": "λυέσθω", "gloss": "let him/her be loosed"},
+      "2ND|Plural": {"form": "λύεσθε", "gloss": "be loosed"},
+      "3RD|Plural": {"form": "λυέσθωσαν", "gloss": "let them be loosed"}
+    } },
+  { id: "verb-aor-act-imp", category: "verb", subcategory: "imperative",
+    label: "Aorist Active Imperative", example: "λῦσον (loose!)",
+    rowLabels: ["2ND", "3RD"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "2ND|Singular": {"form": "λῦσον", "gloss": "loose"},
+      "3RD|Singular": {"form": "λυσάτω", "gloss": "let him/her loose"},
+      "2ND|Plural": {"form": "λύσατε", "gloss": "loose"},
+      "3RD|Plural": {"form": "λυσάτωσαν", "gloss": "let them loose"}
+    } },
+  { id: "verb-didomi-nonind", category: "verb", subcategory: "didomi-nonindicative",
+    label: "Active Non-Indicative Forms of δίδωμι", example: "δίδωμι non-indicative",
+    rowLabels: ["1S", "2S", "3S", "1P", "2P", "3P"],
+    colLabels: ["Pres. Act. Sub.", "2nd Aor. Act. Sub.", "Pres. Act. Imp.", "Aor. Act. Imp."],
+    cells: {
+      "1S|Pres. Act. Sub.": {"form": "διδῶ"},
+      "2S|Pres. Act. Sub.": {"form": "διδῷς"},
+      "3S|Pres. Act. Sub.": {"form": "διδῷ"},
+      "1P|Pres. Act. Sub.": {"form": "διδῶμεν"},
+      "2P|Pres. Act. Sub.": {"form": "διδῶτε"},
+      "3P|Pres. Act. Sub.": {"form": "διδῶσι(ν)"},
+      "1S|2nd Aor. Act. Sub.": {"form": "δῶ"},
+      "2S|2nd Aor. Act. Sub.": {"form": "δῷς"},
+      "3S|2nd Aor. Act. Sub.": {"form": "δῷ"},
+      "1P|2nd Aor. Act. Sub.": {"form": "δῶμεν"},
+      "2P|2nd Aor. Act. Sub.": {"form": "δῶτε"},
+      "3P|2nd Aor. Act. Sub.": {"form": "δῶσι(ν)"},
+      "1S|Pres. Act. Imp.": {"form": "—"},
+      "2S|Pres. Act. Imp.": {"form": "δίδου"},
+      "3S|Pres. Act. Imp.": {"form": "διδότω"},
+      "1P|Pres. Act. Imp.": {"form": "—"},
+      "2P|Pres. Act. Imp.": {"form": "δίδοτε"},
+      "3P|Pres. Act. Imp.": {"form": "διδότωσαν"},
+      "1S|Aor. Act. Imp.": {"form": "—"},
+      "2S|Aor. Act. Imp.": {"form": "δός"},
+      "3S|Aor. Act. Imp.": {"form": "δότω"},
+      "1P|Aor. Act. Imp.": {"form": "—"},
+      "2P|Aor. Act. Imp.": {"form": "δότε"},
+      "3P|Aor. Act. Imp.": {"form": "δότωσαν"}
+    } },
+];
+
+/* reference-only content: summary charts with no single right answer per
+   cell, so they are displayed and never drilled */
+const PARADIGM_REFERENCE = [
+  { id: "master-verb-chart", label: "Master Verb Chart (Indicative) — reference only, not a sort-grid drill",
+    note: "Summarises endings/morphemes by voice and tense. χ = augment, χχ = reduplication. Display as a static reference table (e.g. in a 'Reference' section of Grammar), not as a drag-and-sort exercise — there is no single correct 'form' per cell, only a pattern.",
+    rowsAreVoice: ["Active", "Middle", "Passive"],
+    colsAreTense: ["Present", "Future", "Imperfect (Second Aorist)", "First Aorist", "Perfect"],
+    cells: {
+      "Active|Present": "—ω / —εις / —ει / —ομεν / —ετε / —ουσι(ν) — \"I am loosing\"",
+      "Active|Future": "—σω / —σεις / —σει / —σομεν / —σετε / —σουσι(ν) — \"I will loose\"",
+      "Active|Imperfect (Second Aorist)": "χ—ον / χ—ες / χ—ε(ν) / χ—ομεν / χ—ετε / χ—ον — \"I was loosing\"",
+      "Active|First Aorist": "χ—σα / χ—σας / χ—σε(ν) / χ—σαμεν / χ—σατε / χ—σαν — \"I loosed\"",
+      "Active|Perfect": "χχ—κα / χχ—κας / χχ—κε(ν) / χχ—καμεν / χχ—κατε / χχ—καν (or —κασι(ν)) — \"I have loosed\"",
+      "Middle|Present": "—ομαι / —ῃ / —εται / —ομεθα / —εσθε / —ονται — \"I am loosing (for) myself\"",
+      "Middle|Future": "—σομαι / —σῃ / —σεται / —σομεθα / —σεσθε / —σονται — \"I will loose (for) myself\"",
+      "Middle|Imperfect (Second Aorist)": "χ—ομην / χ—ου / χ—ετο / χ—ομεθα / χ—εσθε / χ—οντο — \"I was loosing (for) myself\"",
+      "Middle|First Aorist": "χ—σαμην / χ—σω / χ—σατο / χ—σαμεθα / χ—σασθε / χ—σαντο — \"I loosed (for) myself\"",
+      "Middle|Perfect": "χχ—μαι / χχ—σαι / χχ—ται / χχ—μεθα / χχ—σθε / χχ—νται — \"I have loosed (for) myself\"",
+      "Passive|Present": "same endings as Middle Present — \"I am being loosed\"",
+      "Passive|Future": "—θησομαι / —θησῃ / —θησεται / —θησομεθα / —θησεσθε / —θησονται — \"I will be loosed\"",
+      "Passive|Imperfect (Second Aorist)": "same endings as Middle Imperfect — \"I was being loosed\"",
+      "Passive|First Aorist": "χ—θην / χ—θης / χ—θη / χ—θημεν / χ—θητε / χ—θησαν — \"I was loosed\"",
+      "Passive|Perfect": "same endings as Middle Perfect — \"I have been loosed\""
+    } },
+];
+
+/* GR131 covers through chapter 12 this term. Everything after that is in the
+   data early, by request, so the picker de-emphasises it rather than hiding
+   it -- it is there to look at, just not due for review yet. */
+const PARADIGMS_IN_SCOPE = new Set(["noun-1decl-eta", "noun-1decl-alpha", "noun-2decl-masc", "noun-2decl-neut", "verb-pres-act-ind", "verb-pres-midpass-ind", "verb-pres-ind-eimi", "verb-impf-act-ind", "verb-impf-midpass-ind", "verb-impf-ind-eimi", "verb-fut-act-ind", "verb-fut-mid-ind", "verb-fut-pass-ind", "verb-aor-act-ind", "verb-aor-mid-ind", "verb-aor-pass-ind", "verb-2aor-act-ind-lambano", "verb-2aor-mid-ind-ginomai"]);
+
 /* ---------- storage: works inside Claude artifacts (window.storage) and on any
    normal web host / home-screen app (falls back to localStorage) ---------- */
 const storageAdapter = {
@@ -1098,8 +1947,11 @@ const STREAK_KEY = 'oikos-streak';
 const MEMORY_BEST_KEY = 'oikos-memory-best';
 
 let state = {
-  screen: 'home',            // 'home' | 'setup' | 'flashcard' (quiz) | 'cards' | 'memory' | 'review' (daily review) | 'progress'
+  screen: 'home',            // 'home' | 'setup' | 'flashcard' (quiz) | 'cards' | 'memory' | 'review' (daily review) | 'grammar' | 'grammarDrill' | 'grammarRef' | 'progress'
   stats: {},                 // wordKey -> { seen, correct }
+  grammarStats: {},          // paradigm id -> { attempts, cleanRuns } -- no FSRS here, see the grammar block
+  grammar: null,             // Sort the Table session: { id, paradigm, keys, cards, placed, misses, done }
+  progressTab: 'vocab',      // 'vocab' | 'grammar' -- which half of the Progress screen is up
   streak: { count: 0, lastDate: null },
   memoryBest: null,          // fastest memory-game completion, in ms (null until one is finished)
   fsrs: {                    // the spaced-repetition memory model, one card per word
@@ -1143,6 +1995,8 @@ function todayStr() {
 async function loadData() {
   const rawStats = await storageAdapter.get(STATS_KEY);
   try { state.stats = rawStats ? JSON.parse(rawStats) : {}; } catch (e) { state.stats = {}; }
+  const rawGrammar = await storageAdapter.get(GRAMMAR_STATS_KEY);
+  try { state.grammarStats = rawGrammar ? JSON.parse(rawGrammar) : {}; } catch (e) { state.grammarStats = {}; }
   const rawStreak = await storageAdapter.get(STREAK_KEY);
   try { state.streak = rawStreak ? JSON.parse(rawStreak) : { count: 0, lastDate: null }; } catch (e) { state.streak = { count: 0, lastDate: null }; }
   const rawBest = await storageAdapter.get(MEMORY_BEST_KEY);
@@ -2291,36 +3145,6 @@ function streakRing(days, doneToday) {
   return `${open}${track}${marks}${num(17, 44)}</svg>`;
 }
 
-/* the home stats block, all derived from data the app already stores */
-function homeStats() {
-  const st = overallStats();
-  const learned = learnedWordsCount();
-  const learnedPct = st.totalWords > 0 ? Math.round((learned / st.totalWords) * 100) : 0;
-  const chapterPct = st.totalChapters > 0 ? Math.round((st.chaptersMastered / st.totalChapters) * 100) : 0;
-  const { days, doneToday } = currentStreak();
-  /* two wordings on purpose: the phone keeps the short label and the caption
-     line beneath the card; the desktop tier drops that caption and carries the
-     same numbers in the ring labels instead, so the three cells read as one row */
-  const rings = [
-    { svg: statRing(learnedPct + '%', learnedPct), label: 'words<br>learned',
-      figure: `${learned} of ${st.totalWords}`, qualifier: 'learned' },
-    { svg: streakRing(days, doneToday), label: 'day<br>streak',
-      figure: `${days} day${days === 1 ? '' : 's'}`,
-      qualifier: days === 0 ? 'start today' : (doneToday ? 'in a row' : 'study today to keep it') },
-    { svg: statRing(chapterPct + '%', chapterPct), label: 'chapters<br>mastered',
-      figure: `${st.chaptersMastered} of ${st.totalChapters} chapters`, qualifier: 'mastered' }
-  ];
-  return `
-    <div class="stat-rings">
-      ${rings.map(r => `<div class="stat-ring">${r.svg}
-        <div class="stat-ring-label">${r.label}</div>
-        <div class="stat-ring-label-lg"><span class="srl-figure">${r.figure}</span><span class="srl-qualifier">${r.qualifier}</span></div>
-      </div>`).join('')}
-    </div>
-    <div class="stat-caption">${learned} of ${st.totalWords} words<span class="sep">\u00b7</span>${st.chaptersMastered} of ${st.totalChapters} chapters</div>
-  `;
-}
-
 function renderHeader(isHome, pillLabel, showClose, pillId, sessionHint) {
   let right = '';
   if (showClose) {
@@ -2403,6 +3227,58 @@ function reviewCta() {
   `;
 }
 
+/* ---------- home: the hub ----------
+   Two modules now, not one, so home stops being the vocabulary landing page
+   and becomes the thing that points at both. Daily Review keeps the top --
+   it is the habit the whole app hangs off, and the reorg is not allowed to
+   bury it -- and Vocabulary and Grammar sit underneath as cards: the body
+   opens the module, the inset button is the one shortcut worth keeping at
+   this level (Continue chapter N, demoted from its old top-level slot). */
+function vocabHubCard() {
+  const st = overallStats();
+  const learned = learnedWordsCount();
+  const learnedPct = st.totalWords > 0 ? Math.round((learned / st.totalWords) * 100) : 0;
+  const { days, doneToday } = currentStreak();
+  return `
+    <div class="hub-card" id="hub-vocab" role="button" tabindex="0">
+      <div class="hub-head">
+        <span class="hub-title">Vocabulary</span>
+        <span class="hub-go">Study &rsaquo;</span>
+      </div>
+      <div class="hub-snapshot">
+        <div class="hub-rings">${statRing(learnedPct + '%', learnedPct)}${streakRing(days, doneToday)}</div>
+        <div class="hub-figures">
+          <span class="hub-figure">${learned} of ${st.totalWords} <span class="hub-qualifier">words learned</span></span>
+          <span class="hub-figure">${days} day${days === 1 ? '' : 's'} <span class="hub-qualifier">streak${days === 0 ? '' : (doneToday ? ' · kept today' : ' · study today')}</span></span>
+          <span class="hub-figure">${st.chaptersMastered} of ${st.totalChapters} <span class="hub-qualifier">chapters mastered</span></span>
+        </div>
+      </div>
+      <button class="secondary-btn hub-action" id="btn-continue">Continue chapter ${continueChapter()}</button>
+    </div>
+  `;
+}
+
+function grammarHubCard() {
+  const mastered = paradigmsMastered();
+  const pct = PARADIGMS.length ? Math.round((mastered / PARADIGMS.length) * 100) : 0;
+  return `
+    <div class="hub-card" id="hub-grammar" role="button" tabindex="0">
+      <div class="hub-head">
+        <span class="hub-title">Grammar</span>
+        <span class="hub-go">Paradigms &rsaquo;</span>
+      </div>
+      <div class="hub-snapshot">
+        <div class="hub-rings">${statRing(pct + '%', pct)}</div>
+        <div class="hub-figures">
+          <span class="hub-figure">${mastered}/${PARADIGMS.length} <span class="hub-qualifier">paradigms mastered</span></span>
+          <span class="hub-figure hub-qualifier" style="font-weight:500">Sort the table — no typing</span>
+        </div>
+      </div>
+      <p class="hub-note text-muted">Declensions and conjugations, dragged back into shape.</p>
+    </div>
+  `;
+}
+
 function renderHome() {
   document.getElementById('screen').innerHTML = `
     <div class="fade-in">
@@ -2413,26 +3289,28 @@ function renderHome() {
           <h1 class="greeting">${greeting()}</h1>
         </div>
 
-        ${homeStats()}
+        ${reviewCta()}
 
-        <div class="home-actions">
-          <button class="start-btn" id="btn-start-learning">
-            <div class="resume-fill"></div>
-            <div class="resume-edge"></div>
-            <span>Start Learning</span>
-            <span class="key-hint on-accent kh-btn">↵</span>
-          </button>
-          <div class="home-actions-row">
-            <button class="secondary-btn" id="btn-continue">Continue chapter ${continueChapter()}</button>
-            ${reviewCta()}
-          </div>
+        <div class="hub-grid">
+          ${vocabHubCard()}
+          ${grammarHubCard()}
         </div>
       </div>
     </div>
   `;
 
-  document.getElementById('btn-start-learning').addEventListener('click', openSetup);
-  document.getElementById('btn-continue').addEventListener('click', quickResume);
+  /* the card body opens the module; the inset action does its own thing and
+     must not also trigger the card */
+  const openCard = (id, go) => {
+    const el = document.getElementById(id);
+    el.addEventListener('click', e => { if (!e.target.closest('button')) go(); });
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); }
+    });
+  };
+  openCard('hub-vocab', openSetup);
+  openCard('hub-grammar', goGrammar);
+  document.getElementById('btn-continue').addEventListener('click', e => { e.stopPropagation(); quickResume(); });
   const reviewBtn = document.getElementById('btn-daily-review');
   if (reviewBtn) reviewBtn.addEventListener('click', startDailyReview);
   const weakBtn = document.getElementById('btn-review-quiz');
@@ -3158,7 +4036,69 @@ function ringSvg(pct) {
   `;
 }
 
+/* Progress carries two modules now, so it splits rather than growing a third
+   column of unrelated numbers. The vocab half is exactly what it always was. */
+function setProgressTab(tab) { state.progressTab = tab; render(); }
+
+function progressTabs() {
+  return `
+    <div class="prog-tabs segmented">
+      <button class="seg-btn ${state.progressTab === 'vocab' ? 'active' : ''}" data-ptab="vocab">Vocab</button>
+      <button class="seg-btn ${state.progressTab === 'grammar' ? 'active' : ''}" data-ptab="grammar">Grammar</button>
+    </div>
+  `;
+}
+
+function wireProgressTabs() {
+  document.querySelectorAll('[data-ptab]').forEach(el => {
+    el.addEventListener('click', () => setProgressTab(el.dataset.ptab));
+  });
+}
+
+/* the grammar half: clean runs per paradigm, nothing scheduled and nothing
+   inferred -- the only two numbers the drill records */
+function renderGrammarProgress() {
+  const mastered = paradigmsMastered();
+  const rows = PARADIGMS.map(p => {
+    const s = grammarStat(p.id);
+    const figure = s.attempts === 0
+      ? 'Not tried'
+      : `${s.cleanRuns} clean · ${s.attempts} run${s.attempts === 1 ? '' : 's'}`;
+    return `
+      <div class="pg-stat-row">
+        <span class="pg-stat-name">
+          ${escapeHtml(p.label)}${paradigmInScope(p) ? '' : ' <span class="pg-tag">Not yet in class</span>'}
+          <span class="pg-stat-example">${escapeHtml(p.example)}</span>
+        </span>
+        <span class="pg-stat-figures ${s.cleanRuns > 0 ? '' : 'text-muted'}">${figure}</span>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('screen').innerHTML = `
+    <div class="fade-in">
+      ${renderHeader(false, 'Progress')}
+      ${progressTabs()}
+
+      <div class="ring-panel glass">
+        ${glassLayer()}
+        <div class="glass-content">
+          <div class="kicker">PARADIGMS MASTERED</div>
+          ${ringSvg(PARADIGMS.length ? Math.round((mastered / PARADIGMS.length) * 100) : 0)}
+          <div class="ring-label text-muted">${mastered} of ${PARADIGMS.length} sorted with no wrong drops</div>
+        </div>
+      </div>
+
+      <div class="kicker" style="margin:0 0 10px">BY PARADIGM</div>
+      <div class="list-panel glass">${glassLayer()}<div class="glass-content">${rows}</div></div>
+    </div>
+  `;
+
+  wireProgressTabs();
+}
+
 function renderProgress() {
+  if (state.progressTab === 'grammar') { renderGrammarProgress(); return; }
   const stats = overallStats();
   const learned = learnedWordsCount();
   const progressPct = stats.totalWords > 0 ? Math.round((learned / stats.totalWords) * 100) : 0;
@@ -3208,6 +4148,7 @@ function renderProgress() {
   document.getElementById('screen').innerHTML = `
     <div class="fade-in">
       ${renderHeader(false, 'Progress')}
+      ${progressTabs()}
 
       <div class="prog-grid">
         <div class="rings-row prog-rings">
@@ -3262,10 +4203,13 @@ function renderProgress() {
   `;
 
   document.getElementById('btn-replay-onboarding').addEventListener('click', replayOnboarding);
+  wireProgressTabs();
 }
 
 function renderTabBar() {
-  document.getElementById('tab-home').classList.toggle('active', state.screen === 'home' || state.screen === 'setup');
+  document.getElementById('tab-home').classList.toggle('active',
+    state.screen === 'home' || state.screen === 'setup' ||
+    state.screen === 'grammar' || state.screen === 'grammarDrill' || state.screen === 'grammarRef');
   document.getElementById('tab-review').classList.toggle('active', state.screen === 'flashcard' || state.screen === 'cards' || state.screen === 'memory' || state.screen === 'review');
   document.getElementById('tab-progress').classList.toggle('active', state.screen === 'progress');
 }
@@ -3493,6 +4437,505 @@ function replayOnboarding() {
   render();
 }
 
+/* ---------- grammar: Sort the Table ----------
+   The drill for every paradigm: the grid comes up with its headers and no
+   contents, and the student drags the shuffled forms into place. Nothing here
+   asks for typed Greek -- there is no Greek keyboard on the phone this is
+   used from, so dragging (or tapping a card and then a cell) is the whole
+   input vocabulary.
+
+   Feedback is per drop rather than at the end: a right card locks in and
+   uncovers its gloss, a wrong one goes back to the stack and the cell flinches
+   in --surface-2 / --muted. No FSRS and no per-cell record -- only
+   { attempts, cleanRuns } per paradigm, a clean run being a completion with no
+   wrong drops at all. */
+
+const GRAMMAR_STATS_KEY = 'oikos-grammar-stats';
+
+const GRAMMAR_GROUPS = [
+  { category: 'noun', label: 'Nouns' },
+  { category: 'pronoun', label: 'Pronouns' },
+  { category: 'verb', label: 'Verbs', subs: [
+      { key: 'indicative', label: 'Indicative' },
+      { key: 'subjunctive', label: 'Subjunctive' },
+      { key: 'imperative', label: 'Imperative' },
+      { key: 'didomi-nonindicative', label: 'δίδωμι — non-indicative' }
+    ] },
+  { category: 'participle', label: 'Participles' },
+  { category: 'infinitive', label: 'Infinitives' }
+];
+
+function saveGrammarStats() { storageAdapter.set(GRAMMAR_STATS_KEY, JSON.stringify(state.grammarStats)); }
+
+function grammarStat(id) {
+  const s = state.grammarStats[id];
+  return { attempts: (s && s.attempts) || 0, cleanRuns: (s && s.cleanRuns) || 0 };
+}
+
+/* "mastered" is deliberately a low bar for v1: one run through with nothing
+   dropped in the wrong cell */
+function paradigmsMastered() { return PARADIGMS.filter(p => grammarStat(p.id).cleanRuns > 0).length; }
+
+function paradigmById(id) { return PARADIGMS.find(p => p.id === id) || null; }
+
+function paradigmInScope(p) { return PARADIGMS_IN_SCOPE.has(p.id); }
+
+function paradigmCellKeys(p) {
+  const keys = [];
+  p.colLabels.forEach(col => p.rowLabels.forEach(row => {
+    const k = row + '|' + col;
+    if (p.cells[k]) keys.push(k);
+  }));
+  return keys;
+}
+
+function cellFace(cell) { return (cell.article ? cell.article + ' ' : '') + cell.form; }
+
+/* Several paradigms repeat a form across cells -- τέκνον is both nominative
+   and accusative, λύοντα covers neuter plural and masculine accusative, and
+   δίδωμι's imperative grid is half em-dashes. A card is therefore checked
+   against what the target cell says rather than against the one cell it was
+   dealt from, so any cell with that exact face accepts it. */
+function cellMatches(p, key, card) { return cellFace(p.cells[key]) === card.face; }
+
+function startParadigm(id) {
+  const p = paradigmById(id);
+  if (!p) { goGrammar(); return; }
+  const keys = paradigmCellKeys(p);
+  state.grammar = {
+    id: p.id,
+    paradigm: p,
+    keys,
+    cards: shuffle(keys.map((k, i) => ({ cid: 'c' + i, key: k, face: cellFace(p.cells[k]) }))),
+    placed: {},          /* cellKey -> the card that landed there */
+    misses: 0,
+    done: false
+  };
+  state.screen = 'grammarDrill';
+  render();
+}
+
+function replayParadigm() { if (state.grammar) startParadigm(state.grammar.id); }
+
+function finishParadigm() {
+  const g = state.grammar;
+  const s = grammarStat(g.id);
+  state.grammarStats[g.id] = {
+    attempts: s.attempts + 1,
+    cleanRuns: s.cleanRuns + (g.misses === 0 ? 1 : 0)
+  };
+  saveGrammarStats();
+  g.done = true;
+  render();
+}
+
+function goGrammar() { state.screen = 'grammar'; state.grammar = null; render(); }
+function goGrammarReference() { state.screen = 'grammarRef'; render(); }
+
+/* ---------- the sort grid ----------
+   Generic: it knows nothing about cases, tenses or genders, only about the
+   three fields every paradigm carries. */
+function grammarGridHtml(g) {
+  const p = g.paradigm;
+  const cols = p.colLabels.length;
+  const cells = p.rowLabels.map(row => `
+      <div class="pg-rowhead">${escapeHtml(row)}</div>
+      ${p.colLabels.map(col => {
+        const key = row + '|' + col;
+        if (!p.cells[key]) return `<div class="pg-cell" aria-hidden="true"></div>`;
+        const placed = g.placed[key];
+        return `<div class="pg-cell ${placed ? 'is-filled' : ''}" data-cell="${escapeHtml(key)}"
+              role="button" tabindex="0" aria-label="${escapeHtml(row)} ${escapeHtml(col)}">
+            ${placed ? grammarCellFilledHtml(p.cells[key]) : ''}
+          </div>`;
+      }).join('')}
+    `).join('');
+  return `
+    <div class="pg-scroll">
+      <div class="pg-grid" style="grid-template-columns: auto repeat(${cols}, minmax(92px, 1fr))">
+        <div class="pg-corner"></div>
+        ${p.colLabels.map(c => `<div class="pg-colhead">${escapeHtml(c)}</div>`).join('')}
+        ${cells}
+      </div>
+    </div>
+  `;
+}
+
+/* the gloss only appears once the cell is right, and only where the data has
+   one -- the didomi grids, the subjunctives and the pronoun tables have none */
+function grammarCellFilledHtml(cell) {
+  return `<span class="pg-form">${escapeHtml(cellFace(cell))}</span>` +
+    (cell.gloss ? `<span class="pg-gloss">${escapeHtml(cell.gloss)}</span>` : '');
+}
+
+function renderGrammarDrill() {
+  const g = state.grammar;
+  if (!g) { goGrammar(); return; }
+  if (g.done) { renderGrammarDone(); return; }
+  const p = g.paradigm;
+  const total = g.keys.length;
+  const placed = Object.keys(g.placed).length;
+  const pct = total ? Math.round((placed / total) * 100) : 0;
+
+  document.getElementById('screen').innerHTML = `
+    <div class="fade-in">
+      ${renderHeader(false, 'Grammar', true)}
+
+      <div class="pg-drill-head">
+        <div class="pg-drill-title">${escapeHtml(p.label)}</div>
+        <div class="pg-drill-example">${escapeHtml(p.example)}</div>
+      </div>
+
+      <div class="progress-row">
+        <span>${placed} of ${total} placed</span>
+        <span>${g.misses} wrong drop${g.misses === 1 ? '' : 's'}</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="pg-fill" style="width:${pct}%"></div></div>
+
+      ${grammarGridHtml(g)}
+
+      <div class="pg-stack-label">
+        <span class="kicker">FORMS</span>
+        <span class="pg-stack-count" id="pg-remaining">${g.cards.length} left</span>
+      </div>
+      <div class="pg-stack" id="pg-stack">
+        ${g.cards.map(c => `<button class="pg-card" data-cid="${c.cid}">${escapeHtml(c.face)}</button>`).join('')}
+      </div>
+
+      <p class="pg-hint text-muted">Drag a form into its cell — or tap the form, then tap the cell.${p.colLabels.length > 3 ? ' This table is wider than the screen: it scrolls sideways with the row labels pinned, and tapping is easier than dragging across it.' : ''}</p>
+    </div>
+  `;
+
+  wireSortGrid();
+  document.getElementById('btn-exit-quiz').addEventListener('click', goGrammar);
+}
+
+/* ---------- input ----------
+   Pointer events rather than HTML5 drag-and-drop, which does not exist on
+   touch. A press that travels becomes a drag with a ghost following the
+   finger; a press that stays put selects the card, and the next tap on a cell
+   plays it -- the same two-tap route a keyboard or a shaky hand can use. */
+function wireSortGrid() {
+  const stack = document.getElementById('pg-stack');
+  if (!stack) return;
+  let drag = null;
+  let selected = null;
+
+  const cellAt = (x, y) => {
+    const el = document.elementFromPoint(x, y);
+    const cell = el && el.closest ? el.closest('.pg-cell[data-cell]') : null;
+    return cell && !cell.classList.contains('is-filled') ? cell : null;
+  };
+  const clearOver = () => document.querySelectorAll('.pg-cell.is-over').forEach(c => c.classList.remove('is-over'));
+  const clearSelection = () => {
+    selected = null;
+    document.querySelectorAll('.pg-card.is-selected').forEach(c => c.classList.remove('is-selected'));
+  };
+
+  stack.addEventListener('pointerdown', e => {
+    const card = e.target.closest('.pg-card');
+    if (!card) return;
+    e.preventDefault();
+    drag = { card, cid: card.dataset.cid, x0: e.clientX, y0: e.clientY, moved: false, ghost: null };
+    try { card.setPointerCapture(e.pointerId); } catch (err) { /* capture is a nicety */ }
+  });
+
+  stack.addEventListener('pointermove', e => {
+    if (!drag) return;
+    const dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
+    if (!drag.moved && Math.hypot(dx, dy) < 6) return;
+    if (!drag.moved) {
+      drag.moved = true;
+      clearSelection();
+      const r = drag.card.getBoundingClientRect();
+      const ghost = drag.card.cloneNode(true);
+      ghost.classList.add('pg-ghost');
+      ghost.style.width = r.width + 'px';
+      ghost.style.height = r.height + 'px';
+      drag.ox = e.clientX - r.left;
+      drag.oy = e.clientY - r.top;
+      document.body.appendChild(ghost);
+      drag.ghost = ghost;
+      drag.card.classList.add('is-lifted');
+    }
+    drag.ghost.style.left = (e.clientX - drag.ox) + 'px';
+    drag.ghost.style.top = (e.clientY - drag.oy) + 'px';
+    edgeScroll(e.clientX, e.clientY);
+    clearOver();
+    const cell = cellAt(e.clientX, e.clientY);
+    if (cell) cell.classList.add('is-over');
+  });
+
+  const endDrag = e => {
+    if (!drag) return;
+    const d = drag;
+    drag = null;
+    clearOver();
+    if (d.ghost) d.ghost.remove();
+    d.card.classList.remove('is-lifted');
+    if (!d.moved) {
+      /* a tap: arm this card for the next cell tap */
+      const wasSelected = d.card.classList.contains('is-selected');
+      clearSelection();
+      if (!wasSelected) { d.card.classList.add('is-selected'); selected = d.cid; }
+      return;
+    }
+    const cell = cellAt(e.clientX, e.clientY);
+    if (cell) dropCard(d.cid, cell.dataset.cell);
+    else bounceCard(d.cid);
+  };
+  stack.addEventListener('pointerup', endDrag);
+  stack.addEventListener('pointercancel', () => {
+    if (!drag) return;
+    if (drag.ghost) drag.ghost.remove();
+    drag.card.classList.remove('is-lifted');
+    drag = null;
+    clearOver();
+  });
+
+  /* a keyboard press on a card never raises pointerdown, so arm it here
+     instead -- detail 0 is the tell for a click that came from a key */
+  stack.addEventListener('click', e => {
+    const card = e.target.closest('.pg-card');
+    if (!card || e.detail !== 0) return;
+    const wasSelected = card.classList.contains('is-selected');
+    clearSelection();
+    if (!wasSelected) { card.classList.add('is-selected'); selected = card.dataset.cid; }
+  });
+
+  document.querySelectorAll('.pg-cell[data-cell]').forEach(cell => {
+    cell.addEventListener('click', () => {
+      if (!selected) return;
+      const cid = selected;
+      clearSelection();
+      dropCard(cid, cell.dataset.cell);
+    });
+    cell.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); cell.click(); }
+    });
+  });
+}
+
+/* a card held against an edge pulls the page, or a wide grid, towards the
+   cell it is heading for -- without it a 6-column participle table cannot be
+   crossed in one drag on a phone */
+function edgeScroll(x, y) {
+  const STEP = 14;
+  if (y < 90) window.scrollBy(0, -STEP);
+  else if (y > window.innerHeight - 110) window.scrollBy(0, STEP);
+  const scroller = document.querySelector('.pg-scroll');
+  if (!scroller) return;
+  const r = scroller.getBoundingClientRect();
+  if (y < r.top - 40 || y > r.bottom + 40) return;
+  if (x < r.left + 44) scroller.scrollLeft -= STEP;
+  else if (x > r.right - 44) scroller.scrollLeft += STEP;
+}
+
+function cardEl(cid) { return document.querySelector(`.pg-card[data-cid="${cid}"]`); }
+
+function bounceCard(cid) {
+  const el = cardEl(cid);
+  if (!el) return;
+  el.classList.remove('is-bounced');
+  void el.offsetWidth;          /* restart the animation on a repeat miss */
+  el.classList.add('is-bounced');
+}
+
+/* the whole of the marking: right cards lock in, wrong ones go home again.
+   Nothing here re-renders the screen -- that would cut the animations off --
+   so the grid, the counters and the stack are patched in place. */
+function dropCard(cid, cellKey) {
+  const g = state.grammar;
+  if (!g || g.done) return;
+  const card = g.cards.find(c => c.cid === cid);
+  const cellEl = document.querySelector(`.pg-cell[data-cell="${cellKey}"]`);
+  if (!card || !cellEl || g.placed[cellKey]) { bounceCard(cid); return; }
+
+  if (!cellMatches(g.paradigm, cellKey, card)) {
+    g.misses++;
+    cellEl.classList.remove('is-miss');
+    void cellEl.offsetWidth;
+    cellEl.classList.add('is-miss');
+    setTimeout(() => cellEl.classList.remove('is-miss'), 420);
+    bounceCard(cid);
+    paintGrammarCounts();
+    return;
+  }
+
+  g.placed[cellKey] = card;
+  g.cards = g.cards.filter(c => c.cid !== cid);
+  const el = cardEl(cid);
+  if (el) el.remove();
+  cellEl.classList.add('is-filled');
+  cellEl.innerHTML = grammarCellFilledHtml(g.paradigm.cells[cellKey]);
+  paintGrammarCounts();
+  if (g.cards.length === 0) setTimeout(finishParadigm, 380);
+}
+
+function paintGrammarCounts() {
+  const g = state.grammar;
+  const placed = Object.keys(g.placed).length;
+  const rows = document.querySelectorAll('.progress-row span');
+  if (rows[0]) rows[0].textContent = `${placed} of ${g.keys.length} placed`;
+  if (rows[1]) rows[1].textContent = `${g.misses} wrong drop${g.misses === 1 ? '' : 's'}`;
+  const fill = document.getElementById('pg-fill');
+  if (fill) fill.style.width = (g.keys.length ? Math.round((placed / g.keys.length) * 100) : 0) + '%';
+  const left = document.getElementById('pg-remaining');
+  if (left) left.textContent = `${g.cards.length} left`;
+}
+
+function renderGrammarDone() {
+  const g = state.grammar;
+  const s = grammarStat(g.id);
+  const clean = g.misses === 0;
+  const badge = clean
+    ? (s.cleanRuns === 1 ? 'Your first clean run' : `${s.cleanRuns} clean runs`)
+    : `${g.misses} wrong drop${g.misses === 1 ? '' : 's'} — ${s.cleanRuns} clean run${s.cleanRuns === 1 ? '' : 's'} so far`;
+
+  document.getElementById('screen').innerHTML = `
+    <div class="fade-in">
+      ${renderHeader(false, 'Grammar', true)}
+
+      <div class="ring-panel glass">
+        ${glassLayer()}
+        <div class="glass-content">
+          <div class="kicker">${clean ? 'CLEAN RUN' : 'TABLE COMPLETE'}</div>
+          <div class="mem-done-time">${g.keys.length}<span style="font-size:20px"> cells</span></div>
+          <div class="ring-label text-muted">${escapeHtml(g.paradigm.label)} · ${escapeHtml(g.paradigm.example)}</div>
+          <div class="mem-done-badge">${escapeHtml(badge)}</div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="ghost-btn" id="btn-pg-home">Back to Grammar</button>
+        <button class="start-btn" id="btn-pg-again">
+          <div class="resume-fill"></div>
+          <div class="resume-edge"></div>
+          <span>Practise again</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('btn-pg-home').addEventListener('click', goGrammar);
+  document.getElementById('btn-pg-again').addEventListener('click', replayParadigm);
+  document.getElementById('btn-exit-quiz').addEventListener('click', goGrammar);
+}
+
+/* ---------- the picker ----------
+   Grouped the way the appendix is, with everything past this term's cutoff
+   kept in the list but pushed below the in-scope tables and tagged, so it can
+   be read without reading as homework. */
+function paradigmRowHtml(p) {
+  const s = grammarStat(p.id);
+  const future = !paradigmInScope(p);
+  const tag = s.cleanRuns > 0
+    ? `<span class="pg-tag is-clean">${s.cleanRuns} clean</span>`
+    : (s.attempts > 0 ? `<span class="pg-tag">${s.attempts} tried</span>` : '');
+  return `
+    <button class="pg-row ${future ? 'is-future' : ''}" data-paradigm="${p.id}">
+      <span class="pg-row-main">
+        <span class="pg-row-label">${escapeHtml(p.label)}</span>
+        <span class="pg-row-example">${escapeHtml(p.example)} · ${p.rowLabels.length * p.colLabels.length} cells</span>
+      </span>
+      <span class="pg-row-right">
+        ${future ? '<span class="pg-tag">Not yet in class</span>' : ''}
+        ${tag}
+        <span class="pg-chevron"><svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1.5 1.5 6.5 6.5l-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </span>
+    </button>
+  `;
+}
+
+/* in-scope first, and otherwise the order the appendix prints them in */
+function sortedParadigms(list) {
+  return list.slice().sort((a, b) => (paradigmInScope(b) ? 1 : 0) - (paradigmInScope(a) ? 1 : 0));
+}
+
+function grammarGroupsHtml() {
+  return GRAMMAR_GROUPS.map(group => {
+    const inGroup = PARADIGMS.filter(p => p.category === group.category);
+    if (!inGroup.length) return '';
+    let body;
+    if (group.subs) {
+      body = group.subs.map(sub => {
+        const rows = sortedParadigms(inGroup.filter(p => p.subcategory === sub.key));
+        if (!rows.length) return '';
+        return `<div class="pg-sub">${escapeHtml(sub.label)}</div>
+          <div class="pg-list">${rows.map(paradigmRowHtml).join('')}</div>`;
+      }).join('');
+    } else {
+      body = `<div class="pg-list">${sortedParadigms(inGroup).map(paradigmRowHtml).join('')}</div>`;
+    }
+    return `<section class="pg-group"><span class="kicker">${escapeHtml(group.label.toUpperCase())}</span>${body}</section>`;
+  }).join('');
+}
+
+function renderGrammarPicker() {
+  const mastered = paradigmsMastered();
+  document.getElementById('screen').innerHTML = `
+    <div class="fade-in">
+      ${renderHeader(false, `${mastered}/${PARADIGMS.length} mastered`)}
+
+      <h1 class="greeting" style="font-size:clamp(30px,9vw,38px)">Grammar</h1>
+      <p class="pg-intro text-muted">Sort the Table: every paradigm comes up empty, and you drag the forms back into place. No typing — the forms are cards.</p>
+
+      ${grammarGroupsHtml()}
+
+      <section class="pg-group">
+        <span class="kicker">REFERENCE</span>
+        <div class="pg-list">
+          <button class="pg-row" id="btn-pg-ref">
+            <span class="pg-row-main">
+              <span class="pg-row-label">Master Verb Chart</span>
+              <span class="pg-row-example">Endings by voice and tense · read only</span>
+            </span>
+            <span class="pg-row-right">
+              <span class="pg-chevron"><svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1.5 1.5 6.5 6.5l-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </span>
+          </button>
+        </div>
+      </section>
+
+      <p class="pg-hint text-muted">These tables were transcribed from photographs of the printed appendix. Check the accents against the book before trusting them.</p>
+    </div>
+  `;
+
+  document.querySelectorAll('[data-paradigm]').forEach(el => {
+    el.addEventListener('click', () => startParadigm(el.dataset.paradigm));
+  });
+  document.getElementById('btn-pg-ref').addEventListener('click', goGrammarReference);
+}
+
+function renderGrammarReference() {
+  const ref = PARADIGM_REFERENCE[0];
+  const head = ref.colsAreTense.map(t => `<th scope="col">${escapeHtml(t)}</th>`).join('');
+  const body = ref.rowsAreVoice.map(v => `
+      <tr>
+        <th scope="row">${escapeHtml(v)}</th>
+        ${ref.colsAreTense.map(t => `<td>${escapeHtml(ref.cells[v + '|' + t] || '')}</td>`).join('')}
+      </tr>
+    `).join('');
+
+  document.getElementById('screen').innerHTML = `
+    <div class="fade-in">
+      ${renderHeader(false, 'Reference', true)}
+
+      <h1 class="greeting" style="font-size:clamp(26px,8vw,34px)">Master Verb Chart</h1>
+      <p class="pg-ref-note text-muted">Indicative endings by voice and tense. χ marks the augment, χχ the reduplication. Reference only — there is no single right form per cell, so this one is not drilled.</p>
+
+      <div class="pg-ref-wrap">
+        <table class="pg-ref-table">
+          <thead><tr><th scope="col">Voice</th>${head}</tr></thead>
+          <tbody>${body}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('btn-exit-quiz').addEventListener('click', goGrammar);
+}
+
 function render() {
   if (state.screen === 'home') renderHome();
   else if (state.screen === 'setup') renderSetup();
@@ -3500,6 +4943,9 @@ function render() {
   else if (state.screen === 'cards') renderCards();
   else if (state.screen === 'memory') renderMemory();
   else if (state.screen === 'review') renderDailyReview();
+  else if (state.screen === 'grammar') renderGrammarPicker();
+  else if (state.screen === 'grammarDrill') renderGrammarDrill();
+  else if (state.screen === 'grammarRef') renderGrammarReference();
   else if (state.screen === 'progress') renderProgress();
   renderTabBar();
   if (state.onboarding.active) renderOnboarding();
@@ -3535,6 +4981,8 @@ function activeScreenKind() {
   if (state.screen === 'setup') return 'setup';
   if (state.screen === 'memory') return state.memory && state.memory.finishedMs !== null ? 'memory-done' : 'memory';
   if (state.screen === 'review') return state.review && !state.review.done ? 'review' : 'review-done';
+  if (state.screen === 'grammarDrill') return state.grammar && state.grammar.done ? 'grammar-done' : 'grammar-drill';
+  if (state.screen === 'grammarRef') return 'grammar-ref';
   if (state.screen === 'cards') return cardsInProgress() ? 'cards' : null;
   if (state.screen === 'flashcard') {
     if (typedSummaryUp()) return 'typed-done';
@@ -3549,6 +4997,7 @@ function escapeAction(kind) {
   if (kind === 'setup') return goHome;
   if (kind === 'memory' || kind === 'memory-done') return exitMemory;
   if (kind === 'review' || kind === 'review-done') return exitReview;
+  if (kind === 'grammar-drill' || kind === 'grammar-done' || kind === 'grammar-ref') return goGrammar;
   if (kind === 'cards') return exitCards;
   if (kind === 'mc' || kind === 'typed') return exitQuiz;
   if (kind === 'typed-done') return closeTypedSummary;
