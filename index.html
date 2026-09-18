@@ -2872,10 +2872,10 @@ function startQuiz(settings) {
     selectedOpt: null,
     typedValue: '',
     typedCorrect: null,
-    results: [],              // type-answer only: one entry per question, for the summary
-    done: false,              // type-answer only: the last word is answered, summary is up
+    results: [],              // one entry per question, for the summary
+    done: false,              // the last word is answered, the summary is up
     startedAt: Date.now(),
-    learned: 0                // words that crossed REVIEW_CLEAR_STREAK in this session
+    learnedWords: []          // words that crossed REVIEW_CLEAR_STREAK in this session
   };
   state.screen = 'flashcard';
   render();
@@ -2906,18 +2906,21 @@ function quizInProgress() {
 }
 
 /* the end-of-session report, which is a finished session rather than a live one */
-function typedSummaryUp() {
+function sessionSummaryUp() {
   return !!(state.quiz && state.quiz.done);
 }
 
 /* leaving the report: the session is over, so there is nothing to confirm away */
-function closeTypedSummary() {
+function closeSessionSummary() {
   state.quiz = null;
   state.screen = 'home';
   render();
 }
 
-function newTypedSession() {
+/* "New session" goes back to setup rather than re-dealing the same words:
+   the scope and format are already remembered there, so it is one tap to the
+   same session again and still allows a different one */
+function repeatSession() {
   state.quiz = null;
   openSetup();
 }
@@ -2970,7 +2973,7 @@ function startDailyReview() {
   state.quiz = null;
   state.cards = null;
   state.memory = null;
-  state.review = { queue, index: 0, revealed: false, reviewed: 0, right: 0, done: false, startedAt: Date.now() };
+  state.review = { queue, index: 0, revealed: false, reviewed: 0, right: 0, results: [], done: false, startedAt: Date.now() };
   state.lastSession = 'review';
   state.screen = 'review';
   render();
@@ -2992,8 +2995,10 @@ function exitReview() {
 function submitRating(rating) {
   const r = state.review;
   if (!r || r.done || !r.revealed) return;
-  rateCard(r.queue[r.index], rating);
+  const entry = r.queue[r.index];
+  rateCard(entry, rating);
   r.reviewed += 1;
+  r.results.push({ greek: entry.word.greek, english: entry.word.english, rating });
   /* Good and Easy are the two grades that mean the meaning came back, so they
      are what the log counts as right -- there is no mark here otherwise */
   if (rating >= 3) r.right += 1;
@@ -3105,18 +3110,21 @@ function startCards() {
   stopMemoryTimer();
   state.quiz = null;
   state.memory = null;
-  state.cards = { selection, items: shuffle(pool), index: 0, revealed: false, startedAt: Date.now() };
+  state.cards = { selection, items: shuffle(pool), index: 0, revealed: false, done: false, startedAt: Date.now() };
   state.lastSession = 'cards';
   state.screen = 'cards';
   render();
 }
 
-function cardsInProgress() { return !!(state.cards && state.cards.index < state.cards.items.length); }
+function cardsInProgress() { return !!(state.cards && !state.cards.done); }
+function cardsSummaryUp() { return !!(state.cards && state.cards.done); }
 
 function nextCard() {
   const c = state.cards;
   if (!c) return;
-  if (c.index >= c.items.length - 1) { exitCards(); return; }
+  /* the end of the deck is a finished session, not a dismissal, so it gets
+     its own card rather than dropping the student back on Home */
+  if (c.index >= c.items.length - 1) { c.done = true; recordCardsSession(); render(); return; }
   c.index += 1;
   c.revealed = false;
   render();
@@ -3131,17 +3139,25 @@ function prevCard() {
 }
 
 /* Flashcards are unscored, so the record says how many cards were met and
-   leaves `right` empty rather than inventing a mark for them. Logged on the
-   way out, which is where a deck read to the end also arrives. */
-function exitCards() {
+   leaves `right` empty rather than inventing a mark for them. A deck read to
+   the end is logged the moment it ends, so walking away by the tab bar does
+   not lose it; leaving part way logs what was read. `logged` keeps the two
+   paths from writing the same session twice. */
+function recordCardsSession() {
   const c = state.cards;
-  if (c) recordSession({
+  if (!c || c.logged) return;
+  c.logged = true;
+  recordSession({
     mode: 'cards',
     scope: scopeFromSelection(c.selection),
     asked: Math.min(c.index + 1, c.items.length),
     right: null,
     ms: Date.now() - c.startedAt
   });
+}
+
+function exitCards() {
+  recordCardsSession();
   state.cards = null;
   state.screen = 'home';
   render();
@@ -3337,15 +3353,11 @@ function goNextQuestion(q) {
     q.typedValue = '';
     q.typedCorrect = null;
     render();
-  } else if (q.settings.mode === 'typed') {
-    /* the one mode with an end-of-session report; every other mode still
-       returns to the home screen the moment the last card is answered */
+  } else {
+    /* both scored formats end on the report: it is the only place the
+       session says what it taught rather than what it asked */
     q.done = true;
     recordQuizSession(q);
-    render();
-  } else {
-    recordQuizSession(q);
-    state.screen = 'home';
     render();
   }
 }
@@ -3356,7 +3368,7 @@ function recordQuizSession(q) {
     scope: scopeFromSelection(q.settings.selection),
     asked: q.items.length,
     right: q.score,
-    learned: q.learned,
+    learned: q.learnedWords.length,
     ms: Date.now() - q.startedAt
   });
 }
@@ -3369,8 +3381,14 @@ function selectOption(opt) {
   const current = q.items[q.index];
   const correct = opt === current.correctAnswer;
   if (correct) q.score += 1;
+  q.results.push({
+    prompt: current.prompt,
+    correctAnswer: current.correctAnswer,
+    typed: opt,               /* what was picked, shown the same way a typed answer is */
+    correct
+  });
   bumpStreak();
-  if (recordAttempt(current.item.chapter, current.item.greek, correct)) q.learned += 1;
+  if (recordAttempt(current.item.chapter, current.item.greek, correct)) q.learnedWords.push(current.item.greek);
   render();
   setTimeout(() => { if (state.quiz === q) goNextQuestion(q); }, correct ? 650 : 1500);
 }
@@ -3401,7 +3419,7 @@ function submitTyped() {
     correct
   });
   bumpStreak();
-  if (recordAttempt(current.item.chapter, current.item.greek, correct)) q.learned += 1;
+  if (recordAttempt(current.item.chapter, current.item.greek, correct)) q.learnedWords.push(current.item.greek);
   /* flipped in the DOM rather than re-rendered, for the same reason
      wireFlipCard is: a re-render would replace the card mid-transition and the
      flip would never play. The advance below still re-renders as it always did. */
@@ -3973,23 +3991,52 @@ function renderDailyReview() {
 
 /* A light close, not a graded one: FSRS sessions have no score -- rating a word
    Again is information for the scheduler, not a mistake to be marked down for. */
+/* The review grades on a four-point scale rather than marking right or wrong,
+   so its rows carry the grade given. Forgot and Hard lead, for the same reason
+   wrong answers lead everywhere else: they are what the report is for. */
+function reviewRow(r) {
+  const rating = RATINGS.find(rt => rt.value === r.rating);
+  return `
+    <div class="sum-row">
+      <span class="sum-left"><span class="sum-greek">${r.greek}</span></span>
+      <span class="sum-answers">
+        <div><span class="sum-typed">${escapeHtml(r.english)}</span></div>
+        <div><span class="sum-label">Graded</span><span class="sum-correct">${rating ? rating.label : ''}</span></div>
+      </span>
+    </div>
+  `;
+}
+
+function reviewSection(title, rows) {
+  if (!rows.length) return '';
+  return `
+    <div class="sum-head">
+      <span class="kicker">${title}</span>
+      <span class="sum-count">${rows.length}</span>
+    </div>
+    <div class="list-panel glass">${glassLayer()}<div class="glass-content">
+      ${rows.map(reviewRow).join('')}
+    </div></div>
+  `;
+}
+
 function renderReviewDone() {
   const r = state.review;
   const tomorrow = dueWithin(1);
   const week = dueWithin(7);
+  const results = r.results || [];
+  const shaky = results.filter(x => x.rating < FSRS.Rating.Good);
+  const solid = results.filter(x => x.rating >= FSRS.Rating.Good);
 
   document.getElementById('screen').innerHTML = `
     <div class="fade-in">
       ${renderHeader(false, 'Daily Review', true)}
 
-      <div class="ring-panel glass">
-        ${glassLayer()}
-        <div class="glass-content">
-          <div class="kicker">REVIEW COMPLETE</div>
-          <div class="mem-done-time">${r.reviewed}</div>
-          <div class="ring-label text-muted">word${r.reviewed === 1 ? '' : 's'} reviewed</div>
-        </div>
-      </div>
+      ${donePanel('REVIEW COMPLETE', r.reviewed, `word${r.reviewed === 1 ? '' : 's'} reviewed`,
+          results.length ? `${solid.length} of ${results.length} came back` : '')}
+
+      ${reviewSection('COMING BACK SOON', shaky)}
+      ${reviewSection('RECALLED', solid)}
 
       <div class="list-panel glass">${glassLayer()}<div class="glass-content">
         <div class="missed-row"><span>Due by tomorrow</span><span class="missed-english">${tomorrow}</span></div>
@@ -4016,17 +4063,19 @@ function renderReviewDone() {
 
 
 function renderQuizTab() {
-  if (typedSummaryUp()) { renderTypedSummary(); return; }
+  if (sessionSummaryUp()) { renderSessionSummary(); return; }
   if (quizInProgress()) { renderFlashcard(); return; }
+  if (cardsSummaryUp()) { renderCardsSummary(); return; }
   if (cardsInProgress()) { renderCards(); return; }
   renderQuizEmpty();
 }
 
-/* ---------- type-answer session report ----------
-   Shown once, after the last word. Wrong answers lead, because they are the
-   reason to read it at all; the correct ones follow so the session can still
-   be seen whole. Nothing here is written to storage -- every word was already
-   logged by recordAttempt as it was answered. */
+/* ---------- the session report ----------
+   Shown once, after the last word, by both scored formats. Wrong answers
+   lead, because they are the reason to read it at all; the correct ones
+   follow so the session can still be seen whole. Nothing here is written to
+   storage -- every word was already logged by recordAttempt as it was
+   answered, and the session record by recordQuizSession. */
 
 /* thresholds chosen so the top band is genuinely hard to hit and the bottom
    band never reads as a telling-off */
@@ -4038,6 +4087,49 @@ function scoreMessage(pct, total) {
   return 'Keep practising — these words are worth another pass.';
 }
 
+/* the panel every finished session lands on: one figure, a line under it,
+   and an optional tinted note. renderMemoryDone drew this by hand first. */
+function donePanel(kicker, big, sub, badge) {
+  return `
+    <div class="ring-panel glass">
+      ${glassLayer()}
+      <div class="glass-content">
+        <div class="kicker">${kicker}</div>
+        <div class="mem-done-time">${big}</div>
+        <div class="ring-label text-muted">${sub}</div>
+        ${badge ? `<div class="mem-done-badge">${badge}</div>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+/* What changed leads. A session that taught something says so before it says
+   what it scored, because the new words are the part worth reading; a session
+   that taught nothing new falls back to the score and a line about it. */
+function summaryHero(learnedCount, score, total) {
+  const pct = total > 0 ? Math.round((score / total) * 100) : 0;
+  if (learnedCount > 0) {
+    return donePanel('SESSION COMPLETE', learnedCount,
+      `new word${learnedCount === 1 ? '' : 's'} learned`,
+      `${score} of ${total} correct`);
+  }
+  return donePanel('SESSION COMPLETE', `<span class="sum-score">${score}/${total}</span>`,
+    scoreMessage(pct, total), '');
+}
+
+function summaryActions(homeId, newId, newLabel) {
+  return `
+    <div class="card-actions">
+      <button class="ghost-btn" id="${homeId}">Back to home</button>
+      <button class="start-btn" id="${newId}">
+        <div class="resume-fill"></div>
+        <div class="resume-edge"></div>
+        <span>${newLabel}</span>
+      </button>
+    </div>
+  `;
+}
+
 function summaryRow(r) {
   const tick = r.correct
     ? '<span class="sum-tick is-correct"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8.5 6.5 12 13 4.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
@@ -4045,12 +4137,16 @@ function summaryRow(r) {
   const typed = r.typed
     ? `<span class="sum-typed">${escapeHtml(r.typed)}</span>`
     : '<span class="sum-typed is-blank">left blank</span>';
+  /* a multiple-choice answer that was right is word for word the answer, so
+     printing both lines would say the same thing twice. A typed answer that
+     differs only in accent or case still earns both. */
+  const echoed = r.correct && r.typed === r.correctAnswer;
   return `
     <div class="sum-row">
       <span class="sum-left">${tick}<span class="sum-greek">${r.prompt}</span></span>
       <span class="sum-answers">
-        <div><span class="sum-label">You</span>${typed}</div>
-        <div><span class="sum-label">Answer</span><span class="sum-correct">${r.correctAnswer}</span></div>
+        ${echoed ? '' : `<div><span class="sum-label">You</span>${typed}</div>`}
+        <div>${echoed ? '' : '<span class="sum-label">Answer</span>'}<span class="sum-correct">${r.correctAnswer}</span></div>
       </span>
     </div>
   `;
@@ -4069,12 +4165,11 @@ function summarySection(title, rows) {
   `;
 }
 
-function renderTypedSummary() {
+function renderSessionSummary() {
   const q = state.quiz;
   const results = q.results || [];
   const total = results.length;
   const score = results.filter(r => r.correct).length;
-  const pct = total > 0 ? Math.round((score / total) * 100) : 0;
   const wrong = results.filter(r => !r.correct);
   const right = results.filter(r => r.correct);
 
@@ -4082,33 +4177,43 @@ function renderTypedSummary() {
     <div class="fade-in">
       ${renderHeader(false, 'Session Report', true)}
 
-      <div class="ring-panel glass">
-        ${glassLayer()}
-        <div class="glass-content">
-          <div class="kicker">SESSION COMPLETE</div>
-          <div class="mem-done-time sum-score">${score}/${total}</div>
-          <div class="ring-label text-muted">${scoreMessage(pct, total)}</div>
-        </div>
-      </div>
+      ${summaryHero(q.learnedWords.length, score, total)}
 
       ${summarySection('TO REVIEW', wrong)}
       ${summarySection('CORRECT', right)}
       ${total === 0 ? '<div class="empty-note text-muted">No answers recorded.</div>' : ''}
 
-      <div class="card-actions">
-        <button class="ghost-btn" id="btn-sum-home">Back to home</button>
-        <button class="start-btn" id="btn-sum-new">
-          <div class="resume-fill"></div>
-          <div class="resume-edge"></div>
-          <span>New session</span>
-        </button>
-      </div>
+      ${summaryActions('btn-sum-home', 'btn-sum-new', 'New session')}
     </div>
   `;
 
-  document.getElementById('btn-sum-home').addEventListener('click', closeTypedSummary);
-  document.getElementById('btn-sum-new').addEventListener('click', newTypedSession);
-  document.getElementById('btn-exit-quiz').addEventListener('click', closeTypedSummary);
+  document.getElementById('btn-sum-home').addEventListener('click', closeSessionSummary);
+  document.getElementById('btn-sum-new').addEventListener('click', repeatSession);
+  document.getElementById('btn-exit-quiz').addEventListener('click', closeSessionSummary);
+}
+
+/* ---------- the flashcard report ----------
+   Much lighter, because there is no score to report: the deck was read, and
+   that is the whole of it. */
+function renderCardsSummary() {
+  const c = state.cards;
+  const seen = c.items.length;
+
+  document.getElementById('screen').innerHTML = `
+    <div class="fade-in">
+      ${renderHeader(false, 'Flashcards', true)}
+
+      ${donePanel('DECK COMPLETE', seen, `card${seen === 1 ? '' : 's'} read`, selectionLabel(c.selection))}
+
+      <p class="mem-note text-muted">Nothing is scored here. Flashcards are for meeting words, not for testing them. Try Multiple Choice or Type Answer when you want to find out what has stuck.</p>
+
+      ${summaryActions('btn-cards-home', 'btn-cards-new', 'New deck')}
+    </div>
+  `;
+
+  document.getElementById('btn-cards-home').addEventListener('click', exitCards);
+  document.getElementById('btn-cards-new').addEventListener('click', () => { exitCards(); openSetup(); });
+  document.getElementById('btn-exit-quiz').addEventListener('click', exitCards);
 }
 
 function renderQuizEmpty() {
@@ -5592,14 +5697,14 @@ function startGrammarQuiz() {
   if (!ids.length) return;
   const questions = buildGrammarQuiz(ids);
   if (!questions.length) return;
-  state.grammarQuiz = { ids, questions, index: 0, score: 0, answered: false, selectedOpt: null, done: false, startedAt: Date.now() };
+  state.grammarQuiz = { ids, questions, index: 0, score: 0, answered: false, selectedOpt: null, results: [], done: false, startedAt: Date.now() };
   state.screen = 'grammarQuiz';
   render();
 }
 
 function retryGrammarQuiz() {
   const ids = state.grammarQuiz ? state.grammarQuiz.ids : [];
-  state.grammarQuiz = { ids, questions: buildGrammarQuiz(ids), index: 0, score: 0, answered: false, selectedOpt: null, done: false, startedAt: Date.now() };
+  state.grammarQuiz = { ids, questions: buildGrammarQuiz(ids), index: 0, score: 0, answered: false, selectedOpt: null, results: [], done: false, startedAt: Date.now() };
   render();
 }
 
@@ -5626,6 +5731,7 @@ function selectGrammarOption(opt) {
   q.answered = true;
   q.selectedOpt = opt;
   if (correct) q.score += 1;
+  q.results.push({ prompt: current.prompt, correctAnswer: current.correct, typed: opt, correct });
   recordQuizAnswer(current.pid, correct);
   render();
   setTimeout(() => {
@@ -5710,6 +5816,9 @@ function renderGrammarQuizDone() {
         </div>
       </div>
 
+      ${summarySection('TO REVIEW', (q.results || []).filter(r => !r.correct))}
+      ${summarySection('CORRECT', (q.results || []).filter(r => r.correct))}
+
       <div class="card-actions">
         <button class="ghost-btn" id="btn-gq-home">Back to the list</button>
         <button class="start-btn" id="btn-gq-again">
@@ -5756,7 +5865,7 @@ function render() {
   if (state.screen === 'home') renderHome();
   else if (state.screen === 'setup') renderSetup();
   else if (state.screen === 'flashcard') renderQuizTab();
-  else if (state.screen === 'cards') renderCards();
+  else if (state.screen === 'cards') { if (cardsSummaryUp()) renderCardsSummary(); else renderCards(); }
   else if (state.screen === 'memory') renderMemory();
   else if (state.screen === 'review') renderDailyReview();
   else if (state.screen === 'grammar') renderGrammarPicker();
@@ -5803,10 +5912,11 @@ function activeScreenKind() {
   if (state.screen === 'grammarRef') return 'grammar-ref';
   if (state.screen === 'grammarList') return 'grammar-list';
   if (state.screen === 'grammarQuiz') return state.grammarQuiz && state.grammarQuiz.done ? 'grammar-quiz-done' : 'grammar-quiz';
-  if (state.screen === 'cards') return cardsInProgress() ? 'cards' : null;
+  if (state.screen === 'cards') return cardsSummaryUp() ? 'cards-done' : (cardsInProgress() ? 'cards' : null);
   if (state.screen === 'flashcard') {
-    if (typedSummaryUp()) return 'typed-done';
+    if (sessionSummaryUp()) return 'session-done';
     if (quizInProgress()) return state.quiz.settings.mode === 'mc' ? 'mc' : 'typed';
+    if (cardsSummaryUp()) return 'cards-done';
     if (cardsInProgress()) return 'cards';
   }
   return null;
@@ -5820,9 +5930,9 @@ function escapeAction(kind) {
   if (kind === 'grammar-list' || kind === 'grammar-ref') return goGrammar;
   if (kind === 'grammar-drill' || kind === 'grammar-done') return goGrammarList;
   if (kind === 'grammar-quiz' || kind === 'grammar-quiz-done') return exitGrammarQuiz;
-  if (kind === 'cards') return exitCards;
+  if (kind === 'cards' || kind === 'cards-done') return exitCards;
   if (kind === 'mc' || kind === 'typed') return exitQuiz;
-  if (kind === 'typed-done') return closeTypedSummary;
+  if (kind === 'session-done') return closeSessionSummary;
   return null;
 }
 
