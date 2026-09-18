@@ -228,17 +228,27 @@
     padding: 16px; font-size: 15px; font-family: var(--font-sans); color: var(--ink); outline: none;
   }
   .typed-input::placeholder { color: var(--faint); }
-  .typed-input-wrap.is-correct .glass-fill { background: var(--green-tint); }
-  .typed-input-wrap.is-correct .glass-edge { border: 1.5px solid var(--green); }
-  .typed-input-wrap.is-correct .typed-input { color: var(--green-text); }
-  .typed-input-wrap.is-wrong .glass-fill { background: var(--surface-2); }
-  .typed-input-wrap.is-wrong .typed-input { color: var(--muted); }
+  .typed-input:disabled { color: var(--muted); -webkit-text-fill-color: var(--muted); opacity: 1; }
   .typed-submit { position: relative; border: none; background: transparent; border-radius: var(--r-btn); padding: 0 22px; overflow: hidden; cursor: pointer; }
   .typed-submit .resume-fill { position: absolute; inset: 0; background: var(--green-solid); transition: background 150ms ease; }
   .typed-submit:not(:disabled):hover .resume-fill { background: var(--green-press); }
   .typed-submit span { position: relative; z-index: 1; color: var(--on-green); font-weight: 800; font-size: 13.5px; }
   .typed-submit:disabled { cursor: not-allowed; opacity: 0.45; }
-  .typed-feedback { text-align: center; font-size: 12.5px; margin-top: 14px; min-height: 16px; }
+
+  /* the mark the prompt card turns over to reveal. Binary: a tick or a cross,
+     never the answer -- that is the summary's job. The wrong face stays
+     colourless like .option-btn.is-wrong rather than going red, which is the
+     only register this palette has for a miss. */
+  .result-face { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .result-mark {
+    width: 84px; height: 84px; border-radius: var(--r-card);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .result-mark.is-correct { background: var(--green-solid); color: var(--on-green); }
+  .result-mark.is-wrong { background: var(--surface-2); border: 1.5px solid var(--hairline); color: var(--muted); }
+  .result-face .kicker { color: var(--green-text); }
+  .result-face.is-wrong .kicker { color: var(--muted); }
+  .prompt-panel.flip.is-result { cursor: default; }
 
   /* progress screen */
   .rings-row { display: flex; gap: 10px; margin-bottom: 18px; }
@@ -276,6 +286,26 @@
   .streak-dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--track); display: block; }
   .streak-dots i.on { background: var(--green); }
   .empty-note { text-align: center; font-size: 13px; padding: 16px 0; }
+
+  /* ---------- type-answer summary ----------
+     The same list language as the Progress tab's missed words: a .list-panel
+     of hairline-separated rows, prompt on the left, the two answers stacked on
+     the right. Only the small leading mark tells the two groups apart. */
+  .sum-head { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; }
+  .sum-head .sum-count { font-size: 10.5px; font-weight: 700; color: var(--muted); font-feature-settings: 'tnum'; }
+  .sum-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 13px 0; }
+  .sum-row + .sum-row { border-top: 1px solid var(--hairline-soft); }
+  .sum-left { display: flex; align-items: center; gap: 9px; min-width: 0; }
+  .sum-greek { font-weight: 700; font-size: 15px; word-break: break-word; }
+  .sum-tick { flex-shrink: 0; display: flex; }
+  .sum-tick.is-correct { color: var(--green); }
+  .sum-tick.is-wrong { color: var(--muted); }
+  .sum-answers { text-align: right; min-width: 0; font-size: 12.5px; line-height: 1.5; }
+  .sum-answers .sum-label { color: var(--faint); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; margin-right: 6px; }
+  .sum-typed { color: var(--muted); word-break: break-word; }
+  .sum-typed.is-blank { font-style: italic; }
+  .sum-correct { color: var(--green-text); font-weight: 700; word-break: break-word; }
+  .sum-score { font-feature-settings: 'tnum'; }
 
   /* nav bar: full width, opaque, hairline top edge.
      the WRAP carries the background, the border and the bottom safe-area pad --
@@ -459,8 +489,14 @@
   }
   .option-btn.is-correct .option-fill { animation: oikos-pulse-correct 300ms ease both; }
   .option-btn.is-wrong .option-fill { animation: oikos-pulse-wrong 300ms ease both; }
-  .typed-input-wrap.is-correct .glass-fill { animation: oikos-pulse-correct 300ms ease both; }
-  .typed-input-wrap.is-wrong .glass-fill { animation: oikos-pulse-wrong 300ms ease both; }
+  .result-mark.is-correct { animation: oikos-pop-mark 280ms 200ms ease both; }
+  .result-mark.is-wrong { animation: oikos-pop-mark 280ms 200ms ease both; }
+  /* fires as the flip lands, so the mark arrives rather than being already there */
+  @keyframes oikos-pop-mark {
+    0%   { transform: scale(0.72); opacity: 0; }
+    60%  { transform: scale(1.06); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
@@ -655,6 +691,7 @@
     .options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
     .option-content { font-size: 16px; }
     .typed-input { padding: 19px; font-size: 17px; }
+    .result-mark { width: 104px; height: 104px; }
     .typed-submit span { font-size: 14.5px; }
     .flip-inner { min-height: 300px; }
     .flip .prompt-word { font-size: 72px; }
@@ -771,6 +808,7 @@
     .typed-submit span { font-size: 14.5px; }
     .typed-submit .key-hint { position: relative; z-index: 1; }
     .typed-note { text-align: center; font-size: 12px; color: var(--muted); margin-top: 12px; }
+    .result-mark { width: 132px; height: 132px; }
 
     /* ---- flashcards: a quiet column beside the card ---- */
     .cards-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 32px; align-items: start; }
@@ -1079,7 +1117,7 @@ let state = {
     step: 1,                  // 1 chapters/categories, 2 format, 3 direction, 4 word count, 5 start
     anim: 'fwd'               // direction of the last step transition, for the slide animation
   },
-  quiz: null,                 // { settings, pool, items, index, score, answered, selectedOpt, typedValue, typedCorrect }
+  quiz: null,                 // { settings, pool, items, index, score, answered, selectedOpt, typedValue, typedCorrect, results, done }
   cards: null,                // flashcard session: { selection, items, index, revealed }
   memory: null,               // memory game: { selection, pairs, tiles, flipped, matched, startedAt, finishedMs }
   review: null,               // daily review: { queue, index, revealed, reviewed, done }
@@ -1090,6 +1128,12 @@ let state = {
 };
 
 function wordKey(chapter, greek) { return chapter + '::' + greek; }
+
+/* Everything else interpolated into a renderer is vocabulary data we ship.
+   What the student types is not, and the summary prints it back. */
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
 
 function todayStr() {
   const d = new Date();
@@ -1629,7 +1673,9 @@ function startQuiz(settings) {
     answered: false,
     selectedOpt: null,
     typedValue: '',
-    typedCorrect: null
+    typedCorrect: null,
+    results: [],              // type-answer only: one entry per question, for the summary
+    done: false               // type-answer only: the last word is answered, summary is up
   };
   state.screen = 'flashcard';
   render();
@@ -1666,7 +1712,24 @@ function quickResume() {
 }
 
 function quizInProgress() {
-  return !!(state.quiz && state.quiz.index < state.quiz.items.length);
+  return !!(state.quiz && !state.quiz.done && state.quiz.index < state.quiz.items.length);
+}
+
+/* the end-of-session report, which is a finished session rather than a live one */
+function typedSummaryUp() {
+  return !!(state.quiz && state.quiz.done);
+}
+
+/* leaving the report: the session is over, so there is nothing to confirm away */
+function closeTypedSummary() {
+  state.quiz = null;
+  state.screen = 'home';
+  render();
+}
+
+function newTypedSession() {
+  state.quiz = null;
+  openSetup();
 }
 
 function goHome() { state.screen = 'home'; render(); }
@@ -2056,6 +2119,11 @@ function goNextQuestion(q) {
     q.typedValue = '';
     q.typedCorrect = null;
     render();
+  } else if (q.settings.mode === 'typed') {
+    /* the one mode with an end-of-session report; every other mode still
+       returns to the home screen the moment the last card is answered */
+    q.done = true;
+    render();
   } else {
     state.screen = 'home';
     render();
@@ -2076,6 +2144,14 @@ function selectOption(opt) {
   setTimeout(() => { if (state.quiz === q) goNextQuestion(q); }, correct ? 650 : 1500);
 }
 
+/* the two faces of the mark the card turns over to reveal -- the same paths
+   the multiple-choice options use, drawn larger */
+function resultMarkSvg(correct) {
+  return correct
+    ? '<svg width="40" height="40" viewBox="0 0 16 16" fill="none"><path d="M3 8.5 6.5 12 13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    : '<svg width="36" height="36" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2 2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+}
+
 function submitTyped() {
   const q = state.quiz;
   if (!q || q.answered) return;
@@ -2087,10 +2163,40 @@ function submitTyped() {
   q.typedValue = val;
   q.typedCorrect = correct;
   if (correct) q.score += 1;
+  q.results.push({
+    prompt: current.prompt,
+    correctAnswer: current.correctAnswer,
+    typed: val.trim(),
+    correct
+  });
   bumpStreak();
   recordAttempt(current.item.chapter, current.item.greek, correct);
-  render();
+  /* flipped in the DOM rather than re-rendered, for the same reason
+     wireFlipCard is: a re-render would replace the card mid-transition and the
+     flip would never play. The advance below still re-renders as it always did. */
+  flipResultCard(correct);
   setTimeout(() => { if (state.quiz === q) goNextQuestion(q); }, correct ? 650 : 1800);
+}
+
+/* turns the prompt card over onto its mark and closes the input behind it */
+function flipResultCard(correct) {
+  const card = document.getElementById('typed-card');
+  const face = document.getElementById('typed-result');
+  if (face) {
+    face.className = 'result-face' + (correct ? '' : ' is-wrong');
+    face.innerHTML = `
+      <div class="result-mark ${correct ? 'is-correct' : 'is-wrong'}">${resultMarkSvg(correct)}</div>
+      <div class="kicker">${correct ? 'CORRECT' : 'NOT QUITE'}</div>
+    `;
+  }
+  if (card) card.classList.add('is-flipped');
+  /* the running score used to come along with the re-render this replaces */
+  const scoreEl = document.getElementById('quiz-score');
+  if (scoreEl) scoreEl.textContent = `Score ${state.quiz.score}`;
+  const input = document.getElementById('typed-input');
+  const submit = document.getElementById('typed-submit');
+  if (input) { input.blur(); input.disabled = true; }
+  if (submit) submit.disabled = true;
 }
 
 /* ---------- rendering ---------- */
@@ -2717,9 +2823,99 @@ function renderReviewDone() {
 
 
 function renderQuizTab() {
+  if (typedSummaryUp()) { renderTypedSummary(); return; }
   if (quizInProgress()) { renderFlashcard(); return; }
   if (cardsInProgress()) { renderCards(); return; }
   renderQuizEmpty();
+}
+
+/* ---------- type-answer session report ----------
+   Shown once, after the last word. Wrong answers lead, because they are the
+   reason to read it at all; the correct ones follow so the session can still
+   be seen whole. Nothing here is written to storage -- every word was already
+   logged by recordAttempt as it was answered. */
+
+/* thresholds chosen so the top band is genuinely hard to hit and the bottom
+   band never reads as a telling-off */
+function scoreMessage(pct, total) {
+  if (total === 0) return 'Nothing to report.';
+  if (pct >= 90) return 'Excellent work — that is a strong session.';
+  if (pct >= 75) return 'Well done — most of these are sticking.';
+  if (pct >= 50) return 'Good progress — the rest will come with practice.';
+  return 'Keep practising — these words are worth another pass.';
+}
+
+function summaryRow(r) {
+  const tick = r.correct
+    ? '<span class="sum-tick is-correct"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8.5 6.5 12 13 4.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
+    : '<span class="sum-tick is-wrong"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2 2 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span>';
+  const typed = r.typed
+    ? `<span class="sum-typed">${escapeHtml(r.typed)}</span>`
+    : '<span class="sum-typed is-blank">left blank</span>';
+  return `
+    <div class="sum-row">
+      <span class="sum-left">${tick}<span class="sum-greek">${r.prompt}</span></span>
+      <span class="sum-answers">
+        <div><span class="sum-label">You</span>${typed}</div>
+        <div><span class="sum-label">Answer</span><span class="sum-correct">${r.correctAnswer}</span></div>
+      </span>
+    </div>
+  `;
+}
+
+function summarySection(title, rows) {
+  if (!rows.length) return '';
+  return `
+    <div class="sum-head">
+      <span class="kicker">${title}</span>
+      <span class="sum-count">${rows.length}</span>
+    </div>
+    <div class="list-panel glass">${glassLayer()}<div class="glass-content">
+      ${rows.map(summaryRow).join('')}
+    </div></div>
+  `;
+}
+
+function renderTypedSummary() {
+  const q = state.quiz;
+  const results = q.results || [];
+  const total = results.length;
+  const score = results.filter(r => r.correct).length;
+  const pct = total > 0 ? Math.round((score / total) * 100) : 0;
+  const wrong = results.filter(r => !r.correct);
+  const right = results.filter(r => r.correct);
+
+  document.getElementById('screen').innerHTML = `
+    <div class="fade-in">
+      ${renderHeader(false, 'Session Report', true)}
+
+      <div class="ring-panel glass">
+        ${glassLayer()}
+        <div class="glass-content">
+          <div class="kicker">SESSION COMPLETE</div>
+          <div class="mem-done-time sum-score">${score}/${total}</div>
+          <div class="ring-label text-muted">${scoreMessage(pct, total)}</div>
+        </div>
+      </div>
+
+      ${summarySection('TO REVIEW', wrong)}
+      ${summarySection('CORRECT', right)}
+      ${total === 0 ? '<div class="empty-note text-muted">No answers recorded.</div>' : ''}
+
+      <div class="card-actions">
+        <button class="ghost-btn" id="btn-sum-home">Back to home</button>
+        <button class="start-btn" id="btn-sum-new">
+          <div class="resume-fill"></div>
+          <div class="resume-edge"></div>
+          <span>New session</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('btn-sum-home').addEventListener('click', closeTypedSummary);
+  document.getElementById('btn-sum-new').addEventListener('click', newTypedSession);
+  document.getElementById('btn-exit-quiz').addEventListener('click', closeTypedSummary);
 }
 
 function renderQuizEmpty() {
@@ -2783,13 +2979,9 @@ function renderFlashcard() {
     }).join('');
     bodyHtml = `<div class="options">${optionsHtml}</div>`;
   } else {
-    const wrapCls = q.answered ? (q.typedCorrect ? 'is-correct' : 'is-wrong') : '';
-    const feedback = q.answered
-      ? (q.typedCorrect ? 'Correct.' : `Accepted answer: ${current.correctAnswer}`)
-      : '';
     bodyHtml = `
       <div class="typed-row">
-        <div class="typed-input-wrap glass ${wrapCls}">
+        <div class="typed-input-wrap glass">
           ${glassLayer()}
           <input class="typed-input" id="typed-input" type="text" autocomplete="off" autocapitalize="off"
             autocorrect="off" spellcheck="false" placeholder="Type the English meaning…" ${q.answered ? 'disabled' : ''}>
@@ -2800,8 +2992,7 @@ function renderFlashcard() {
           <span class="key-hint on-accent">↵</span>
         </button>
       </div>
-      <div class="typed-note">Enter checks your answer, then Enter again for the next word</div>
-      <div class="typed-feedback text-muted">${feedback}</div>
+      <div class="typed-note">Enter checks your answer — the card turns over, then the next word comes up</div>
     `;
   }
 
@@ -2811,19 +3002,36 @@ function renderFlashcard() {
 
       <div class="progress-row">
         <span>Question ${q.index + 1} of ${total}</span>
-        <span>Score ${q.score}</span>
+        <span id="quiz-score">Score ${q.score}</span>
       </div>
       <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
 
       <div class="quiz-body ${q.settings.mode === 'mc' ? 'is-mc' : 'is-typed'}">
+        ${q.settings.mode === 'mc' ? `
         <div class="prompt-panel glass">
           ${glassLayer()}
           <div class="glass-content">
             <div class="kicker">${tag}</div>
             <div class="prompt-word ${isEnglishPrompt ? 'is-english' : ''}" style="margin-top:12px">${current.prompt}</div>
-            ${q.settings.mode === 'mc' ? `<div class="prompt-meta">Chapter ${current.item.chapter} · ${current.item.cat}</div>` : ''}
+            <div class="prompt-meta">Chapter ${current.item.chapter} · ${current.item.cat}</div>
           </div>
-        </div>
+        </div>` : `
+        <div class="prompt-panel glass flip is-result ${q.answered ? 'is-flipped' : ''}" id="typed-card">
+          ${glassLayer()}
+          <div class="glass-content flip-inner">
+            <div class="flip-face flip-front">
+              <div class="kicker">${tag}</div>
+              <div class="prompt-word" style="margin-top:12px">${current.prompt}</div>
+            </div>
+            <div class="flip-face flip-back">
+              <div class="result-face ${q.answered && !q.typedCorrect ? 'is-wrong' : ''}" id="typed-result">${
+                q.answered ? `
+                <div class="result-mark ${q.typedCorrect ? 'is-correct' : 'is-wrong'}">${resultMarkSvg(q.typedCorrect)}</div>
+                <div class="kicker">${q.typedCorrect ? 'CORRECT' : 'NOT QUITE'}</div>` : ''
+              }</div>
+            </div>
+          </div>
+        </div>`}
 
         <div>${bodyHtml}</div>
       </div>
@@ -3329,6 +3537,7 @@ function activeScreenKind() {
   if (state.screen === 'review') return state.review && !state.review.done ? 'review' : 'review-done';
   if (state.screen === 'cards') return cardsInProgress() ? 'cards' : null;
   if (state.screen === 'flashcard') {
+    if (typedSummaryUp()) return 'typed-done';
     if (quizInProgress()) return state.quiz.settings.mode === 'mc' ? 'mc' : 'typed';
     if (cardsInProgress()) return 'cards';
   }
@@ -3342,6 +3551,7 @@ function escapeAction(kind) {
   if (kind === 'review' || kind === 'review-done') return exitReview;
   if (kind === 'cards') return exitCards;
   if (kind === 'mc' || kind === 'typed') return exitQuiz;
+  if (kind === 'typed-done') return closeTypedSummary;
   return null;
 }
 
