@@ -1009,8 +1009,8 @@
   .pg-row + .pg-row { border-top: 1px solid var(--hairline-soft); }
   .pg-row:hover { background: var(--surface-2); }
   .pg-row-main { flex: 1; min-width: 0; }
-  .pg-row-label { font-size: 14px; font-weight: 700; line-height: 1.3; }
-  .pg-row-example { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .pg-row-label { display: block; font-size: 14px; font-weight: 700; line-height: 1.3; }
+  .pg-row-example { display: block; font-size: 12px; color: var(--muted); margin-top: 3px; }
   .pg-row-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
   .pg-tag {
     font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 999px;
@@ -1103,6 +1103,27 @@
   .pg-ref-table td { color: var(--ink); line-height: 1.5; min-width: 260px; }
   .pg-ref-wrap { border-radius: var(--r-card); border: 1px solid var(--hairline); background: var(--surface); box-shadow: var(--shadow-card); overflow-x: auto; padding: 4px 16px; }
 
+  /* ---------- grammar: Form Quiz ---------- */
+  .pg-modes { margin: 0 0 14px; }
+  .pg-pick-actions { display: flex; gap: 16px; justify-content: flex-end; margin: 0 0 14px; }
+  .pg-pick-actions .link-btn:disabled { color: var(--faint); cursor: not-allowed; text-decoration: none; }
+  .pg-box {
+    width: 22px; height: 22px; border-radius: var(--r-sm); flex-shrink: 0;
+    border: 1.5px solid var(--hairline); background: var(--surface);
+    display: flex; align-items: center; justify-content: center; color: var(--on-green);
+  }
+  .pg-box.is-on { background: var(--green-solid); border-color: var(--green-solid); }
+  .pg-box .choice-tick { opacity: 1; display: flex; }
+  .pg-row.is-picked { background: var(--green-tint); }
+  .pg-row.is-picked .pg-row-label { color: var(--green-text); }
+  /* the start button rides above the tab bar so a long list never buries it */
+  .pg-quiz-bar {
+    position: sticky; bottom: calc(env(safe-area-inset-bottom) + 84px); z-index: 5;
+    margin-top: 20px; padding: 10px 0 2px; background: var(--bg);
+  }
+  .pg-quiz-bar .start-btn { margin-top: 0; }
+  .pg-quiz-prompt { font-size: 22px; line-height: 1.3; }
+
   /* ---------- grammar: progress sub-tabs ---------- */
   .prog-tabs { display: flex; gap: 6px; margin-bottom: 18px; }
   .pg-stat-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; font-size: 13.5px; }
@@ -1110,6 +1131,13 @@
   .pg-stat-name { min-width: 0; }
   .pg-stat-example { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; }
   .pg-stat-figures { flex-shrink: 0; text-align: right; font-size: 11.5px; color: var(--muted); font-feature-settings: 'tnum'; }
+  .pg-stat-sort, .pg-stat-quiz { display: block; }
+  /* the two records read differently on purpose -- sage for the sort grid's
+     clean runs, ink for the quiz's accuracy -- so neither is mistaken for the
+     other at a glance */
+  .pg-stat-sort.is-on { color: var(--green-text); font-weight: 700; }
+  .pg-stat-quiz { margin-top: 2px; }
+  .pg-stat-quiz.is-on { color: var(--ink); font-weight: 700; }
 
   @media (min-width: 720px) {
     .hub-grid { flex-direction: row; }
@@ -1120,6 +1148,7 @@
     .pg-form { font-size: 15px; }
     .pg-drill-title { font-size: 26px; }
     .pg-row-label { font-size: 15px; }
+    .pg-quiz-prompt { font-size: 30px; }
   }
 
   @media (min-width: 1180px) {
@@ -1128,6 +1157,8 @@
     .hub-title { font-size: 21px; }
     .hub-rings svg { width: 76px; height: 76px; }
     .pg-cell { min-height: 76px; min-width: 124px; }
+    .pg-quiz-bar { bottom: 18px; }
+    .pg-quiz-prompt { font-size: 36px; }
   }
 </style>
 </head>
@@ -1951,6 +1982,9 @@ let state = {
   stats: {},                 // wordKey -> { seen, correct }
   grammarStats: {},          // paradigm id -> { attempts, cleanRuns } -- no FSRS here, see the grammar block
   grammar: null,             // Sort the Table session: { id, paradigm, keys, cards, placed, misses, done }
+  grammarMode: 'sort',       // 'sort' | 'quiz' -- which drill the Grammar picker is choosing for
+  grammarPick: new Set(),    // paradigm ids ticked for a Form Quiz
+  grammarQuiz: null,         // Form Quiz session: { ids, questions, index, score, answered, selectedOpt, done }
   progressTab: 'vocab',      // 'vocab' | 'grammar' -- which half of the Progress screen is up
   streak: { count: 0, lastDate: null },
   memoryBest: null,          // fastest memory-game completion, in ms (null until one is finished)
@@ -3824,6 +3858,35 @@ function renderQuizEmpty() {
   document.getElementById('btn-goto-home').addEventListener('click', openSetup);
 }
 
+/* the multiple-choice answer list, for any question that can name its options
+   and which of them is right -- vocabulary words and grammar forms both. The
+   markup is the original vocab one unchanged: a miss stays colourless, which
+   is the only register this palette has for one. */
+function mcOptionsHtml(options, answered, correctAnswer, selectedOpt) {
+  const optionsHtml = options.map((opt, optIndex) => {
+    let cls = '', icon = '';
+    if (answered) {
+      if (opt === correctAnswer) {
+        cls = 'is-correct';
+        icon = '<span class="option-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5 6.5 12 13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+      } else if (opt === selectedOpt) {
+        cls = 'is-wrong';
+        icon = '<span class="option-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2 2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>';
+      } else {
+        cls = 'is-faded';
+      }
+    }
+    return `
+      <button class="option-btn ${cls}" data-opt="${opt.replace(/"/g, '&quot;')}" ${answered ? 'disabled' : ''}>
+        <div class="option-fill"></div>
+        <div class="option-edge"></div>
+        <div class="option-content"><span class="opt-key">${optIndex + 1}</span><span>${opt}</span>${icon}</div>
+      </button>
+    `;
+  }).join('');
+  return `<div class="options">${optionsHtml}</div>`;
+}
+
 function renderFlashcard() {
   const q = state.quiz;
   const total = q.items.length;
@@ -3834,28 +3897,7 @@ function renderFlashcard() {
 
   let bodyHtml;
   if (q.settings.mode === 'mc') {
-    const optionsHtml = current.options.map((opt, optIndex) => {
-      let cls = '', icon = '';
-      if (q.answered) {
-        if (opt === current.correctAnswer) {
-          cls = 'is-correct';
-          icon = '<span class="option-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5 6.5 12 13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
-        } else if (opt === q.selectedOpt) {
-          cls = 'is-wrong';
-          icon = '<span class="option-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2 2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>';
-        } else {
-          cls = 'is-faded';
-        }
-      }
-      return `
-        <button class="option-btn ${cls}" data-opt="${opt.replace(/"/g, '&quot;')}" ${q.answered ? 'disabled' : ''}>
-          <div class="option-fill"></div>
-          <div class="option-edge"></div>
-          <div class="option-content"><span class="opt-key">${optIndex + 1}</span><span>${opt}</span>${icon}</div>
-        </button>
-      `;
-    }).join('');
-    bodyHtml = `<div class="options">${optionsHtml}</div>`;
+    bodyHtml = mcOptionsHtml(current.options, q.answered, current.correctAnswer, q.selectedOpt);
   } else {
     bodyHtml = `
       <div class="typed-row">
@@ -4061,16 +4103,23 @@ function renderGrammarProgress() {
   const mastered = paradigmsMastered();
   const rows = PARADIGMS.map(p => {
     const s = grammarStat(p.id);
-    const figure = s.attempts === 0
-      ? 'Not tried'
+    const acc = grammarQuizAccuracy(p.id);
+    const sortFigure = s.attempts === 0
+      ? 'Not sorted'
       : `${s.cleanRuns} clean · ${s.attempts} run${s.attempts === 1 ? '' : 's'}`;
+    const quizFigure = acc === null
+      ? 'No quiz yet'
+      : `${acc}% of ${s.quizAttempts} question${s.quizAttempts === 1 ? '' : 's'}`;
     return `
       <div class="pg-stat-row">
         <span class="pg-stat-name">
           ${escapeHtml(p.label)}${paradigmInScope(p) ? '' : ' <span class="pg-tag">Not yet in class</span>'}
           <span class="pg-stat-example">${escapeHtml(p.example)}</span>
         </span>
-        <span class="pg-stat-figures ${s.cleanRuns > 0 ? '' : 'text-muted'}">${figure}</span>
+        <span class="pg-stat-figures">
+          <span class="pg-stat-sort ${s.cleanRuns > 0 ? 'is-on' : 'text-muted'}">${sortFigure}</span>
+          <span class="pg-stat-quiz ${acc === null ? 'text-muted' : 'is-on'}">${quizFigure}</span>
+        </span>
       </div>
     `;
   }).join('');
@@ -4086,10 +4135,15 @@ function renderGrammarProgress() {
           <div class="kicker">PARADIGMS MASTERED</div>
           ${ringSvg(PARADIGMS.length ? Math.round((mastered / PARADIGMS.length) * 100) : 0)}
           <div class="ring-label text-muted">${mastered} of ${PARADIGMS.length} sorted with no wrong drops</div>
+          <div class="ring-caption text-muted">${(() => {
+            const asked = PARADIGMS.reduce((n, p) => n + grammarStat(p.id).quizAttempts, 0);
+            const right = PARADIGMS.reduce((n, p) => n + grammarStat(p.id).quizCorrect, 0);
+            return asked ? `Form Quiz: ${Math.round((right / asked) * 100)}% of ${asked} question${asked === 1 ? '' : 's'}` : 'Form Quiz: not tried yet';
+          })()}</div>
         </div>
       </div>
 
-      <div class="kicker" style="margin:0 0 10px">BY PARADIGM</div>
+      <div class="kicker" style="margin:0 0 10px">BY PARADIGM — SORT · QUIZ</div>
       <div class="list-panel glass">${glassLayer()}<div class="glass-content">${rows}</div></div>
     </div>
   `;
@@ -4209,7 +4263,8 @@ function renderProgress() {
 function renderTabBar() {
   document.getElementById('tab-home').classList.toggle('active',
     state.screen === 'home' || state.screen === 'setup' ||
-    state.screen === 'grammar' || state.screen === 'grammarDrill' || state.screen === 'grammarRef');
+    state.screen === 'grammar' || state.screen === 'grammarDrill' ||
+    state.screen === 'grammarRef' || state.screen === 'grammarQuiz');
   document.getElementById('tab-review').classList.toggle('active', state.screen === 'flashcard' || state.screen === 'cards' || state.screen === 'memory' || state.screen === 'review');
   document.getElementById('tab-progress').classList.toggle('active', state.screen === 'progress');
 }
@@ -4467,9 +4522,21 @@ const GRAMMAR_GROUPS = [
 
 function saveGrammarStats() { storageAdapter.set(GRAMMAR_STATS_KEY, JSON.stringify(state.grammarStats)); }
 
+/* two drills, two records: Sort the Table's { attempts, cleanRuns } and the
+   Form Quiz's { quizAttempts, quizCorrect }. They measure different things --
+   placing a form you are looking at, and producing one you are not -- so they
+   are never rolled into a single number. */
 function grammarStat(id) {
-  const s = state.grammarStats[id];
-  return { attempts: (s && s.attempts) || 0, cleanRuns: (s && s.cleanRuns) || 0 };
+  const s = state.grammarStats[id] || {};
+  return {
+    attempts: s.attempts || 0, cleanRuns: s.cleanRuns || 0,
+    quizAttempts: s.quizAttempts || 0, quizCorrect: s.quizCorrect || 0
+  };
+}
+
+function grammarQuizAccuracy(id) {
+  const s = grammarStat(id);
+  return s.quizAttempts ? Math.round((s.quizCorrect / s.quizAttempts) * 100) : null;
 }
 
 /* "mastered" is deliberately a low bar for v1: one run through with nothing
@@ -4522,7 +4589,9 @@ function finishParadigm() {
   const s = grammarStat(g.id);
   state.grammarStats[g.id] = {
     attempts: s.attempts + 1,
-    cleanRuns: s.cleanRuns + (g.misses === 0 ? 1 : 0)
+    cleanRuns: s.cleanRuns + (g.misses === 0 ? 1 : 0),
+    quizAttempts: s.quizAttempts,
+    quizCorrect: s.quizCorrect
   };
   saveGrammarStats();
   g.done = true;
@@ -4826,22 +4895,30 @@ function renderGrammarDone() {
    Grouped the way the appendix is, with everything past this term's cutoff
    kept in the list but pushed below the in-scope tables and tagged, so it can
    be read without reading as homework. */
+/* one row, two jobs: in Sort the Table it launches that paradigm, in Form
+   Quiz it ticks it for the selection. Same line, so the list reads the same
+   either way. */
 function paradigmRowHtml(p) {
   const s = grammarStat(p.id);
   const future = !paradigmInScope(p);
+  const quizMode = state.grammarMode === 'quiz';
+  const picked = state.grammarPick.has(p.id);
   const tag = s.cleanRuns > 0
     ? `<span class="pg-tag is-clean">${s.cleanRuns} clean</span>`
     : (s.attempts > 0 ? `<span class="pg-tag">${s.attempts} tried</span>` : '');
+  const right = quizMode
+    ? `<span class="pg-box ${picked ? 'is-on' : ''}">${picked ? tickIcon() : ''}</span>`
+    : `${tag}<span class="pg-chevron"><svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1.5 1.5 6.5 6.5l-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
   return `
-    <button class="pg-row ${future ? 'is-future' : ''}" data-paradigm="${p.id}">
+    <button class="pg-row ${future ? 'is-future' : ''} ${quizMode && picked ? 'is-picked' : ''}"
+      data-paradigm="${p.id}" ${quizMode ? `aria-pressed="${picked}"` : ''}>
       <span class="pg-row-main">
         <span class="pg-row-label">${escapeHtml(p.label)}</span>
-        <span class="pg-row-example">${escapeHtml(p.example)} · ${p.rowLabels.length * p.colLabels.length} cells</span>
+        <span class="pg-row-example">${escapeHtml(p.example)} · ${p.rowLabels.length * p.colLabels.length} ${quizMode ? 'questions' : 'cells'}</span>
       </span>
       <span class="pg-row-right">
         ${future ? '<span class="pg-tag">Not yet in class</span>' : ''}
-        ${tag}
-        <span class="pg-chevron"><svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1.5 1.5 6.5 6.5l-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        ${right}
       </span>
     </button>
   `;
@@ -4873,12 +4950,30 @@ function grammarGroupsHtml() {
 
 function renderGrammarPicker() {
   const mastered = paradigmsMastered();
+  const quizMode = state.grammarMode === 'quiz';
+  const picked = state.grammarPick.size;
+  const questions = quizMode ? grammarPickQuestionCount() : 0;
+
   document.getElementById('screen').innerHTML = `
     <div class="fade-in">
       ${renderHeader(false, `${mastered}/${PARADIGMS.length} mastered`)}
 
       <h1 class="greeting" style="font-size:clamp(30px,9vw,38px)">Grammar</h1>
-      <p class="pg-intro text-muted">Sort the Table: every paradigm comes up empty, and you drag the forms back into place. No typing — the forms are cards.</p>
+
+      <div class="segmented pg-modes">
+        <button class="seg-btn ${quizMode ? '' : 'active'}" data-gmode="sort">Sort the Table</button>
+        <button class="seg-btn ${quizMode ? 'active' : ''}" data-gmode="quiz">Form Quiz</button>
+      </div>
+
+      <p class="pg-intro text-muted">${quizMode
+        ? 'Form Quiz: you are given an address — the case, the number, the person — and pick the form that belongs there. Choose what it should cover.'
+        : 'Sort the Table: every paradigm comes up empty, and you drag the forms back into place. No typing — the forms are cards.'}</p>
+
+      ${quizMode ? `
+      <div class="pg-pick-actions">
+        <button class="link-btn" id="btn-pick-term">This term's paradigms</button>
+        <button class="link-btn" id="btn-pick-none" ${picked ? '' : 'disabled'}>Clear</button>
+      </div>` : ''}
 
       ${grammarGroupsHtml()}
 
@@ -4898,13 +4993,34 @@ function renderGrammarPicker() {
       </section>
 
       <p class="pg-hint text-muted">These tables were transcribed from photographs of the printed appendix. Check the accents against the book before trusting them.</p>
+
+      ${quizMode ? `
+      <div class="pg-quiz-bar">
+        <button class="start-btn" id="btn-start-gquiz" ${picked ? '' : 'disabled'}>
+          <div class="resume-fill"></div>
+          <div class="resume-edge"></div>
+          <span>${picked ? `Start Quiz — ${questions} question${questions === 1 ? '' : 's'}` : 'Choose a paradigm to start'}</span>
+        </button>
+      </div>` : ''}
     </div>
   `;
 
+  document.querySelectorAll('[data-gmode]').forEach(el => {
+    el.addEventListener('click', () => setGrammarMode(el.dataset.gmode));
+  });
   document.querySelectorAll('[data-paradigm]').forEach(el => {
-    el.addEventListener('click', () => startParadigm(el.dataset.paradigm));
+    el.addEventListener('click', () => quizMode
+      ? toggleGrammarPick(el.dataset.paradigm)
+      : startParadigm(el.dataset.paradigm));
   });
   document.getElementById('btn-pg-ref').addEventListener('click', goGrammarReference);
+  if (quizMode) {
+    document.getElementById('btn-pick-term').addEventListener('click', pickTermParadigms);
+    const clear = document.getElementById('btn-pick-none');
+    if (!clear.disabled) clear.addEventListener('click', clearGrammarPick);
+    const start = document.getElementById('btn-start-gquiz');
+    if (!start.disabled) start.addEventListener('click', startGrammarQuiz);
+  }
 }
 
 function renderGrammarReference() {
@@ -4936,6 +5052,220 @@ function renderGrammarReference() {
   document.getElementById('btn-exit-quiz').addEventListener('click', goGrammar);
 }
 
+
+/* ---------- grammar: Form Quiz ----------
+   The other half of the module. Sort the Table asks you to recognise a form
+   and place it; this asks you to produce one from its address -- "What is the
+   GEN Plural of φωνή?" -- which is the direction an exam asks in.
+
+   It is the vocabulary Multiple Choice interaction, not a second one: the same
+   option markup (mcOptionsHtml), the same lock-in on tap, the same pause
+   before the next question. Distractors are drawn only from the paradigm the
+   question came from, so every wrong answer is a form the student has to tell
+   apart from the right one -- a second-declension ending offered against a
+   first-declension question would be free marks. */
+
+/* the lemma to ask about: the example line without its English gloss and
+   without the article or the "(subj.)"-style descriptor that follows it --
+   "φωνή, ἡ (voice)" asks about φωνή, "δίδωμι non-indicative" about δίδωμι.
+   Greek text is left alone, so "τίς / τις" survives whole. */
+function paradigmLemma(p) {
+  let s = p.example.replace(/\s*\([^)]*\)\s*/g, ' ').trim();
+  s = s.split(',')[0].trim();
+  while (/\s+[A-Za-z][A-Za-z-]*$/.test(s)) s = s.replace(/\s+[A-Za-z][A-Za-z-]*$/, '');
+  return s.trim();
+}
+
+/* every cell of a paradigm is one question. Options are deduplicated by their
+   final text before sampling: several tables repeat a form across cells (the
+   neuter nominative and accusative, τούτου in two genders), and two options
+   reading the same would make the question unanswerable. */
+function questionsForParadigm(p) {
+  const lemma = paradigmLemma(p);
+  return paradigmCellKeys(p).map(key => {
+    const [row, col] = key.split('|');
+    const correct = cellFace(p.cells[key]);
+    const pool = [];
+    paradigmCellKeys(p).forEach(k => {
+      const face = cellFace(p.cells[k]);
+      if (face !== correct && pool.indexOf(face) === -1) pool.push(face);
+    });
+    /* fewer than three left is normal on the four-cell imperative tables --
+       the question simply has fewer options rather than borrowing from
+       another paradigm */
+    const options = shuffle(pool).slice(0, 3).concat([correct]);
+    return {
+      pid: p.id,
+      label: p.label,
+      prompt: `What is the ${row} ${col} of ${lemma}?`,
+      correct,
+      options: shuffle(options)
+    };
+  });
+}
+
+function buildGrammarQuiz(ids) {
+  const questions = [];
+  ids.forEach(id => {
+    const p = paradigmById(id);
+    if (p) questions.push(...questionsForParadigm(p));
+  });
+  return shuffle(questions);
+}
+
+function startGrammarQuiz() {
+  const ids = PARADIGMS.filter(p => state.grammarPick.has(p.id)).map(p => p.id);
+  if (!ids.length) return;
+  const questions = buildGrammarQuiz(ids);
+  if (!questions.length) return;
+  state.grammarQuiz = { ids, questions, index: 0, score: 0, answered: false, selectedOpt: null, done: false };
+  state.screen = 'grammarQuiz';
+  render();
+}
+
+function retryGrammarQuiz() {
+  const ids = state.grammarQuiz ? state.grammarQuiz.ids : [];
+  state.grammarQuiz = { ids, questions: buildGrammarQuiz(ids), index: 0, score: 0, answered: false, selectedOpt: null, done: false };
+  render();
+}
+
+function exitGrammarQuiz() { state.grammarQuiz = null; goGrammar(); }
+
+/* recorded as the question is answered rather than at the end, so a session
+   stopped halfway still counts for what was actually done */
+function recordQuizAnswer(pid, correct) {
+  const s = grammarStat(pid);
+  state.grammarStats[pid] = {
+    attempts: s.attempts,
+    cleanRuns: s.cleanRuns,
+    quizAttempts: s.quizAttempts + 1,
+    quizCorrect: s.quizCorrect + (correct ? 1 : 0)
+  };
+  saveGrammarStats();
+}
+
+function selectGrammarOption(opt) {
+  const q = state.grammarQuiz;
+  if (!q || q.answered) return;
+  const current = q.questions[q.index];
+  const correct = opt === current.correct;
+  q.answered = true;
+  q.selectedOpt = opt;
+  if (correct) q.score += 1;
+  recordQuizAnswer(current.pid, correct);
+  render();
+  setTimeout(() => {
+    if (state.grammarQuiz !== q) return;
+    if (q.index < q.questions.length - 1) {
+      q.index += 1;
+      q.answered = false;
+      q.selectedOpt = null;
+    } else {
+      q.done = true;
+    }
+    render();
+  }, correct ? 650 : 1500);
+}
+
+function renderGrammarQuiz() {
+  const q = state.grammarQuiz;
+  if (!q) { goGrammar(); return; }
+  if (q.done) { renderGrammarQuizDone(); return; }
+  const total = q.questions.length;
+  const current = q.questions[q.index];
+  const pct = Math.round((q.index / total) * 100);
+
+  document.getElementById('screen').innerHTML = `
+    <div class="fade-in">
+      ${renderHeader(false, 'Form Quiz', true)}
+
+      <div class="progress-row">
+        <span>Question ${q.index + 1} of ${total}</span>
+        <span>Score ${q.score}</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+
+      <div class="quiz-body is-mc">
+        <div class="prompt-panel glass">
+          ${glassLayer()}
+          <div class="glass-content">
+            <div class="kicker">GIVE THE FORM</div>
+            <div class="prompt-word is-english pg-quiz-prompt" style="margin-top:12px">${escapeHtml(current.prompt)}</div>
+            <div class="prompt-meta">${escapeHtml(current.label)}</div>
+          </div>
+        </div>
+
+        <div>${mcOptionsHtml(current.options, q.answered, current.correct, q.selectedOpt)}</div>
+      </div>
+    </div>
+  `;
+
+  if (!q.answered) {
+    document.querySelectorAll('.option-btn').forEach(btn => {
+      btn.addEventListener('click', () => selectGrammarOption(btn.dataset.opt));
+    });
+  }
+  document.getElementById('btn-exit-quiz').addEventListener('click', exitGrammarQuiz);
+}
+
+/* the same shape Sort the Table finishes on, so the two modes end alike */
+function renderGrammarQuizDone() {
+  const q = state.grammarQuiz;
+  const total = q.questions.length;
+  const pct = total ? Math.round((q.score / total) * 100) : 0;
+
+  document.getElementById('screen').innerHTML = `
+    <div class="fade-in">
+      ${renderHeader(false, 'Form Quiz', true)}
+
+      <div class="ring-panel glass">
+        ${glassLayer()}
+        <div class="glass-content">
+          <div class="kicker">FORM QUIZ COMPLETE</div>
+          ${ringSvg(pct)}
+          <div class="ring-label text-muted">${q.score} of ${total} correct · ${q.ids.length} paradigm${q.ids.length === 1 ? '' : 's'}</div>
+          <div class="ring-caption text-muted">${scoreMessage(pct, total)}</div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="ghost-btn" id="btn-gq-home">Back to Grammar</button>
+        <button class="start-btn" id="btn-gq-again">
+          <div class="resume-fill"></div>
+          <div class="resume-edge"></div>
+          <span>Retry same selection</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('btn-gq-home').addEventListener('click', exitGrammarQuiz);
+  document.getElementById('btn-gq-again').addEventListener('click', retryGrammarQuiz);
+  document.getElementById('btn-exit-quiz').addEventListener('click', exitGrammarQuiz);
+}
+
+/* ---------- picker: choosing what the quiz covers ---------- */
+function setGrammarMode(mode) { state.grammarMode = mode; render(); }
+
+function toggleGrammarPick(id) {
+  if (state.grammarPick.has(id)) state.grammarPick.delete(id);
+  else state.grammarPick.add(id);
+  render();
+}
+
+/* the default offer: this term's material, and only this term's -- the
+   future-term tables stay unchecked unless they are asked for by hand */
+function pickTermParadigms() {
+  state.grammarPick = new Set(PARADIGMS.filter(paradigmInScope).map(p => p.id));
+  render();
+}
+
+function clearGrammarPick() { state.grammarPick = new Set(); render(); }
+
+function grammarPickQuestionCount() {
+  return PARADIGMS.reduce((n, p) => n + (state.grammarPick.has(p.id) ? paradigmCellKeys(p).length : 0), 0);
+}
+
 function render() {
   if (state.screen === 'home') renderHome();
   else if (state.screen === 'setup') renderSetup();
@@ -4946,6 +5276,7 @@ function render() {
   else if (state.screen === 'grammar') renderGrammarPicker();
   else if (state.screen === 'grammarDrill') renderGrammarDrill();
   else if (state.screen === 'grammarRef') renderGrammarReference();
+  else if (state.screen === 'grammarQuiz') renderGrammarQuiz();
   else if (state.screen === 'progress') renderProgress();
   renderTabBar();
   if (state.onboarding.active) renderOnboarding();
@@ -4983,6 +5314,7 @@ function activeScreenKind() {
   if (state.screen === 'review') return state.review && !state.review.done ? 'review' : 'review-done';
   if (state.screen === 'grammarDrill') return state.grammar && state.grammar.done ? 'grammar-done' : 'grammar-drill';
   if (state.screen === 'grammarRef') return 'grammar-ref';
+  if (state.screen === 'grammarQuiz') return state.grammarQuiz && state.grammarQuiz.done ? 'grammar-quiz-done' : 'grammar-quiz';
   if (state.screen === 'cards') return cardsInProgress() ? 'cards' : null;
   if (state.screen === 'flashcard') {
     if (typedSummaryUp()) return 'typed-done';
@@ -4998,6 +5330,7 @@ function escapeAction(kind) {
   if (kind === 'memory' || kind === 'memory-done') return exitMemory;
   if (kind === 'review' || kind === 'review-done') return exitReview;
   if (kind === 'grammar-drill' || kind === 'grammar-done' || kind === 'grammar-ref') return goGrammar;
+  if (kind === 'grammar-quiz' || kind === 'grammar-quiz-done') return exitGrammarQuiz;
   if (kind === 'cards') return exitCards;
   if (kind === 'mc' || kind === 'typed') return exitQuiz;
   if (kind === 'typed-done') return closeTypedSummary;
@@ -5029,7 +5362,7 @@ function handleShortcut(e) {
 
   const digit = /^[1-9]$/.test(e.key) ? Number(e.key) : 0;
 
-  if (kind === 'mc') {
+  if (kind === 'mc' || kind === 'grammar-quiz') {
     if (digit >= 1 && digit <= 4) { e.preventDefault(); clickNth('.option-btn', digit - 1); }
     return;
   }
