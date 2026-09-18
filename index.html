@@ -2428,9 +2428,9 @@ function renderSetup() {
     title = 'How do you want to learn?';
     hint = 'Flashcards and the Memory Game start straight away — no further setup.';
     body = `<div class="stack">
+      ${choiceBtn('data-mode', 'cards', s.mode === 'cards', 'Flashcards', 'Tap to flip — browse at your own pace')}
       ${choiceBtn('data-mode', 'mc', s.mode === 'mc', 'Multiple Choice', 'Pick the right meaning from four options')}
       ${choiceBtn('data-mode', 'typed', s.mode === 'typed', 'Type Answer', 'Write the English meaning yourself')}
-      ${choiceBtn('data-mode', 'cards', s.mode === 'cards', 'Flashcards', 'Tap to flip — browse at your own pace')}
       ${choiceBtn('data-mode', 'memory', s.mode === 'memory', 'Memory Game', 'Match Greek to English against the clock')}
     </div>`;
   } else if (s.step === 3) {
