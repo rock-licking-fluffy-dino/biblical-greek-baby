@@ -1976,6 +1976,8 @@ const storageAdapter = {
 const STATS_KEY = 'koine-drill-word-stats';
 const STREAK_KEY = 'oikos-streak';
 const MEMORY_BEST_KEY = 'oikos-memory-best';
+const DAYS_KEY = 'oikos-days';
+const SESSIONS_KEY = 'oikos-sessions';
 
 let state = {
   screen: 'home',            // 'home' | 'setup' | 'flashcard' (quiz) | 'cards' | 'memory' | 'review' (daily review) | 'grammar' | 'grammarDrill' | 'grammarRef' | 'progress'
@@ -1987,6 +1989,8 @@ let state = {
   grammarQuiz: null,         // Form Quiz session: { ids, questions, index, score, answered, selectedOpt, done }
   progressTab: 'vocab',      // 'vocab' | 'grammar' -- which half of the Progress screen is up
   streak: { count: 0, lastDate: null },
+  days: [],                  // 'YYYY-MM-DD' for every day a session was finished, ascending
+  sessions: [],              // one record per finished session, ascending -- see recordSession
   memoryBest: null,          // fastest memory-game completion, in ms (null until one is finished)
   fsrs: {                    // the spaced-repetition memory model, one card per word
     cards: {},               // wordKey -> serialized ts-fsrs card
@@ -2033,6 +2037,14 @@ async function loadData() {
   try { state.grammarStats = rawGrammar ? JSON.parse(rawGrammar) : {}; } catch (e) { state.grammarStats = {}; }
   const rawStreak = await storageAdapter.get(STREAK_KEY);
   try { state.streak = rawStreak ? JSON.parse(rawStreak) : { count: 0, lastDate: null }; } catch (e) { state.streak = { count: 0, lastDate: null }; }
+  const rawDays = await storageAdapter.get(DAYS_KEY);
+  try { state.days = rawDays ? JSON.parse(rawDays) : []; } catch (e) { state.days = []; }
+  if (!Array.isArray(state.days)) state.days = [];
+  const rawSessions = await storageAdapter.get(SESSIONS_KEY);
+  try { state.sessions = rawSessions ? JSON.parse(rawSessions) : []; } catch (e) { state.sessions = []; }
+  if (!Array.isArray(state.sessions)) state.sessions = [];
+  if (rawDays === null || rawDays === undefined) seedDaysFromStreak();
+
   const rawBest = await storageAdapter.get(MEMORY_BEST_KEY);
   const best = rawBest === null || rawBest === undefined ? NaN : Number(rawBest);
   state.memoryBest = Number.isFinite(best) && best > 0 ? best : null;
@@ -2054,33 +2066,170 @@ async function loadData() {
 function saveStats() { storageAdapter.set(STATS_KEY, JSON.stringify(state.stats)); }
 function saveStreak() { storageAdapter.set(STREAK_KEY, JSON.stringify(state.streak)); }
 function saveMemoryBest() { storageAdapter.set(MEMORY_BEST_KEY, String(state.memoryBest)); }
+function saveDays() { storageAdapter.set(DAYS_KEY, JSON.stringify(state.days)); }
+function saveSessions() { storageAdapter.set(SESSIONS_KEY, JSON.stringify(state.sessions)); }
 
-function yesterdayStr() {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
+/* how far back the two logs are kept. Both are read whole on every load, so
+   they are bounded rather than left to grow for the life of the install. */
+const DAYS_LIMIT = 400;
+const SESSIONS_LIMIT = 500;
+
+function dateStr(d) {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
 
+/* n days before today, as a date string. Built by shifting a real Date rather
+   than by arithmetic on the string, so it crosses months and the clock change
+   correctly. */
+function daysAgoStr(n) {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return dateStr(d);
+}
+
+function yesterdayStr() { return daysAgoStr(1); }
+
+/* the Monday-starting week a date falls in, named by that Monday. The rest day
+   below is one per week, and this is what "per week" means. */
+function weekKey(str) {
+  const [y, m, d] = str.split('-').map(Number);
+  const dt = new Date(y, m - 1, d);
+  const shift = (dt.getDay() + 6) % 7;   /* Sunday is 0 in JS, and is the last day here */
+  dt.setDate(dt.getDate() - shift);
+  return dateStr(dt);
+}
+
+function studiedOn(str) { return state.days.indexOf(str) !== -1; }
+
+/* Every completion point already calls bumpStreak, so the day log is written
+   here rather than at each of them. */
 function bumpStreak() {
   const today = todayStr();
+  if (!studiedOn(today)) {
+    state.days.push(today);
+    state.days.sort();
+    if (state.days.length > DAYS_LIMIT) state.days = state.days.slice(state.days.length - DAYS_LIMIT);
+    saveDays();
+  }
   if (state.streak.lastDate === today) return;
   state.streak.count = (state.streak.lastDate === yesterdayStr()) ? state.streak.count + 1 : 1;
   state.streak.lastDate = today;
   saveStreak();
 }
 
-/* The stored count is only ever written forward -- bumpStreak resets it on the
-   next study day, so a run that died last week still reads as its old length
-   until then. Resolve that for display rather than mutating what is stored:
-   the run is alive only if it was fed today or yesterday.
-      doneToday  -- today is already counted, the run is safe
-      !doneToday -- fed yesterday, so today is still owed */
-function currentStreak() {
+/* A student who arrives with a streak but no day log had it counted the old
+   way, one entry forward per day, which is exactly a run of consecutive days
+   ending on lastDate -- so that is what is written back. Nothing else is
+   reconstructed: fsrs.log covers Daily Review alone and would draw a calendar
+   that says the other four modes never happened. */
+function seedDaysFromStreak() {
   const { count, lastDate } = state.streak;
-  if (!count || !lastDate) return { days: 0, doneToday: false };
-  if (lastDate === todayStr()) return { days: count, doneToday: true };
-  if (lastDate === yesterdayStr()) return { days: count, doneToday: false };
-  return { days: 0, doneToday: false };
+  if (!lastDate) return;
+  const [y, m, d] = lastDate.split('-').map(Number);
+  const out = [];
+  for (let i = Math.max(1, Math.min(count || 1, DAYS_LIMIT)) - 1; i >= 0; i--) {
+    const dt = new Date(y, m - 1, d - i);
+    out.push(dateStr(dt));
+  }
+  state.days = out;
+  saveDays();
+}
+
+/* ---------- the streak, with one rest day a week ----------
+   A missed day does not end the run if that week has not already spent its
+   rest day; the second miss in the same week does end it. The run is walked
+   forward across the whole log, because the allowance is held per week and a
+   long run passes through several. Today is never counted as a miss -- it is
+   not over yet -- so it is handled after the walk. */
+function walkStreak() {
+  const today = todayStr();
+  if (!state.days.length) return { days: 0, best: 0, rested: [] };
+  let run = 0, best = 0, spent = {}, rested = [], runRested = [];
+  /* a sparse log can reach back further than it has entries, so the walk
+     starts at whichever is later: its first day, or the cap */
+  const first = state.days[0] < daysAgoStr(DAYS_LIMIT) ? daysAgoStr(DAYS_LIMIT) : state.days[0];
+  const [y, m, d] = first.split('-').map(Number);
+  const cursor = new Date(y, m - 1, d);
+  for (let i = 0; i <= DAYS_LIMIT; i++) {
+    const str = dateStr(cursor);
+    if (str >= today) break;
+    if (studiedOn(str)) {
+      run += 1;
+      if (run > best) best = run;
+    } else {
+      const wk = weekKey(str);
+      if (spent[wk]) { run = 0; spent = {}; runRested = []; }
+      else { spent[wk] = true; runRested.push(str); }
+    }
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  /* the run is only alive if it reaches yesterday or today; a run that died
+     weeks ago still has a length here, and should read as nothing */
+  const aliveThrough = studiedOn(today) || studiedOn(yesterdayStr()) || runRested.indexOf(yesterdayStr()) !== -1;
+  if (studiedOn(today)) {
+    run += 1;
+    if (run > best) best = run;
+  }
+  rested = aliveThrough ? runRested : [];
+  return { days: aliveThrough ? run : 0, best, rested };
+}
+
+/* doneToday -- today is already counted, the run is safe
+   !doneToday -- today is still owed */
+function currentStreak() {
+  const w = walkStreak();
+  return { days: w.days, doneToday: studiedOn(todayStr()), rested: w.rested };
+}
+
+/* the longest run the log holds, computed on read rather than stored -- there
+   is nowhere for a stored best to come from for a student who already has one */
+function bestStreak() { return walkStreak().best; }
+
+/* oldest first, for the calendar strips. `rested` marks a day the rest-day
+   allowance absorbed, which is neither a study day nor a break in the run. */
+function lastNDays(n) {
+  const { rested } = walkStreak();
+  const out = [];
+  for (let i = n - 1; i >= 0; i--) {
+    const date = daysAgoStr(i);
+    out.push({ date, studied: studiedOn(date), rested: rested.indexOf(date) !== -1 });
+  }
+  return out;
+}
+
+/* ---------- the session log ----------
+   One record per finished session. `right` is null where the mode has no
+   right or wrong to report, and `ms` is null where the mode is not timed. */
+function scopeFromSelection(sel) {
+  if (!sel) return null;
+  if (sel.by === 'categories') return { by: 'categories', categories: [...sel.categories] };
+  return { by: 'chapters', chapters: [...sel.chapters] };
+}
+
+function recordSession(rec) {
+  state.sessions.push({
+    at: new Date().toISOString(),
+    mode: rec.mode,
+    scope: rec.scope || null,
+    asked: rec.asked,
+    right: rec.right === undefined ? null : rec.right,
+    learned: rec.learned || 0,
+    ms: rec.ms === undefined ? null : rec.ms
+  });
+  if (state.sessions.length > SESSIONS_LIMIT) state.sessions = state.sessions.slice(state.sessions.length - SESSIONS_LIMIT);
+  saveSessions();
+}
+
+/* both are read against the Monday-starting week the rest day uses, so the
+   week means the same thing everywhere in the app */
+function sessionsThisWeek() {
+  const wk = weekKey(todayStr());
+  return state.sessions.filter(r => weekKey(dateStr(new Date(r.at))) === wk).length;
+}
+
+function wordsLearnedThisWeek() {
+  const wk = weekKey(todayStr());
+  return state.sessions.reduce((n, r) => n + (weekKey(dateStr(new Date(r.at))) === wk ? (r.learned || 0) : 0), 0);
 }
 
 /* `streak` is the run of correct answers since the word was last missed. It is
@@ -2091,14 +2240,18 @@ function recordAttempt(chapter, greek, correct) {
   const k = wordKey(chapter, greek);
   if (!state.stats[k]) state.stats[k] = { seen: 0, correct: 0, streak: 0 };
   const s = state.stats[k];
+  const was = s.streak || 0;
   s.seen += 1;
   if (correct) {
     s.correct += 1;
-    s.streak = (s.streak || 0) + 1;
+    s.streak = was + 1;
   } else {
     s.streak = 0;
   }
   saveStats();
+  /* true only on the answer that retires the word, so a session can count
+     what it taught rather than what it merely asked again */
+  return was < REVIEW_CLEAR_STREAK && s.streak >= REVIEW_CLEAR_STREAK;
 }
 
 /* how many correct answers in a row retire a word from "words to review" */
@@ -2563,7 +2716,9 @@ function startQuiz(settings) {
     typedValue: '',
     typedCorrect: null,
     results: [],              // type-answer only: one entry per question, for the summary
-    done: false               // type-answer only: the last word is answered, summary is up
+    done: false,              // type-answer only: the last word is answered, summary is up
+    startedAt: Date.now(),
+    learned: 0                // words that crossed REVIEW_CLEAR_STREAK in this session
   };
   state.screen = 'flashcard';
   render();
@@ -2668,7 +2823,7 @@ function startDailyReview() {
   state.quiz = null;
   state.cards = null;
   state.memory = null;
-  state.review = { queue, index: 0, revealed: false, reviewed: 0, done: false };
+  state.review = { queue, index: 0, revealed: false, reviewed: 0, right: 0, done: false, startedAt: Date.now() };
   state.lastSession = 'review';
   state.screen = 'review';
   render();
@@ -2692,9 +2847,19 @@ function submitRating(rating) {
   if (!r || r.done || !r.revealed) return;
   rateCard(r.queue[r.index], rating);
   r.reviewed += 1;
+  /* Good and Easy are the two grades that mean the meaning came back, so they
+     are what the log counts as right -- there is no mark here otherwise */
+  if (rating >= 3) r.right += 1;
   bumpStreak();
   if (r.index >= r.queue.length - 1) {
     r.done = true;
+    recordSession({
+      mode: 'review',
+      scope: null,            /* the queue is drawn by the scheduler, not from a selection */
+      asked: r.reviewed,
+      right: r.right,
+      ms: Date.now() - r.startedAt
+    });
   } else {
     r.index += 1;
     r.revealed = false;
@@ -2793,7 +2958,7 @@ function startCards() {
   stopMemoryTimer();
   state.quiz = null;
   state.memory = null;
-  state.cards = { selection, items: shuffle(pool), index: 0, revealed: false };
+  state.cards = { selection, items: shuffle(pool), index: 0, revealed: false, startedAt: Date.now() };
   state.lastSession = 'cards';
   state.screen = 'cards';
   render();
@@ -2818,7 +2983,18 @@ function prevCard() {
   render();
 }
 
+/* Flashcards are unscored, so the record says how many cards were met and
+   leaves `right` empty rather than inventing a mark for them. Logged on the
+   way out, which is where a deck read to the end also arrives. */
 function exitCards() {
+  const c = state.cards;
+  if (c) recordSession({
+    mode: 'cards',
+    scope: scopeFromSelection(c.selection),
+    asked: Math.min(c.index + 1, c.items.length),
+    right: null,
+    ms: Date.now() - c.startedAt
+  });
   state.cards = null;
   state.screen = 'home';
   render();
@@ -2988,6 +3164,13 @@ function finishMemory() {
   m.finishedMs = m.startedAt ? Date.now() - m.startedAt : 0;
   stopMemoryTimer();
   bumpStreak();
+  recordSession({
+    mode: 'memory',
+    scope: scopeFromSelection(m.selection),
+    asked: m.pairs,
+    right: m.pairs,           /* the board is only finished when every pair is found */
+    ms: m.finishedMs
+  });
   m.previousBest = state.memoryBest;
   if (state.memoryBest === null || m.finishedMs < state.memoryBest) {
     m.beatBest = state.memoryBest !== null;
@@ -3011,11 +3194,24 @@ function goNextQuestion(q) {
     /* the one mode with an end-of-session report; every other mode still
        returns to the home screen the moment the last card is answered */
     q.done = true;
+    recordQuizSession(q);
     render();
   } else {
+    recordQuizSession(q);
     state.screen = 'home';
     render();
   }
+}
+
+function recordQuizSession(q) {
+  recordSession({
+    mode: q.settings.mode,
+    scope: scopeFromSelection(q.settings.selection),
+    asked: q.items.length,
+    right: q.score,
+    learned: q.learned,
+    ms: Date.now() - q.startedAt
+  });
 }
 
 function selectOption(opt) {
@@ -3027,7 +3223,7 @@ function selectOption(opt) {
   const correct = opt === current.correctAnswer;
   if (correct) q.score += 1;
   bumpStreak();
-  recordAttempt(current.item.chapter, current.item.greek, correct);
+  if (recordAttempt(current.item.chapter, current.item.greek, correct)) q.learned += 1;
   render();
   setTimeout(() => { if (state.quiz === q) goNextQuestion(q); }, correct ? 650 : 1500);
 }
@@ -3058,7 +3254,7 @@ function submitTyped() {
     correct
   });
   bumpStreak();
-  recordAttempt(current.item.chapter, current.item.greek, correct);
+  if (recordAttempt(current.item.chapter, current.item.greek, correct)) q.learned += 1;
   /* flipped in the DOM rather than re-rendered, for the same reason
      wireFlipCard is: a re-render would replace the card mid-transition and the
      flip would never play. The advance below still re-renders as it always did. */
@@ -4576,7 +4772,8 @@ function startParadigm(id) {
     cards: shuffle(keys.map((k, i) => ({ cid: 'c' + i, key: k, face: cellFace(p.cells[k]) }))),
     placed: {},          /* cellKey -> the card that landed there */
     misses: 0,
-    done: false
+    done: false,
+    startedAt: Date.now()
   };
   state.screen = 'grammarDrill';
   render();
@@ -4594,6 +4791,16 @@ function finishParadigm() {
     quizCorrect: s.quizCorrect
   };
   saveGrammarStats();
+  bumpStreak();
+  /* a cell placed first time is the grammar equivalent of a right answer;
+     every misplacement costs one, and a bad run floors at nothing right */
+  recordSession({
+    mode: 'sort',
+    scope: { by: 'paradigm', id: g.id },
+    asked: g.keys.length,
+    right: Math.max(0, g.keys.length - g.misses),
+    ms: Date.now() - g.startedAt
+  });
   g.done = true;
   render();
 }
@@ -5118,14 +5325,14 @@ function startGrammarQuiz() {
   if (!ids.length) return;
   const questions = buildGrammarQuiz(ids);
   if (!questions.length) return;
-  state.grammarQuiz = { ids, questions, index: 0, score: 0, answered: false, selectedOpt: null, done: false };
+  state.grammarQuiz = { ids, questions, index: 0, score: 0, answered: false, selectedOpt: null, done: false, startedAt: Date.now() };
   state.screen = 'grammarQuiz';
   render();
 }
 
 function retryGrammarQuiz() {
   const ids = state.grammarQuiz ? state.grammarQuiz.ids : [];
-  state.grammarQuiz = { ids, questions: buildGrammarQuiz(ids), index: 0, score: 0, answered: false, selectedOpt: null, done: false };
+  state.grammarQuiz = { ids, questions: buildGrammarQuiz(ids), index: 0, score: 0, answered: false, selectedOpt: null, done: false, startedAt: Date.now() };
   render();
 }
 
@@ -5162,6 +5369,14 @@ function selectGrammarOption(opt) {
       q.selectedOpt = null;
     } else {
       q.done = true;
+      bumpStreak();
+      recordSession({
+        mode: 'gquiz',
+        scope: { by: 'paradigm', ids: [...q.ids] },
+        asked: q.questions.length,
+        right: q.score,
+        ms: Date.now() - q.startedAt
+      });
     }
     render();
   }, correct ? 650 : 1500);
