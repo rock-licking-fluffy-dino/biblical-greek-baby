@@ -335,15 +335,43 @@
 
   /* ---------- home ---------- */
   .home-screen {
-    display: flex; flex-direction: column; justify-content: center;
+    display: flex; flex-direction: column; justify-content: flex-start;
     min-height: calc(100vh - env(safe-area-inset-top) - 240px);
     min-height: calc(100dvh - env(safe-area-inset-top) - 240px);
   }
+  /* Daily Review sits on the floor of the screen rather than under the
+     greeting, so the one tinted thing on Home is the last thing read */
+  .home-fill { flex: 1 1 auto; min-height: 18px; }
   .greeting {
     margin: 0; font-weight: 800; letter-spacing: -0.035em; line-height: 1.02;
     font-size: clamp(38px, 12vw, 46px);
   }
   .home-slogan { display: none; }
+
+  /* ---------- the streak card ----------
+     Seven circles, one per day. The unfinished one is the point of the
+     component: today is drawn open until it is earned, never filled early. */
+  .streak-card {
+    margin-top: 20px; padding: 16px 18px; border-radius: var(--r-card);
+    background: var(--surface); border: 1px solid var(--hairline); box-shadow: var(--shadow-card);
+  }
+  .streak-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .streak-run { font-size: 15px; font-weight: 800; font-feature-settings: 'tnum'; }
+  .streak-best { font-size: 11.5px; font-weight: 600; color: var(--muted); font-feature-settings: 'tnum'; }
+  .streak-week { margin-top: 14px; display: flex; justify-content: space-between; gap: 6px; }
+  .streak-day { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 7px; }
+  .streak-dot {
+    width: 34px; height: 34px; max-width: 100%; box-sizing: border-box; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--surface-2); border: 1.5px solid var(--hairline); color: var(--on-green);
+  }
+  .streak-dot.is-studied { background: var(--green); border-color: var(--green); }
+  /* a rest day the weekly allowance absorbed: kept in the run, but paler than
+     a day that was actually worked, and it carries no tick */
+  .streak-dot.is-rested { background: var(--sage-300); border-color: var(--sage-300); }
+  .streak-dot.is-open { background: transparent; border: 1.5px dashed var(--sage-300); }
+  .streak-day-label { font-size: 10px; font-weight: 600; color: var(--muted); letter-spacing: 0.04em; }
+  .streak-day.is-today .streak-day-label { color: var(--green-text); font-weight: 800; }
   .progress-row .sep { color: var(--track); margin: 0 6px; }
   .secondary-btn {
     width: 100%; margin-top: 10px; padding: 16px 0; border-radius: var(--r-btn); cursor: pointer;
@@ -494,13 +522,18 @@
 
   /* ---------- daily review (FSRS) ---------- */
   .review-cta {
-    position: relative; width: 100%; margin-top: 10px; padding: 15px 16px; cursor: pointer;
-    font-family: var(--font-sans); text-align: left; border-radius: var(--r-btn);
+    position: relative; width: 100%; margin-top: 10px; padding: 17px 18px; cursor: pointer;
+    font-family: var(--font-sans); text-align: left; border-radius: var(--r-card);
     background: var(--green-tint); border: 1.5px solid var(--green-border); color: var(--green-text);
-    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
   }
   .review-cta:hover { border-color: var(--sage-300); }
-  .review-cta-main { font-size: 14px; font-weight: 800; }
+  .review-cta-main { font-size: 15px; font-weight: 800; }
+  .review-cta-play {
+    flex-shrink: 0; width: 44px; height: 44px; border-radius: var(--r-btn);
+    background: var(--green-solid); color: var(--on-green);
+    display: flex; align-items: center; justify-content: center;
+  }
   .review-cta-sub { display: block; font-size: 11.5px; font-weight: 500; margin-top: 3px; color: var(--muted); }
   .review-cta-count {
     flex-shrink: 0; min-width: 34px; text-align: center; padding: 5px 9px; border-radius: 999px;
@@ -653,6 +686,11 @@
     .home-screen { min-height: calc(100vh - env(safe-area-inset-top) - 180px);
       min-height: calc(100dvh - env(safe-area-inset-top) - 180px); }
     .greeting { font-size: 62px; }
+    /* the week reads as seven days, not as a row stretched to the window */
+    .streak-week { justify-content: flex-start; gap: 14px; }
+    .streak-day { flex: 0 0 44px; }
+    .streak-dot { width: 40px; height: 40px; }
+    .streak-run { font-size: 16px; }
 
     /* ---- setup ---- */
     .setup-panel { padding: 26px; }
@@ -975,25 +1013,32 @@
      habit, and the reorg must not bury it -- and the two modules sit under it
      as cards: tap the body for that module's own screen, tap the inset action
      for the one shortcut worth having. */
-  .hub-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 22px; }
+  .hub-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
   .hub-card {
-    position: relative; width: 100%; text-align: left; cursor: pointer; padding: 18px;
-    border-radius: var(--r-card); background: var(--surface); border: 1px solid var(--hairline);
+    position: relative; width: 100%; text-align: left; cursor: pointer; padding: 16px 18px;
+    border-radius: var(--r-card); background: var(--surface); border: 1px solid var(--green-border);
     box-shadow: var(--shadow-card); font-family: var(--font-sans); color: var(--ink);
-    display: flex; flex-direction: column; gap: 14px;
+    display: block;
   }
   .hub-card:hover { border-color: var(--sage-300); }
-  .hub-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
-  .hub-title { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; }
-  .hub-go { font-size: 11.5px; font-weight: 700; color: var(--green-text); white-space: nowrap; }
-  .hub-snapshot { display: flex; align-items: center; gap: 16px; }
-  .hub-figures { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-  .hub-figure { font-size: 13px; font-weight: 600; font-feature-settings: 'tnum'; }
-  .hub-figure .hub-qualifier { color: var(--muted); font-weight: 500; }
-  .hub-rings { display: flex; gap: 6px; flex-shrink: 0; }
-  .hub-rings svg { width: 64px; height: 64px; }
-  .hub-action { margin-top: 0; }
-  .hub-note { font-size: 11.5px; line-height: 1.5; }
+  .hub-row { display: flex; align-items: center; gap: 12px; }
+  .hub-icon {
+    flex-shrink: 0; width: 40px; height: 40px; border-radius: var(--r-btn);
+    background: var(--green-tint); color: var(--green);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .hub-text { flex: 1 1 auto; min-width: 0; }
+  .hub-title { display: block; font-size: 17px; font-weight: 800; letter-spacing: -0.01em; }
+  .hub-sub { display: block; font-size: 12px; font-weight: 500; margin-top: 2px; color: var(--muted); font-feature-settings: 'tnum'; }
+  .hub-pill {
+    flex-shrink: 0; display: flex; align-items: center; gap: 5px; padding: 9px 11px 9px 13px;
+    border-radius: var(--r-sm); background: var(--green-tint); color: var(--green-text);
+    font-size: 12px; font-weight: 800;
+  }
+  .hub-bar { margin-top: 14px; display: flex; align-items: center; gap: 10px; }
+  .hub-track { flex: 1 1 auto; height: 6px; border-radius: 3px; background: var(--track); overflow: hidden; }
+  .hub-fill { display: block; height: 100%; background: var(--green); border-radius: 3px; }
+  .hub-pct { flex-shrink: 0; font-size: 12px; font-weight: 800; color: var(--green-text); font-feature-settings: 'tnum'; }
 
   /* ---------- grammar: picker ---------- */
   .pg-intro { font-size: 12.5px; line-height: 1.55; margin: 0 0 16px; }
@@ -1152,10 +1197,10 @@
   }
 
   @media (min-width: 1180px) {
-    .hub-grid { gap: 16px; margin-top: 28px; }
-    .hub-card { padding: 24px; }
-    .hub-title { font-size: 21px; }
-    .hub-rings svg { width: 76px; height: 76px; }
+    .hub-grid { gap: 16px; margin-top: 26px; }
+    .hub-card { padding: 22px 24px; }
+    .hub-title { font-size: 20px; }
+    .hub-sub { font-size: 13px; }
     .pg-cell { min-height: 76px; min-width: 124px; }
     .pg-quiz-bar { bottom: 18px; }
     .pg-quiz-prompt { font-size: 36px; }
@@ -2744,16 +2789,6 @@ function startReviewQuiz() {
   });
 }
 
-function quickResume() {
-  const ch = continueChapter();
-  startQuiz({
-    selection: chapterSelection([ch]),
-    count: (VOCAB[ch] || []).length,
-    direction: 'gtoe',
-    mode: 'mc'
-  });
-}
-
 function quizInProgress() {
   return !!(state.quiz && !state.quiz.done && state.quiz.index < state.quiz.items.length);
 }
@@ -3295,86 +3330,6 @@ function greeting() {
   return 'Good Evening!';
 }
 
-/* a small ring in the Progress-tab style, for the two figures that have a
-   denominator to fill against. The streak has none, and draws itself -- see
-   streakRing below. */
-function statRing(text, pct) {
-  const r = 30, circ = 2 * Math.PI * r;
-  const offset = circ * (1 - Math.max(0, Math.min(100, pct)) / 100);
-  return `
-    <svg width="76" height="76" viewBox="0 0 76 76" style="margin:0 auto;display:block">
-      <circle cx="38" cy="38" r="${r}" fill="none" stroke="var(--track)" stroke-width="6"/>
-      <circle cx="38" cy="38" r="${r}" fill="none" stroke="var(--green)" stroke-width="6" stroke-linecap="round"
-        stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}" transform="rotate(-90 38 38)"/>
-      <text x="38" y="44" text-anchor="middle" font-family="Archivo" font-weight="800" font-size="17" fill="var(--ink)" style="font-feature-settings:'tnum'">${text}</text>
-    </svg>
-  `;
-}
-
-/* ---------- the streak mark ----------
-   The streak is the one figure with no denominator to fill against, which is
-   why it used to sit in the row as a bare grey track. Instead of a part-filled
-   ring it draws one mark per day of the run, spread evenly round the circle,
-   and lets the form give way as the count outgrows it: long arcs in week one,
-   shrinking to bare dots by week three, and past the point where dots can
-   still be told apart, a flame with the count inside it.
-
-   The handover is decided by geometry rather than taste. With round caps a
-   mark paints `dash + stroke` along the path, so each slot keeps a blank of
-   C/n - dash - stroke. Once that cannot reach MARK_GAP_MIN even with the dash
-   collapsed to zero -- a bare dot -- the marks have stopped being countable.
-   With the stroke ramp below that lands just past 21, so three complete weeks
-   is the last run the ring can honestly show, and the flame takes over. */
-const STREAK_R = 30;
-const STREAK_C = 2 * Math.PI * STREAK_R;
-const MARK_GAP_MIN = 5;      /* smallest blank that still separates two marks */
-const MARK_DASH_MAX = 17;    /* longest a single mark is allowed to grow */
-const STREAK_MARK_MAX = 21;  /* last run drawn as marks; beyond this, the flame */
-
-/* thinner marks as they multiply, so the ink per slot falls with the slot */
-function streakStroke(days) { return days <= 7 ? 7 : days <= 14 ? 6 : 5; }
-
-/* a flame sized to sit where the ring sat, with room in the belly for the
-   count -- so the number stays on the same baseline as the other two rings
-   and the row does not lose its line when the shape changes */
-const STREAK_FLAME = 'M38 6c6 12 12 18 15 25 3 5 6 10 6 15a21 21 0 0 1-42 0c0-6 2-11 5-15 1 4 3 7 5 9-1-12 3-24 11-34Z';
-
-function streakRing(days, doneToday) {
-  /* one colour rule across every phase -- lit while the run is safe, pale the
-     moment today is owed -- so only the shape changes with the count. The pale
-     step is --sage-300 rather than --green-border: the border step sits almost
-     exactly on --track in both themes, which left a long run's dots invisible
-     against their own ring. */
-  const ink = doneToday ? 'var(--green)' : 'var(--sage-300)';
-  const numFill = days > 0 && !doneToday ? 'var(--muted)' : 'var(--ink)';
-  const num = (size, y) => `<text x="38" y="${y}" text-anchor="middle" font-family="Archivo" font-weight="800"
-      font-size="${size}" fill="${numFill}" style="font-feature-settings:'tnum'">${days}</text>`;
-  const open = `<svg width="76" height="76" viewBox="0 0 76 76" style="margin:0 auto;display:block">`;
-
-  if (days === 0) {
-    return `${open}<circle cx="38" cy="38" r="${STREAK_R}" fill="none" stroke="var(--track)" stroke-width="6"/>
-      ${num(17, 44)}</svg>`;
-  }
-
-  if (days > STREAK_MARK_MAX) {
-    return `${open}<path d="${STREAK_FLAME}" fill="none" stroke="${ink}" stroke-width="5"
-        stroke-linejoin="round" stroke-linecap="round"/>${num(days > 99 ? 15 : 17, 53)}</svg>`;
-  }
-
-  const stroke = streakStroke(days);
-  const slot = STREAK_C / days;
-  const dash = Math.max(0, Math.min(MARK_DASH_MAX, slot - stroke - MARK_GAP_MIN));
-  /* a dash of exactly 0 is dropped by some renderers; a hair's width is not,
-     and with a round cap it paints as a clean dot of the stroke's diameter */
-  const d = dash > 0 ? dash : 0.01;
-  const track = `<circle cx="38" cy="38" r="${STREAK_R}" fill="none" stroke="var(--track)" stroke-width="6"/>`;
-  const marks = Array.from({ length: days }, (_, i) => `
-      <circle cx="38" cy="38" r="${STREAK_R}" fill="none" stroke="${ink}" stroke-width="${stroke}"
-        stroke-linecap="round" stroke-dasharray="${d.toFixed(2)} ${(STREAK_C - d).toFixed(2)}"
-        stroke-dashoffset="${(-i * slot).toFixed(2)}" transform="rotate(-90 38 38)"/>`).join('');
-  return `${open}${track}${marks}${num(17, 44)}</svg>`;
-}
-
 function renderHeader(isHome, pillLabel, showClose, pillId, sessionHint) {
   let right = '';
   if (showClose) {
@@ -3395,7 +3350,6 @@ function renderHeader(isHome, pillLabel, showClose, pillId, sessionHint) {
     <div class="header-row">
       <div class="header-brand">
         <p class="app-title">Oikos</p>
-        <div class="app-tagline">Learning to belong in God's Word</div>
       </div>
       ${right}
     </div>
@@ -3449,64 +3403,84 @@ function reviewCta() {
   return `
     <button class="review-cta" id="btn-daily-review">
       <span>
-        <span class="review-cta-main">${due} word${due === 1 ? '' : 's'} due for review</span>
-        <span class="review-cta-sub">Daily Review · spaced repetition</span>
+        <span class="review-cta-main">Daily Review</span>
+        <span class="review-cta-sub">${due} word${due === 1 ? '' : 's'} due · spaced repetition</span>
       </span>
-      <span class="review-cta-count">${due}</span>
+      <span class="review-cta-play">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M4 3.6 16 10 4 16.4V3.6Z" fill="currentColor"/></svg>
+      </span>
     </button>
   `;
 }
 
 /* ---------- home: the hub ----------
-   Two modules now, not one, so home stops being the vocabulary landing page
-   and becomes the thing that points at both. Daily Review keeps the top --
-   it is the habit the whole app hangs off, and the reorg is not allowed to
-   bury it -- and Vocabulary and Grammar sit underneath as cards: the body
-   opens the module, the inset button is the one shortcut worth keeping at
-   this level (Continue chapter N, demoted from its old top-level slot). */
+   Two modules, one streak card, and Daily Review on the floor of the screen.
+   Each module card is a single tappable thing -- icon, name, where you are,
+   and one bar -- rather than a panel of figures: Progress is where numbers
+   are read, and Home only has to say which door to go through. */
+
+const HOME_TICK = '<svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M3 8.5 6.5 12 13 4.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const HUB_CHEVRON = '<svg width="7" height="12" viewBox="0 0 8 13" fill="none"><path d="M1.5 1.5 6.5 6.5l-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const DAY_INITIALS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+
+function streakCard() {
+  const { days, doneToday } = currentStreak();
+  const best = bestStreak();
+  const today = todayStr();
+  const week = lastNDays(7).map(d => {
+    const isToday = d.date === today;
+    const cls = d.studied ? 'is-studied' : (d.rested ? 'is-rested' : (isToday ? 'is-open' : ''));
+    const [y, m, dd] = d.date.split('-').map(Number);
+    const label = isToday ? 'TODAY' : DAY_INITIALS[new Date(y, m - 1, dd).getDay()];
+    return `
+      <span class="streak-day ${isToday ? 'is-today' : ''}">
+        <span class="streak-dot ${cls}">${d.studied ? HOME_TICK : ''}</span>
+        <span class="streak-day-label">${label}</span>
+      </span>`;
+  }).join('');
+  return `
+    <div class="streak-card">
+      <div class="streak-card-head">
+        <span class="streak-run">${days} day streak</span>
+        <span class="streak-best">${best > 0 ? `Best so far: ${best}` : (doneToday ? 'Your first day' : 'Not started yet')}</span>
+      </div>
+      <div class="streak-week">${week}</div>
+    </div>
+  `;
+}
+
+function hubCard(id, icon, title, sub, action, pct, pctLabel) {
+  return `
+    <div class="hub-card" id="${id}" role="button" tabindex="0">
+      <div class="hub-row">
+        <span class="hub-icon">${icon}</span>
+        <span class="hub-text">
+          <span class="hub-title">${title}</span>
+          <span class="hub-sub">${sub}</span>
+        </span>
+        <span class="hub-pill">${action}${HUB_CHEVRON}</span>
+      </div>
+      <div class="hub-bar">
+        <span class="hub-track"><span class="hub-fill" style="width:${pct}%"></span></span>
+        <span class="hub-pct">${pctLabel}</span>
+      </div>
+    </div>
+  `;
+}
+
 function vocabHubCard() {
   const st = overallStats();
   const learned = learnedWordsCount();
-  const learnedPct = st.totalWords > 0 ? Math.round((learned / st.totalWords) * 100) : 0;
-  const { days, doneToday } = currentStreak();
-  return `
-    <div class="hub-card" id="hub-vocab" role="button" tabindex="0">
-      <div class="hub-head">
-        <span class="hub-title">Vocabulary</span>
-        <span class="hub-go">Study &rsaquo;</span>
-      </div>
-      <div class="hub-snapshot">
-        <div class="hub-rings">${statRing(learnedPct + '%', learnedPct)}${streakRing(days, doneToday)}</div>
-        <div class="hub-figures">
-          <span class="hub-figure">${learned} of ${st.totalWords} <span class="hub-qualifier">words learned</span></span>
-          <span class="hub-figure">${days} day${days === 1 ? '' : 's'} <span class="hub-qualifier">streak${days === 0 ? '' : (doneToday ? ' · kept today' : ' · study today')}</span></span>
-          <span class="hub-figure">${st.chaptersMastered} of ${st.totalChapters} <span class="hub-qualifier">chapters mastered</span></span>
-        </div>
-      </div>
-      <button class="secondary-btn hub-action" id="btn-continue">Continue chapter ${continueChapter()}</button>
-    </div>
-  `;
+  const pct = st.totalWords > 0 ? Math.round((learned / st.totalWords) * 100) : 0;
+  const icon = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 5.2C8.4 4 6.2 3.6 3 3.8v11.4c3.2-.2 5.4.2 7 1.4 1.6-1.2 3.8-1.6 7-1.4V3.8c-3.2-.2-5.4.2-7 1.4Z" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 5.2v11.4" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>';
+  return hubCard('hub-vocab', icon, 'Vocabulary', `${learned} of ${st.totalWords} words learned`, 'Study', pct, pct + '%');
 }
 
 function grammarHubCard() {
   const mastered = paradigmsMastered();
   const pct = PARADIGMS.length ? Math.round((mastered / PARADIGMS.length) * 100) : 0;
-  return `
-    <div class="hub-card" id="hub-grammar" role="button" tabindex="0">
-      <div class="hub-head">
-        <span class="hub-title">Grammar</span>
-        <span class="hub-go">Paradigms &rsaquo;</span>
-      </div>
-      <div class="hub-snapshot">
-        <div class="hub-rings">${statRing(pct + '%', pct)}</div>
-        <div class="hub-figures">
-          <span class="hub-figure">${mastered}/${PARADIGMS.length} <span class="hub-qualifier">paradigms mastered</span></span>
-          <span class="hub-figure hub-qualifier" style="font-weight:500">Sort the table — no typing</span>
-        </div>
-      </div>
-      <p class="hub-note text-muted">Declensions and conjugations, dragged back into shape.</p>
-    </div>
-  `;
+  const icon = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2.5" y="3.5" width="15" height="13" rx="1.6" stroke="currentColor" stroke-width="1.9"/><path d="M2.5 8h15M7.5 8v8.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>';
+  return hubCard('hub-grammar', icon, 'Grammar', `${mastered} of ${PARADIGMS.length} paradigms mastered`, 'Drill', pct, pct + '%');
 }
 
 function renderHome() {
@@ -3515,32 +3489,31 @@ function renderHome() {
       ${renderHeader(true)}
 
       <div class="home-screen">
-        <div>
-          <h1 class="greeting">${greeting()}</h1>
-        </div>
+        <h1 class="greeting">${greeting()}</h1>
 
-        ${reviewCta()}
+        ${streakCard()}
 
         <div class="hub-grid">
           ${vocabHubCard()}
           ${grammarHubCard()}
         </div>
+
+        <div class="home-fill"></div>
+
+        ${reviewCta()}
       </div>
     </div>
   `;
 
-  /* the card body opens the module; the inset action does its own thing and
-     must not also trigger the card */
   const openCard = (id, go) => {
     const el = document.getElementById(id);
-    el.addEventListener('click', e => { if (!e.target.closest('button')) go(); });
+    el.addEventListener('click', go);
     el.addEventListener('keydown', e => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); }
     });
   };
   openCard('hub-vocab', openSetup);
   openCard('hub-grammar', goGrammar);
-  document.getElementById('btn-continue').addEventListener('click', e => { e.stopPropagation(); quickResume(); });
   const reviewBtn = document.getElementById('btn-daily-review');
   if (reviewBtn) reviewBtn.addEventListener('click', startDailyReview);
   const weakBtn = document.getElementById('btn-review-quiz');
