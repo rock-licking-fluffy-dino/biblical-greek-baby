@@ -730,15 +730,11 @@
 
     /* ---- progress ---- */
     .prog-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 18px;
-      grid-template-areas: "rings rings" "review srs" "memory memory" "chapters chapters"; }
+      grid-template-areas: "rings rings" "chapters chapters" "review srs"; }
     .prog-rings { grid-area: rings; }
     .prog-review { grid-area: review; }
     .prog-srs { grid-area: srs; }
-    .prog-memory { grid-area: memory; }
     .prog-chapters { grid-area: chapters; }
-    .prog-chapters .glass-content { columns: 2; column-gap: 28px; }
-    .prog-chapters .chapter-row { break-inside: avoid; }
-    .prog-chapters .chapter-row + .chapter-row { border-top: none; }
   }
 
   /* ===================================================================
@@ -833,13 +829,9 @@
     .rate-key { font-size: 11px; font-weight: 800; color: var(--muted); border: 1px solid var(--hairline); border-radius: 5px; padding: 3px 7px; line-height: 1; }
     .rate-label { font-size: 13.5px; }
 
-    /* ---- progress: rings and the memory best in one row, lists beside ---- */
+    /* ---- progress: the headline and its two figures, lists beside ---- */
     .prog-grid { grid-template-columns: 1fr 1fr 1fr; column-gap: 20px;
-      grid-template-areas: "rings rings memory" "review review chapters" "srs srs chapters"; }
-    .prog-srs .glass-content { columns: 2; column-gap: 28px; }
-    .prog-srs .fsrs-row { break-inside: avoid; }
-    .prog-chapters .glass-content { column-gap: 34px; }
-    .prog-memory .mem-done-time { font-size: 34px; }
+      grid-template-areas: "rings rings chapters" "review review chapters" "srs srs chapters"; }
   }
 
   /* ===================================================================
@@ -1208,6 +1200,72 @@
 
   /* ---------- grammar: progress sub-tabs ---------- */
   .prog-tabs { display: flex; gap: 6px; margin-bottom: 18px; }
+
+  /* ---------- Progress, rebuilt ----------
+     One ring carries the headline, and the two figures under it stop
+     competing with it: accuracy becomes a half arc, the streak becomes the
+     last three weeks as squares. */
+  .hero-ring {
+    padding: 22px 18px; border-radius: var(--r-card); background: var(--surface);
+    border: 1px solid var(--hairline); box-shadow: var(--shadow-card); margin-bottom: 14px;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .hero-ring-caption { font-size: 13px; font-weight: 600; color: var(--green-text); text-align: center; }
+  .stat-pair { display: flex; gap: 12px; margin-bottom: 18px; }
+  .stat-card {
+    flex: 1 1 0; min-width: 0; padding: 16px; border-radius: var(--r-card); background: var(--surface);
+    border: 1px solid var(--hairline); box-shadow: var(--shadow-card);
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .stat-card .kicker { display: block; }
+  .stat-card-arc { align-items: center; }
+  .stat-card-arc .kicker { align-self: flex-start; }
+  .stat-card-figure { font-size: 30px; font-weight: 800; line-height: 1; font-feature-settings: 'tnum'; }
+  .stat-card-figure small { font-size: 13px; font-weight: 600; color: var(--muted); }
+  .stat-card-note { font-size: 11px; font-weight: 500; color: var(--muted); line-height: 1.4; }
+  .stat-card-arc .stat-card-note { text-align: center; }
+  .day-squares { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .day-squares i { aspect-ratio: 1; border-radius: 2px; background: var(--track); display: block; box-sizing: border-box; }
+  .day-squares i.is-studied { background: var(--green); }
+  .day-squares i.is-rested { background: var(--sage-300); }
+  .day-squares i.is-today { background: transparent; border: 1px dashed var(--sage-300); }
+
+  /* one chip per chapter, the same map idea as the paradigm squares */
+  .prog-chapter-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 7px; }
+  .prog-chip {
+    aspect-ratio: 1; border-radius: var(--r-sm); font-size: 12px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center; box-sizing: border-box;
+    background: var(--green-tint); color: var(--ink);
+  }
+  .prog-chip.is-started { background: var(--sage-300); }
+  .prog-chip.is-mastered { background: var(--green); color: var(--on-green); }
+  .prog-chip.is-untouched { background: var(--bg); border: 1px solid var(--hairline); color: var(--faint); font-weight: 600; }
+  .panel-card {
+    border-radius: var(--r-card); background: var(--surface); border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-card); overflow: hidden; margin-bottom: 18px;
+  }
+  .panel-card.is-padded { padding: 18px; }
+  .show-all {
+    width: 100%; box-sizing: border-box; padding: 13px 18px; border: 0; border-top: 1px solid var(--hairline-soft);
+    background: transparent; font-family: var(--font-sans); font-size: 12.5px; font-weight: 800;
+    color: var(--green-text); cursor: pointer; text-align: left;
+  }
+  .show-all:hover { background: var(--surface-2); }
+  .panel-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 18px; font-size: 14px; }
+  .panel-row + .panel-row { border-top: 1px solid var(--hairline-soft); }
+  .panel-row-value { font-size: 12.5px; color: var(--muted); font-feature-settings: 'tnum'; }
+  .group-block + .group-block { margin-top: 16px; }
+  .group-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 7px; }
+  .group-name { font-size: 12.5px; font-weight: 800; }
+  .group-count { font-size: 11px; font-weight: 600; color: var(--muted); font-feature-settings: 'tnum'; }
+  .group-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; max-width: 520px; }
+  .weak-row { display: flex; align-items: center; gap: 12px; padding: 14px 18px; text-align: left; }
+  .weak-row + .weak-row { border-top: 1px solid var(--hairline-soft); }
+  .weak-main { flex: 1 1 auto; min-width: 0; }
+  .weak-label { display: block; font-size: 13.5px; font-weight: 800; line-height: 1.3; }
+  .weak-sub { display: block; font-size: 11.5px; margin-top: 3px; color: var(--muted); }
+  .weak-track { flex-shrink: 0; width: 44px; height: 5px; border-radius: 3px; background: var(--track); overflow: hidden; }
+  .weak-fill { display: block; height: 100%; background: var(--sage-300); }
   .pg-stat-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; font-size: 13.5px; }
   .pg-stat-row + .pg-stat-row { border-top: 1px solid var(--hairline-soft); }
   .pg-stat-name { min-width: 0; }
@@ -1234,9 +1292,6 @@
   }
 
   @media (min-width: 1180px) {
-    /* the squares are a map, not a chart: they keep their size as the column
-       widens rather than growing into tiles */
-    .pg-map-grid { grid-template-columns: repeat(10, 44px); justify-content: start; gap: 8px; }
     .hub-grid { gap: 16px; margin-top: 26px; }
     .hub-card { padding: 22px 24px; }
     .hub-title { font-size: 20px; }
@@ -1244,6 +1299,22 @@
     .pg-cell { min-height: 76px; min-width: 124px; }
     .pg-quiz-bar { bottom: 18px; }
     .pg-quiz-prompt { font-size: 36px; }
+  }
+
+  /* Every square grid in the app is a map, so the squares keep their size as
+     the column widens rather than growing into tiles. These sit at the end
+     because the layout breakpoints near the top of this sheet are declared
+     before the components they would otherwise override. */
+  @media (min-width: 768px) {
+    .pg-map-grid, .group-grid { grid-template-columns: repeat(10, 34px); justify-content: start; gap: 7px; }
+    .prog-chapter-grid { grid-template-columns: repeat(8, 52px); justify-content: start; gap: 8px; }
+    .day-squares { grid-template-columns: repeat(7, 18px); }
+  }
+
+  @media (min-width: 1180px) {
+    .pg-map-grid, .group-grid { grid-template-columns: repeat(10, 40px); gap: 8px; }
+    .prog-chapter-grid { grid-template-columns: repeat(8, 48px); }
+    .day-squares { grid-template-columns: repeat(7, 20px); }
   }
 </style>
 </head>
@@ -2073,6 +2144,7 @@ let state = {
   grammarPick: new Set(),    // paradigm ids ticked for a Form Quiz
   grammarQuiz: null,         // Form Quiz session: { ids, questions, index, score, answered, selectedOpt, done }
   progressTab: 'vocab',      // 'vocab' | 'grammar' -- which half of the Progress screen is up
+  progressExpand: { weak: false, grammar: false },   // whether a short list on Progress has been opened out
   streak: { count: 0, lastDate: null },
   days: [],                  // 'YYYY-MM-DD' for every day a session was finished, ascending
   sessions: [],              // one record per finished session, ascending -- see recordSession
@@ -2652,7 +2724,7 @@ function wordsToReview(limit) {
     });
   });
   rows.sort((a, b) => a.accuracy - b.accuracy);
-  return rows.slice(0, limit);
+  return limit ? rows.slice(0, limit) : rows;
 }
 
 function shuffle(arr) {
@@ -4274,6 +4346,7 @@ function renderMemoryDone() {
   document.getElementById('btn-exit-quiz').addEventListener('click', exitMemory);
 }
 
+/* the small ring a session summary sits on */
 function ringSvg(pct) {
   const circ = 2 * Math.PI * 54;
   const offset = circ * (1 - pct / 100);
@@ -4287,8 +4360,67 @@ function ringSvg(pct) {
   `;
 }
 
+/* the headline ring: one number, big, with what it is out of underneath */
+function heroRing(pct, value, unit, caption) {
+  const r = 74, circ = 2 * Math.PI * r;
+  const lit = circ * Math.max(0, Math.min(100, pct)) / 100;
+  return `
+    <div class="hero-ring">
+      <svg width="176" height="176" viewBox="0 0 176 176">
+        <circle cx="88" cy="88" r="${r}" fill="none" stroke="var(--track)" stroke-width="16"/>
+        <circle cx="88" cy="88" r="${r}" fill="none" stroke="var(--green)" stroke-width="16" stroke-linecap="round"
+          stroke-dasharray="${lit.toFixed(1)} ${(circ - lit).toFixed(1)}" transform="rotate(-90 88 88)"/>
+        <text x="88" y="84" text-anchor="middle" font-family="Archivo" font-weight="800" font-size="46"
+          fill="var(--ink)" style="font-feature-settings:'tnum'">${value}</text>
+        <text x="88" y="108" text-anchor="middle" font-family="Archivo" font-weight="600" font-size="13"
+          fill="var(--muted)">${unit}</text>
+      </svg>
+      <span class="hero-ring-caption">${caption}</span>
+    </div>
+  `;
+}
+
+/* accuracy has a ceiling but no shape of its own, so it reads as a gauge
+   rather than as a second ring competing with the headline */
+const HALF_ARC = 'M12 62a44 44 0 0 1 88 0';
+const HALF_ARC_LEN = Math.PI * 44;
+
+function halfArc(pct, label) {
+  const lit = HALF_ARC_LEN * Math.max(0, Math.min(100, pct)) / 100;
+  return `
+    <svg width="112" height="70" viewBox="0 0 112 70">
+      <path d="${HALF_ARC}" fill="none" stroke="var(--track)" stroke-width="12" stroke-linecap="round"/>
+      <path d="${HALF_ARC}" fill="none" stroke="var(--green)" stroke-width="12" stroke-linecap="round"
+        stroke-dasharray="${lit.toFixed(1)} ${HALF_ARC_LEN.toFixed(1)}"/>
+      <text x="56" y="56" text-anchor="middle" font-family="Archivo" font-weight="800" font-size="26"
+        fill="var(--ink)" style="font-feature-settings:'tnum'">${label}</text>
+    </svg>
+  `;
+}
+
+/* three weeks of days, today outlined until it is earned */
+function streakSquares() {
+  const today = todayStr();
+  return `<span class="day-squares">${lastNDays(21).map(d => {
+    const cls = d.studied ? 'is-studied' : (d.rested ? 'is-rested' : (d.date === today ? 'is-today' : ''));
+    return `<i class="${cls}" title="${d.date}"></i>`;
+  }).join('')}</span>`;
+}
+
+function streakStatCard() {
+  const { days } = currentStreak();
+  return `
+    <div class="stat-card">
+      <span class="kicker">Streak</span>
+      <span class="stat-card-figure">${days}<small> day${days === 1 ? '' : 's'}</small></span>
+      ${streakSquares()}
+      <span class="stat-card-note">Last three weeks</span>
+    </div>
+  `;
+}
+
 /* Progress carries two modules now, so it splits rather than growing a third
-   column of unrelated numbers. The vocab half is exactly what it always was. */
+   column of unrelated numbers. */
 function setProgressTab(tab) { state.progressTab = tab; render(); }
 
 function progressTabs() {
@@ -4304,31 +4436,74 @@ function wireProgressTabs() {
   document.querySelectorAll('[data-ptab]').forEach(el => {
     el.addEventListener('click', () => setProgressTab(el.dataset.ptab));
   });
+  document.querySelectorAll('[data-expand]').forEach(el => {
+    el.addEventListener('click', () => {
+      state.progressExpand[el.dataset.expand] = !state.progressExpand[el.dataset.expand];
+      render();
+    });
+  });
 }
 
-/* the grammar half: clean runs per paradigm, nothing scheduled and nothing
-   inferred -- the only two numbers the drill records */
+/* the short list plus a row that opens the rest, rather than every row at
+   once -- three is enough to act on and the rest is one tap away */
+const SHORT_LIST = 3;
+
+function showAllRow(key, total) {
+  if (total <= SHORT_LIST) return '';
+  return `<button class="show-all" data-expand="${key}">${state.progressExpand[key] ? 'Show fewer' : `Show all ${total}`} &rsaquo;</button>`;
+}
+
+/* the grammar half: clean runs and quiz accuracy, nothing scheduled and
+   nothing inferred -- the only numbers the two drills record */
 function renderGrammarProgress() {
   const mastered = paradigmsMastered();
-  const rows = PARADIGMS.map(p => {
-    const s = grammarStat(p.id);
-    const acc = grammarQuizAccuracy(p.id);
-    const sortFigure = s.attempts === 0
-      ? 'Not sorted'
-      : `${s.cleanRuns} clean · ${s.attempts} run${s.attempts === 1 ? '' : 's'}`;
-    const quizFigure = acc === null
-      ? 'No quiz yet'
-      : `${acc}% of ${s.quizAttempts} question${s.quizAttempts === 1 ? '' : 's'}`;
+  const pct = PARADIGMS.length ? Math.round((mastered / PARADIGMS.length) * 100) : 0;
+  const quiz = grammarQuizTotals();
+  const attempts = PARADIGMS.reduce((n, p) => n + grammarStat(p.id).attempts, 0);
+  const cleanRuns = PARADIGMS.reduce((n, p) => n + grammarStat(p.id).cleanRuns, 0);
+
+  const groups = GRAMMAR_GROUPS.map(group => {
+    const inGroup = PARADIGMS.filter(p => p.category === group.category);
+    if (!inGroup.length) return '';
+    const done = inGroup.filter(p => grammarStat(p.id).cleanRuns > 0).length;
+    const squares = inGroup.map(p => {
+      const st = grammarStat(p.id);
+      let cls = 'is-future';
+      if (paradigmInScope(p)) {
+        cls = st.cleanRuns > 0 ? 'is-mastered' : (st.attempts > 0 || st.quizAttempts > 0 ? 'is-started' : '');
+      }
+      return `<span class="pg-square ${cls}" title="${escapeHtml(p.label)}"></span>`;
+    }).join('');
     return `
-      <div class="pg-stat-row">
-        <span class="pg-stat-name">
-          ${escapeHtml(p.label)}${paradigmInScope(p) ? '' : ' <span class="pg-tag">Not yet in class</span>'}
-          <span class="pg-stat-example">${escapeHtml(p.example)}</span>
+      <div class="group-block">
+        <div class="group-head">
+          <span class="group-name">${escapeHtml(group.label)}</span>
+          <span class="group-count">${done} of ${inGroup.length}</span>
+        </div>
+        <div class="group-grid">${squares}</div>
+      </div>
+    `;
+  }).join('');
+
+  /* worth another run: fewest clean runs first, and among those the ones
+     already tried, so the list names work in progress rather than the
+     untouched back half of the appendix */
+  const weakest = PARADIGMS.filter(paradigmInScope)
+    .map(p => ({ p, st: grammarStat(p.id) }))
+    .sort((a, b) => (a.st.cleanRuns - b.st.cleanRuns) || (b.st.attempts - a.st.attempts));
+  const shown = state.progressExpand.grammar ? weakest : weakest.slice(0, SHORT_LIST);
+  const weakHtml = shown.map(({ p, st }) => {
+    const ratio = st.attempts ? Math.round((st.cleanRuns / st.attempts) * 100) : 0;
+    const runs = st.attempts === 0
+      ? 'Not sorted yet'
+      : `${st.attempts} run${st.attempts === 1 ? '' : 's'}, ${st.cleanRuns === 0 ? 'none clean' : st.cleanRuns + ' clean'}`;
+    return `
+      <div class="weak-row">
+        <span class="weak-main">
+          <span class="weak-label">${escapeHtml(p.label)}</span>
+          <span class="weak-sub">${escapeHtml(p.example)} · ${runs}</span>
         </span>
-        <span class="pg-stat-figures">
-          <span class="pg-stat-sort ${s.cleanRuns > 0 ? 'is-on' : 'text-muted'}">${sortFigure}</span>
-          <span class="pg-stat-quiz ${acc === null ? 'text-muted' : 'is-on'}">${quizFigure}</span>
-        </span>
+        <span class="weak-track"><span class="weak-fill" style="width:${ratio}%"></span></span>
       </div>
     `;
   }).join('');
@@ -4338,22 +4513,45 @@ function renderGrammarProgress() {
       ${renderHeader(false, 'Progress')}
       ${progressTabs()}
 
-      <div class="ring-panel glass">
-        ${glassLayer()}
-        <div class="glass-content">
-          <div class="kicker">PARADIGMS MASTERED</div>
-          ${ringSvg(PARADIGMS.length ? Math.round((mastered / PARADIGMS.length) * 100) : 0)}
-          <div class="ring-label text-muted">${mastered} of ${PARADIGMS.length} sorted with no wrong drops</div>
-          <div class="ring-caption text-muted">${(() => {
-            const asked = PARADIGMS.reduce((n, p) => n + grammarStat(p.id).quizAttempts, 0);
-            const right = PARADIGMS.reduce((n, p) => n + grammarStat(p.id).quizCorrect, 0);
-            return asked ? `Form Quiz: ${Math.round((right / asked) * 100)}% of ${asked} question${asked === 1 ? '' : 's'}` : 'Form Quiz: not tried yet';
-          })()}</div>
-        </div>
-      </div>
+      <div class="prog-grid">
+        <div class="prog-rings">
+          ${heroRing(pct, mastered, `of ${PARADIGMS.length} paradigms`, 'Sorted with no wrong drops')}
 
-      <div class="kicker" style="margin:0 0 10px">BY PARADIGM — SORT · QUIZ</div>
-      <div class="list-panel glass">${glassLayer()}<div class="glass-content">${rows}</div></div>
+          <div class="stat-pair">
+            <div class="stat-card stat-card-arc">
+              <span class="kicker">Form Quiz</span>
+              ${halfArc(quiz.pct, quiz.asked ? quiz.pct + '%' : '–')}
+              <span class="stat-card-note">${quiz.asked ? `over ${quiz.asked} question${quiz.asked === 1 ? '' : 's'}` : 'Not tried yet'}</span>
+            </div>
+            <div class="stat-card">
+              <span class="kicker">Clean runs</span>
+              <span class="stat-card-figure">${cleanRuns}<small> of ${attempts}</small></span>
+              <span class="stat-card-note">Tables sorted with nothing dropped in the wrong cell</span>
+            </div>
+          </div>
+        </div>
+
+        <section class="prog-block prog-chapters">
+          <div class="kicker" style="margin:0 0 10px">BY GROUP</div>
+          <div class="panel-card is-padded">
+            ${groups}
+            <div class="pg-legend">
+              <span><i style="background:var(--bg);border:1px solid var(--hairline)"></i>Not in class</span>
+              <span><i style="background:var(--green-tint)"></i>Not tried</span>
+              <span><i style="background:var(--sage-300)"></i>Started</span>
+              <span><i style="background:var(--green)"></i>Mastered</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="prog-block prog-review">
+          <div class="kicker" style="margin:0 0 10px">WORTH ANOTHER RUN</div>
+          <div class="panel-card">
+            ${weakHtml || '<div class="empty-note text-muted">Nothing in class yet.</div>'}
+            ${showAllRow('grammar', weakest.length)}
+          </div>
+        </section>
+      </div>
     </div>
   `;
 
@@ -4364,32 +4562,18 @@ function renderProgress() {
   if (state.progressTab === 'grammar') { renderGrammarProgress(); return; }
   const stats = overallStats();
   const learned = learnedWordsCount();
-  const progressPct = stats.totalWords > 0 ? Math.round((learned / stats.totalWords) * 100) : 0;
-
+  const pct = stats.totalWords > 0 ? Math.round((learned / stats.totalWords) * 100) : 0;
   const srs = fsrsBreakdown();
-  const srsRows = FSRS_STATE_LABELS.map((label, i) => `
-      <div class="fsrs-row">
-        <span>${label}</span>
-        <span class="fsrs-count">${srs.counts[i]}</span>
-      </div>
-    `).join('') + `
-      <div class="fsrs-row is-due">
-        <span>Due today</span>
-        <span class="fsrs-count">${srs.due}</span>
-      </div>`;
 
-  const chapterRows = CHAPTERS.map(c => {
-    const pct = chapterMastery(c);
-    return `
-      <div class="chapter-row">
-        <div class="ch-num">${c}</div>
-        <div class="ch-track"><div class="ch-fill" style="width:${pct}%"></div></div>
-        <div class="ch-pct">${pct}%</div>
-      </div>
-    `;
+  const chapterChips = CHAPTERS.map(c => {
+    const m = chapterMastery(c);
+    const touched = (VOCAB[c] || []).some(w => state.stats[wordKey(c, w.greek)]);
+    const cls = !touched ? 'is-untouched' : (m >= MASTERY_THRESHOLD ? 'is-mastered' : (m > 0 ? 'is-started' : ''));
+    return `<div class="prog-chip ${cls}" title="Chapter ${c} · ${m}%">${c}</div>`;
   }).join('');
 
-  const missed = wordsToReview(8);
+  const all = wordsToReview(0);
+  const missed = state.progressExpand.weak ? all : all.slice(0, SHORT_LIST);
   /* a dot per correct answer still needed, so a word visibly works its way off
      the list rather than just disappearing one day */
   const streakDots = n => `
@@ -4398,7 +4582,7 @@ function renderProgress() {
     </span>`;
   const missedHtml = missed.length
     ? missed.map(m => `
-        <div class="missed-row">
+        <div class="missed-row" style="padding:13px 18px">
           <span class="missed-greek">${m.greek}</span>
           <span class="missed-right">
             <span class="missed-english text-muted">${m.english}</span>
@@ -4414,48 +4598,51 @@ function renderProgress() {
       ${progressTabs()}
 
       <div class="prog-grid">
-        <div class="rings-row prog-rings">
-          <div class="ring-panel glass">
-            ${glassLayer()}
-            <div class="glass-content">
-              <div class="kicker">ACCURACY</div>
-              ${ringSvg(stats.accuracy)}
-              <div class="ring-label text-muted">${stats.wordsSeen} words answered</div>
+        <div class="prog-rings">
+          ${heroRing(pct, learned, `of ${stats.totalWords} words`, `${pct}% of the course vocabulary learned`)}
+
+          <div class="stat-pair">
+            <div class="stat-card stat-card-arc">
+              <span class="kicker">Accuracy</span>
+              ${halfArc(stats.accuracy, stats.wordsSeen ? stats.accuracy + '%' : '–')}
+              <span class="stat-card-note">${stats.wordsSeen ? `over ${stats.wordsSeen} word${stats.wordsSeen === 1 ? '' : 's'} answered` : 'Nothing answered yet'}</span>
             </div>
-          </div>
-          <div class="ring-panel glass">
-            ${glassLayer()}
-            <div class="glass-content">
-              <div class="kicker">PROGRESS</div>
-              ${ringSvg(progressPct)}
-              <div class="ring-label text-muted">${learned} of ${stats.totalWords} words learned</div>
-            </div>
+            ${streakStatCard()}
           </div>
         </div>
 
+        <section class="prog-block prog-chapters">
+          <div class="kicker" style="margin:0 0 10px">BY CHAPTER</div>
+          <div class="panel-card is-padded">
+            <div class="prog-chapter-grid">${chapterChips}</div>
+            <div class="pg-legend">
+              <span><i style="background:var(--bg);border:1px solid var(--hairline)"></i>Not started</span>
+              <span><i style="background:var(--sage-300)"></i>In progress</span>
+              <span><i style="background:var(--green)"></i>Mastered</span>
+            </div>
+          </div>
+        </section>
+
         <section class="prog-block prog-review">
           <div class="kicker" style="margin:0 0 10px">WORDS TO REVIEW</div>
-          <div class="list-panel glass">${glassLayer()}<div class="glass-content">${missedHtml}</div></div>
+          <div class="panel-card">
+            ${missedHtml}
+            ${showAllRow('weak', all.length)}
+          </div>
         </section>
 
         <section class="prog-block prog-srs">
-          <div class="kicker" style="margin:0 0 10px">SPACED REPETITION</div>
-          <div class="list-panel glass">${glassLayer()}<div class="glass-content">${srsRows}</div></div>
-        </section>
-
-        <section class="prog-block prog-memory">
-          <div class="kicker" style="margin:0 0 10px">MEMORY GAME</div>
-          <div class="list-panel glass">${glassLayer()}<div class="glass-content">
-            <div class="missed-row">
-              <span>Best time</span>
-              <span class="missed-english ${state.memoryBest === null ? 'text-muted' : ''}">${state.memoryBest === null ? 'Not played yet' : formatTime(state.memoryBest)}</span>
+          <div class="kicker" style="margin:0 0 10px">DETAIL</div>
+          <div class="panel-card">
+            <div class="panel-row">
+              <span>Spaced repetition schedule</span>
+              <span class="panel-row-value">${srs.due} due</span>
             </div>
-          </div></div>
-        </section>
-
-        <section class="prog-block prog-chapters">
-          <div class="kicker" style="margin:0 0 10px">BY CHAPTER</div>
-          <div class="list-panel glass" style="margin-bottom:0">${glassLayer()}<div class="glass-content">${chapterRows}</div></div>
+            <div class="panel-row">
+              <span>Memory Game best time</span>
+              <span class="panel-row-value">${state.memoryBest === null ? 'Not played yet' : formatTime(state.memoryBest)}</span>
+            </div>
+          </div>
         </section>
       </div>
 
