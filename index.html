@@ -6585,28 +6585,33 @@ function parseCheck() {
   });
   recordParseAnswer(e, best, correct);
   render();
-  /* the Form Quiz's lock-in and pause */
-  setTimeout(() => {
-    if (state.parse !== q) return;
-    if (q.index < q.items.length - 1) {
-      q.index += 1;
-      q.picks = {};
-      q.answered = false;
-      q.correct = null;
-      q.best = null;
-    } else {
-      q.done = true;
-      bumpStreak();
-      recordSession({
-        mode: 'parse',
-        scope: scopeFromSelection(q.selection),
-        asked: q.items.length,
-        right: q.score,
-        ms: Date.now() - q.startedAt
-      });
-    }
-    render();
-  }, correct ? 650 : 1500);
+}
+
+/* no timer: the answer stays up, with its lexeme and every parsing, until
+   the student asks for the next form */
+function parseNext() {
+  const q = state.parse;
+  if (!q || !q.answered || q.done) return;
+  if (q.index < q.items.length - 1) {
+    q.index += 1;
+    q.picks = {};
+    q.answered = false;
+    q.correct = null;
+    q.best = null;
+  } else {
+    q.done = true;
+    bumpStreak();
+    recordSession({
+      mode: 'parse',
+      scope: scopeFromSelection(q.selection),
+      asked: q.items.length,
+      right: q.score,
+      ms: Date.now() - q.startedAt
+    });
+  }
+  render();
+  /* the button is at the foot of a long screen; the next form starts at the top */
+  window.scrollTo(0, 0);
 }
 
 /* one row of buttons. Once checked: a right pick goes green, a wrong one
@@ -6683,11 +6688,11 @@ function renderParse() {
 
       <div class="parse-rows">${rows.map(r => parseRowHtml(r, q, e)).join('')}</div>
 
-      <button class="start-btn parse-check" id="btn-parse-check" ${ready && !q.answered ? '' : 'disabled'}>
+      <button class="start-btn parse-check" id="btn-parse-check" ${ready || q.answered ? '' : 'disabled'}>
         <div class="resume-fill"></div>
         <div class="resume-edge"></div>
-        <span>${q.answered ? (q.correct ? 'Correct' : 'Not quite') : 'Check'}</span>
-        ${ready && !q.answered ? '<span class="key-hint on-accent kh-btn">↵</span>' : ''}
+        <span>${q.answered ? (q.index < total - 1 ? 'Next form' : 'See results') : 'Check'}</span>
+        ${ready || q.answered ? '<span class="key-hint on-accent kh-btn">↵</span>' : ''}
       </button>
       </div>
     </div>
@@ -6699,6 +6704,8 @@ function renderParse() {
     });
     const check = document.getElementById('btn-parse-check');
     if (!check.disabled) check.addEventListener('click', parseCheck);
+  } else {
+    document.getElementById('btn-parse-check').addEventListener('click', parseNext);
   }
   document.getElementById('btn-exit-quiz').addEventListener('click', exitParse);
 }
