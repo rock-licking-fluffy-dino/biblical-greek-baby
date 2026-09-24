@@ -1,0 +1,3 @@
+# OpenGNT source text: scripts/build_parse_data.py downloads it from a pinned commit
+data/OpenGNT_BASE_TEXT.zip
+__pycache__/
