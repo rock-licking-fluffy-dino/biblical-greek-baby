@@ -413,6 +413,15 @@
   .choice-btn.active .choice-sub { color: color-mix(in srgb, var(--on-green) 78%, transparent); }
   .choice-tick { flex-shrink: 0; opacity: 0; transition: opacity 150ms ease; }
   .choice-btn.active .choice-tick { opacity: 1; }
+  /* the word-count step: four options sit two by two, even on a narrow phone */
+  .count-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .count-grid .choice-btn { padding: 13px 12px 13px 14px; align-items: flex-start; }
+  /* the tick sits in the corner so a half-width button keeps its text on one line */
+  .count-grid .choice-tick { position: absolute; top: 14px; right: 12px; }
+  .count-grid .choice-btn > span > span:first-child { display: block; padding-right: 18px; }
+  .count-grid .choice-btn:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .count-grid .choice-btn:disabled { opacity: 1; color: var(--muted); background: var(--surface-2); }
+  .count-grid .choice-btn:disabled:hover { border-color: var(--hairline); }
   .summary-card {
     border-radius: var(--r-btn); padding: 16px; background: var(--surface-2);
     border: 1px solid var(--hairline);
@@ -1520,8 +1529,50 @@ const CATEGORIES = (() => {
 const CATEGORY_NAMES = CATEGORIES.map(c => c.name);
 
 /* the memory game is a fixed 5 pairs / 10 tiles -- that is the ceiling for a
-   legible grid on a phone, so it deliberately ignores the 10/20/30 setting */
+   legible grid on a phone, so it deliberately ignores the word-count setting */
 const MEMORY_PAIRS = 5;
+
+/* the "How many words?" step for Multiple Choice and Type Answer, tied to the
+   course: a chapter is 15 words. 'all' is every word in the selection, once,
+   in shuffled order. Flashcards always use the whole selection, and Parse
+   keeps its own 10/20/30 forms, so neither reads this. */
+const WORD_COUNT_OPTIONS = [
+  { value: 7, sub: 'Half a chapter' },
+  { value: 15, sub: 'A full chapter' },
+  { value: 30, sub: 'Two chapters' }
+];
+const WORD_COUNT_ALL = 'all';
+const WORD_COUNT_DEFAULT = 15;
+
+/* the buttons for a pool of `poolSize` words. A fixed option bigger than the
+   pool is shown but disabled; "All" is left out when it would repeat a fixed
+   option, and is all there is when the pool is under the smallest one. */
+function wordCountChoices(poolSize) {
+  const smallest = WORD_COUNT_OPTIONS[0].value;
+  const fixed = poolSize < smallest ? [] : WORD_COUNT_OPTIONS.map(o => ({
+    value: o.value, label: o.value + ' words', sub: o.sub, disabled: o.value > poolSize
+  }));
+  const all = WORD_COUNT_OPTIONS.some(o => o.value === poolSize) ? [] : [{
+    value: WORD_COUNT_ALL, label: `All ${poolSize} word${poolSize === 1 ? '' : 's'}`, sub: 'Everything you’ve picked', disabled: false
+  }];
+  return fixed.concat(all);
+}
+
+/* the choice that applies to this pool: the student's own if it is still on
+   offer, else the largest one that is. "All" on a pool that matches a fixed
+   option is that option. */
+function resolveWordCount(pref, poolSize) {
+  if (pref === WORD_COUNT_ALL && WORD_COUNT_OPTIONS.some(o => o.value === poolSize)) return poolSize;
+  const enabled = wordCountChoices(poolSize).filter(c => !c.disabled);
+  if (enabled.some(c => c.value === pref)) return pref;
+  return enabled[enabled.length - 1].value;
+}
+
+/* how many words a session on this pool will actually ask */
+function wordCountSize(pref, poolSize) {
+  const v = resolveWordCount(pref, poolSize);
+  return v === WORD_COUNT_ALL ? poolSize : v;
+}
 
 /* ---------- grammar paradigms ----------
    Declension and conjugation tables from Merkle & Plummer, *Beginning with
@@ -2320,7 +2371,7 @@ let state = {
     selectBy: 'chapters',     // 'chapters' | 'categories' -- how the word pool is chosen
     selectedChapters: new Set(),
     selectedCategories: new Set(),
-    count: 20,                // 10 | 20 | 30
+    count: WORD_COUNT_DEFAULT, // a WORD_COUNT_OPTIONS value or WORD_COUNT_ALL
     direction: 'gtoe',        // 'gtoe' | 'etog' | 'mixed'
     mode: 'mc',               // 'mc' | 'typed' | 'cards' | 'memory'
     step: 1,                  // 1 chapters/categories, 2 format, 3 direction, 4 word count, 5 start
@@ -3262,7 +3313,6 @@ function setSetupMode(m) {
   render();
 }
 function setSetupDirection(d) { state.setup.direction = d; render(); }
-function setSetupCount(n) { state.setup.count = n; render(); }
 
 /* the steps that actually apply for the chosen format:
    flashcards stop after the format step, type-answer skips direction */
@@ -3310,7 +3360,7 @@ function setupBack() {
    step is a single tap -- prior choices are kept, so Back is non-destructive */
 function chooseFormat(m) { setSetupMode(m); setupNext(); }
 function chooseDirection(d) { state.setup.direction = d; setupNext(); }
-function chooseCount(n) { state.setup.count = n; setupNext(); }
+function chooseCount(v) { state.setup.count = v === WORD_COUNT_ALL ? v : Number(v); setupNext(); }
 
 /* ---------- flashcard sessions (no scoring: browsing only, like the review card) ---------- */
 function startCards() {
@@ -3380,7 +3430,7 @@ function launchSetupQuiz() {
   if (pool.length < minNeeded) return;
   startQuiz({
     selection,
-    count: state.setup.count,
+    count: wordCountSize(state.setup.count, pool.length),
     direction: state.setup.direction,
     mode: state.setup.mode
   });
@@ -3904,9 +3954,9 @@ function tickIcon() {
   return '<span class="choice-tick"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M3 8.5 6.5 12 13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
 }
 
-function choiceBtn(attr, value, active, label, sub) {
+function choiceBtn(attr, value, active, label, sub, disabled) {
   return `
-    <button class="choice-btn ${active ? 'active' : ''}" ${attr}="${value}">
+    <button class="choice-btn ${active ? 'active' : ''}" ${attr}="${value}"${disabled ? ' disabled' : ''}>
       <span><span>${label}</span>${sub ? `<span class="choice-sub">${sub}</span>` : ''}</span>
       ${tickIcon()}
     </button>
@@ -3977,18 +4027,19 @@ function renderSetup() {
     </div>`;
   } else if (s.step === 4) {
     title = 'How many words?';
-    hint = poolSize < 30 ? `Your selection has ${poolSize} words — shorter quizzes stop early.` : 'Drawn at random from your chapters.';
-    body = `<div class="stack">
-      ${choiceBtn('data-count', '10', s.count === 10, '10 words', 'A quick session')}
-      ${choiceBtn('data-count', '20', s.count === 20, '20 words', 'The usual drill')}
-      ${choiceBtn('data-count', '30', s.count === 30, '30 words', 'A longer stretch')}
+    hint = `One chapter is 15 words. Your selection has ${poolSize}.`;
+    const current = resolveWordCount(s.count, poolSize);
+    body = `<div class="count-grid">
+      ${wordCountChoices(poolSize).map(c =>
+        choiceBtn('data-count', c.value, c.value === current, c.label, c.sub, c.disabled)
+      ).join('')}
     </div>`;
   } else {
     const minNeeded = s.mode === 'typed' ? 1 : 4;
     const canStart = poolSize >= minNeeded;
     const parts = [selectionLabel(selection), FORMAT_LABELS[s.mode]];
     parts.push(s.mode === 'typed' ? DIRECTION_LABELS.gtoe : DIRECTION_LABELS[s.direction]);
-    parts.push(`${Math.min(s.count, poolSize)} words`);
+    parts.push(`${wordCountSize(s.count, poolSize)} words`);
     title = 'Ready when you are';
     hint = '';
     body = `
@@ -4055,7 +4106,7 @@ function renderSetup() {
   } else if (s.step === 3) {
     document.querySelectorAll('[data-dir]').forEach(el => el.addEventListener('click', () => chooseDirection(el.dataset.dir)));
   } else if (s.step === 4) {
-    document.querySelectorAll('[data-count]').forEach(el => el.addEventListener('click', () => chooseCount(Number(el.dataset.count))));
+    document.querySelectorAll('[data-count]').forEach(el => el.addEventListener('click', () => chooseCount(el.dataset.count)));
   } else {
     const launch = document.getElementById('btn-launch');
     if (!launch.disabled) launch.addEventListener('click', launchSetupQuiz);
