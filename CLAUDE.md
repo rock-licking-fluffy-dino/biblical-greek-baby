@@ -49,3 +49,10 @@ Koine Greek study app built around Merkle & Plummer's *Beginning with New Testam
 ## Decisions to flag, not guess
 
 If a task forces a choice between two reasonable designs, stop and ask. Do not pick one silently.
+
+## Task workflow
+
+- Work from a GitHub issue where one exists. Name the branch `claude/<short-task-name>`.
+- Put `Closes #<number>` in the pull request description so the issue closes when it is merged.
+- Fill in the pull request checklist honestly. Leave a box unticked if it was not done.
+- Do not start a second task on the same branch. Suggest a new issue instead.
