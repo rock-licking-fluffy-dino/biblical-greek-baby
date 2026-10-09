@@ -1100,6 +1100,10 @@
     gap: 2px; padding: 6px 5px; text-align: center; min-width: 92px;
     transition: background 150ms ease, border-color 150ms ease;
   }
+  /* a case the preposition does not take: no cell at all, so nothing invites a drop */
+  .pg-cell.is-blank { border-color: transparent; background: transparent; }
+  /* preposition rows are Greek words, and uppercasing them drops the accents */
+  .pg-grid.is-prep .pg-rowhead { text-transform: none; letter-spacing: 0; font-size: 14.5px; color: var(--ink); }
   .pg-cell.is-over { border-color: var(--sage-300); background: var(--green-tint); border-style: solid; }
   .pg-cell.is-filled {
     border-style: solid; border-color: var(--green-border); background: var(--green-tint);
@@ -5586,7 +5590,7 @@ const GRAMMAR_CATEGORIES = [
   { key: 'imperative', label: 'Imperative', has: p => p.subcategory === 'imperative' },
   { key: 'participle', label: 'Participles', has: p => p.category === 'participle' },
   { key: 'infinitive', label: 'Infinitives', has: p => p.category === 'infinitive' },
-  { key: 'preposition', label: 'Prepositions', has: p => p.category === 'preposition', quizOnly: true }
+  { key: 'preposition', label: 'Prepositions', has: p => p.category === 'preposition' }
 ];
 
 function grammarCategoryByKey(key) { return GRAMMAR_CATEGORIES.find(c => c.key === key) || null; }
@@ -5697,7 +5701,7 @@ function grammarGridHtml(g) {
       <div class="pg-rowhead">${escapeHtml(row)}</div>
       ${p.colLabels.map(col => {
         const key = row + '|' + col;
-        if (!p.cells[key]) return `<div class="pg-cell" aria-hidden="true"></div>`;
+        if (!p.cells[key]) return `<div class="pg-cell is-blank" aria-hidden="true"></div>`;
         const placed = g.placed[key];
         return `<div class="pg-cell ${placed ? 'is-filled' : ''}" data-cell="${escapeHtml(key)}"
               role="button" tabindex="0" aria-label="${escapeHtml(row)} ${escapeHtml(col)}">
@@ -5707,7 +5711,7 @@ function grammarGridHtml(g) {
     `).join('');
   return `
     <div class="pg-scroll">
-      <div class="pg-grid" style="grid-template-columns: auto repeat(${cols}, minmax(92px, 1fr))">
+      <div class="pg-grid ${p.category === 'preposition' ? 'is-prep' : ''}" style="grid-template-columns: auto repeat(${cols}, minmax(92px, 1fr))">
         <div class="pg-corner"></div>
         ${p.colLabels.map(c => `<div class="pg-colhead">${escapeHtml(c)}</div>`).join('')}
         ${cells}
@@ -5751,14 +5755,16 @@ function renderGrammarDrill() {
       ${grammarGridHtml(g)}
 
       <div class="pg-stack-label">
-        <span class="kicker">FORMS</span>
+        <span class="kicker">${p.category === 'preposition' ? 'GLOSSES' : 'FORMS'}</span>
         <span class="pg-stack-count" id="pg-remaining">${g.cards.length} left</span>
       </div>
       <div class="pg-stack" id="pg-stack">
         ${g.cards.map(c => `<button class="pg-card" data-cid="${c.cid}">${escapeHtml(c.face)}</button>`).join('')}
       </div>
 
-      <p class="pg-hint text-muted">Drag a form into its cell — or tap the form, then tap the cell.${p.colLabels.length > 3 ? ' This table is wider than the screen: it scrolls sideways with the row labels pinned, and tapping is easier than dragging across it.' : ''}</p>
+      <p class="pg-hint text-muted">${p.category === 'preposition'
+        ? 'Drag a gloss into its cell, or tap the gloss, then tap the cell. A blank space is a case that preposition does not take.'
+        : 'Drag a form into its cell — or tap the form, then tap the cell.'}${p.colLabels.length > 3 ? ' This table is wider than the screen: it scrolls sideways with the row labels pinned, and tapping is easier than dragging across it.' : ''}</p>
     </div>
   `;
 
@@ -6156,7 +6162,7 @@ function renderGrammarList() {
       </section>`
     : `<section class="pg-group">
         <span class="kicker">WHAT DO YOU WANT TO STUDY?</span>
-        <div class="pg-list">${GRAMMAR_CATEGORIES.filter(c => quizMode || !c.quizOnly).map(grammarCategoryRowHtml).join('')}</div>
+        <div class="pg-list">${GRAMMAR_CATEGORIES.map(grammarCategoryRowHtml).join('')}</div>
       </section>`;
 
   document.getElementById('screen').innerHTML = `
