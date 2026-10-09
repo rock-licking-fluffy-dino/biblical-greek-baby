@@ -355,6 +355,39 @@
   }
   .home-slogan { display: none; }
 
+  /* ---------- what's new ----------
+     The Home banner for a flagged update: one tinted row under the greeting.
+     Tapping it opens the version history; the cross dismisses it. */
+  .whatsnew-banner {
+    margin-top: 20px; display: flex; align-items: center; gap: 6px;
+    border-radius: var(--r-btn); background: var(--green-tint); border: 1px solid var(--green-border);
+    padding: 4px 4px 4px 0;
+  }
+  .whatsnew-banner-main {
+    flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 10px;
+    border: 0; background: none; padding: 9px 4px 9px 14px; cursor: pointer;
+    font-family: var(--font-sans); color: var(--ink); text-align: left;
+  }
+  .whatsnew-banner-text { flex: 1 1 auto; min-width: 0; display: flex; align-items: baseline; gap: 8px; }
+  .whatsnew-banner-title {
+    font-size: 14px; font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .whatsnew-banner .pg-chevron { color: var(--green-text); }
+  .whatsnew-banner-close {
+    width: 34px; height: 34px; border-radius: var(--r-sm); border: 0; background: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; color: var(--green-text); flex-shrink: 0;
+  }
+  .whatsnew-banner-close:hover { background: var(--surface); }
+
+  /* the version history: plain text, a date and bullets per update */
+  .updates-title { margin: 0 0 6px; font-size: clamp(30px, 9vw, 38px); font-weight: 800; letter-spacing: -0.035em; }
+  .updates-entry { padding: 18px 0; border-top: 1px solid var(--hairline-soft); }
+  .updates-entry:first-of-type { border-top: 0; }
+  .updates-entry-title { margin: 6px 0 0; font-size: 16px; font-weight: 800; }
+  .updates-list { margin: 8px 0 0; padding-left: 18px; font-size: 14px; line-height: 1.5; }
+  .updates-list li + li { margin-top: 3px; }
+
   /* ---------- the streak card ----------
      Seven circles, one per day. The unfinished one is the point of the
      component: today is drawn open until it is earned, never filled early. */
@@ -2502,7 +2535,9 @@ let state = {
   lastSession: 'quiz',        // 'quiz' | 'cards' | 'memory' | 'review' -- which one the Review tab opens
   randomWord: null,           // { chapter, greek, english } shown when no quiz is selected
   randomWordRevealed: false,
-  onboarding: { active: false, i: 0 }   // first-run walkthrough: whether it is up, and which of the 15 screens
+  onboarding: { active: false, i: 0 },  // first-run walkthrough: whether it is up, and which of the 15 screens
+  updateSeen: 0,              // id of the newest UPDATES entry this student has seen
+  updatesFrom: 'progress'     // where the version history's close button goes back to
 };
 
 function wordKey(chapter, greek) { return chapter + '::' + greek; }
@@ -2564,6 +2599,14 @@ async function loadData() {
      it was written, counts as seen */
   const rawOnboarding = await storageAdapter.get(ONBOARDING_KEY);
   state.onboarding.active = !rawOnboarding;
+
+  /* No flag yet means a new student, or the first load since this shipped.
+     Either way nothing is announced: everything up to now counts as seen,
+     and only entries added from here can raise the Home banner. */
+  const rawSeen = await storageAdapter.get(UPDATE_SEEN_KEY);
+  const seen = parseInt(rawSeen, 10);
+  if (rawSeen === null || rawSeen === undefined || Number.isNaN(seen)) markUpdatesSeen();
+  else state.updateSeen = seen;
 }
 
 function saveStats() { storageAdapter.set(STATS_KEY, JSON.stringify(state.stats)); }
@@ -4006,6 +4049,8 @@ function renderHome() {
       <div class="home-screen">
         <h1 class="greeting">${greeting()}</h1>
 
+        ${whatsNewBanner()}
+
         ${streakCard()}
 
         <div class="hub-grid">
@@ -4033,6 +4078,10 @@ function renderHome() {
   if (reviewBtn) reviewBtn.addEventListener('click', startDailyReview);
   const weakBtn = document.getElementById('btn-review-quiz');
   if (weakBtn) weakBtn.addEventListener('click', startReviewQuiz);
+  const newOpen = document.getElementById('btn-whatsnew-open');
+  if (newOpen) newOpen.addEventListener('click', () => goUpdates('home'));
+  const newDismiss = document.getElementById('btn-whatsnew-dismiss');
+  if (newDismiss) newDismiss.addEventListener('click', () => { markUpdatesSeen(); render(); });
 }
 
 /* ---------- step-by-step quiz setup ---------- */
@@ -5165,12 +5214,15 @@ function renderProgress() {
 
       <div class="prog-replay">
         <button class="link-btn" id="btn-replay-onboarding">Replay walkthrough</button>
+        <span class="text-muted" aria-hidden="true">&nbsp;&middot;&nbsp;</span>
+        <button class="link-btn" id="btn-updates">Version history</button>
       </div>
       ${parseCreditHtml()}
     </div>
   `;
 
   document.getElementById('btn-replay-onboarding').addEventListener('click', replayOnboarding);
+  document.getElementById('btn-updates').addEventListener('click', () => goUpdates('progress'));
   document.getElementById('btn-collection').addEventListener('click', goCollection);
   wireProgressTabs();
 }
@@ -5311,7 +5363,7 @@ function renderTabBar() {
     state.screen === 'parse');
   document.getElementById('tab-review').classList.toggle('active', state.screen === 'flashcard' || state.screen === 'cards' || state.screen === 'memory' || state.screen === 'review');
   document.getElementById('tab-progress').classList.toggle('active',
-    state.screen === 'progress' || state.screen === 'collection');
+    state.screen === 'progress' || state.screen === 'collection' || state.screen === 'updates');
 }
 
 /* ---------- first-run onboarding walkthrough ----------
@@ -5546,6 +5598,124 @@ function finishOnboarding() {
 function replayOnboarding() {
   state.onboarding = { active: true, i: 0 };
   render();
+}
+
+/* ---------- what's new ----------
+   One hand-written list, newest first. It feeds the version history (from the
+   foot of Progress) and the Home banner. Every user-facing change gets an
+   entry; only an entry with `notify: true` raises the banner, so small fixes
+   do not nag.
+
+   To add an update: put an entry at the top with the next id. Ids only ever
+   go up -- the seen flag is the highest id a student has seen. */
+const UPDATE_SEEN_KEY = 'oikos-update-seen';
+
+const UPDATES = [
+  { id: 9, date: '2026-10-09', title: 'Version history',
+    items: ['Every update to Oikos is now listed here, newest first.',
+            'Find it at the bottom of Progress.',
+            'Big updates will show a banner on Home.'] },
+  { id: 8, date: '2026-10-09', title: 'Pronouns and prepositions',
+    items: ['Grammar now asks what you want to study before showing the tables.',
+            'The personal pronoun tables are in.',
+            'Prepositions are in Sort the Table and Form Quiz.'] },
+  { id: 7, date: '2026-09-28', title: 'Choose how many words',
+    items: ['Practise 7, 15, 30 or all the words in a session.'] },
+  { id: 6, date: '2026-09-24', title: 'The Parse drill',
+    items: ['A new Grammar drill: parse real forms from the New Testament.',
+            'Move on with Next when you are ready, not on a timer.'] },
+  { id: 5, date: '2026-09-18', title: 'Grammar arrives',
+    items: ['Sort the Table and Form Quiz for the paradigms.',
+            'Home is now a hub for Vocabulary and Grammar.',
+            'A summary after every session.',
+            'The collection: every word in the course, in Progress.'] },
+  { id: 4, date: '2026-09-11', title: 'A guided start',
+    items: ['A walkthrough on first launch. Replay it from Progress.',
+            'Oikos now fits tablets and desktops as well as phones.',
+            'A new look for the streak.'] },
+  { id: 3, date: '2026-09-10', title: 'Daily Review',
+    items: ['Spaced repetition: each word comes back just before you would forget it.',
+            'A quiz on your weak words once the review is done.',
+            'A word leaves Words to Review after three right in a row.'] },
+  { id: 2, date: '2026-09-08', title: 'Memory Game',
+    items: ['Match Greek to English against the clock.',
+            'Study by category as well as by chapter.'] },
+  { id: 1, date: '2026-09-07', title: 'Oikos opens',
+    items: ['Vocabulary for all 23 chapters, with Flashcards, Multiple Choice and Type Answer.'] }
+];
+
+const LATEST_UPDATE_ID = UPDATES.reduce((n, u) => Math.max(n, u.id), 0);
+
+function saveUpdateSeen() { storageAdapter.set(UPDATE_SEEN_KEY, String(state.updateSeen)); }
+
+function markUpdatesSeen() {
+  state.updateSeen = LATEST_UPDATE_ID;
+  saveUpdateSeen();
+}
+
+/* '2026-10-09' -> '9 October 2026', built by hand so it reads the same on
+   every phone whatever its locale */
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'];
+function updateDate(iso) {
+  const [y, m, d] = iso.split('-').map(Number);
+  return `${d} ${MONTH_NAMES[m - 1]} ${y}`;
+}
+
+/* the newest flagged entry this student has not seen, or nothing */
+function unseenUpdate() {
+  return UPDATES.find(u => u.notify && u.id > state.updateSeen) || null;
+}
+
+function whatsNewBanner() {
+  const u = unseenUpdate();
+  if (!u) return '';
+  return `
+    <div class="whatsnew-banner">
+      <button class="whatsnew-banner-main" id="btn-whatsnew-open">
+        <span class="whatsnew-banner-text">
+          <span class="kicker">New</span>
+          <span class="whatsnew-banner-title">${escapeHtml(u.title)}</span>
+        </span>
+        <span class="pg-chevron"><svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1.5 1.5 6.5 6.5l-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </button>
+      <button class="whatsnew-banner-close" id="btn-whatsnew-dismiss" aria-label="Dismiss">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2.5 2.5l11 11M13.5 2.5l-11 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  `;
+}
+
+/* opening the history counts as seeing everything in it */
+function goUpdates(from) {
+  state.updatesFrom = from;
+  markUpdatesSeen();
+  state.screen = 'updates';
+  render();
+}
+
+function exitUpdates() {
+  state.screen = state.updatesFrom === 'home' ? 'home' : 'progress';
+  render();
+}
+
+function renderUpdates() {
+  const entries = UPDATES.map(u => `
+    <section class="updates-entry">
+      <div class="kicker">${updateDate(u.date)}</div>
+      <h2 class="updates-entry-title">${escapeHtml(u.title)}</h2>
+      <ul class="updates-list">${u.items.map(t => `<li>${escapeHtml(t)}</li>`).join('')}</ul>
+    </section>
+  `).join('');
+
+  document.getElementById('screen').innerHTML = `
+    <div class="fade-in">
+      ${renderHeader(false, 'Version history', true)}
+      <h1 class="updates-title">Version history</h1>
+      ${entries}
+    </div>
+  `;
+  document.getElementById('btn-exit-quiz').addEventListener('click', exitUpdates);
 }
 
 /* ---------- grammar: Sort the Table ----------
@@ -7293,6 +7463,7 @@ function render() {
   else if (state.screen === 'parse') renderParse();
   else if (state.screen === 'chapterDone') renderChapterDone();
   else if (state.screen === 'collection') renderCollection();
+  else if (state.screen === 'updates') renderUpdates();
   else if (state.screen === 'progress') renderProgress();
   renderTabBar();
   if (state.onboarding.active) renderOnboarding();
@@ -7331,6 +7502,7 @@ function activeScreenKind() {
   if (state.screen === 'grammarDrill') return state.grammar && state.grammar.done ? 'grammar-done' : 'grammar-drill';
   if (state.screen === 'chapterDone') return 'chapter-done';
   if (state.screen === 'collection') return 'collection';
+  if (state.screen === 'updates') return 'updates';
   if (state.screen === 'grammarRef') return 'grammar-ref';
   if (state.screen === 'grammarList') return 'grammar-list';
   if (state.screen === 'grammarQuiz') return state.grammarQuiz && state.grammarQuiz.done ? 'grammar-quiz-done' : 'grammar-quiz';
@@ -7353,6 +7525,7 @@ function escapeAction(kind) {
   if (kind === 'review' || kind === 'review-done') return exitReview;
   if (kind === 'chapter-done') return closeCelebration;
   if (kind === 'collection') return exitCollection;
+  if (kind === 'updates') return exitUpdates;
   if (kind === 'grammar-list') return grammarListBack;
   if (kind === 'grammar-ref') return goGrammar;
   if (kind === 'grammar-drill' || kind === 'grammar-done') return goGrammarList;

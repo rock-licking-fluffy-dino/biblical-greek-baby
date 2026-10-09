@@ -46,6 +46,13 @@ Koine Greek study app built around Merkle & Plummer's *Beginning with New Testam
 - Features should work for all 23 chapters, not only the current term.
 - Grammar stats stay lightweight (attempts and clean runs). Do not build FSRS for grammar.
 
+## Version history and the Home banner
+
+- Every change classmates will notice gets an entry at the top of `UPDATES` in `index.html`: the next id, the date, a short title and bullet points in the owner's voice.
+- Before opening the pull request, ask the owner whether the update should show the banner on Home. Add `notify: true` only if they say yes. Never decide this yourself.
+- Ids only go up. Never renumber or remove an old entry.
+- Changes nobody will notice (refactors, repo housekeeping) need no entry. Say so in the pull request.
+
 ## Decisions to flag, not guess
 
 If a task forces a choice between two reasonable designs, stop and ask. Do not pick one silently.

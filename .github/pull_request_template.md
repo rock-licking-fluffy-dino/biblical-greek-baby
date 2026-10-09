@@ -17,6 +17,8 @@ Closes #
 - [ ] Checked on the Vercel preview, on a phone.
 - [ ] Light and dark mode both checked (screen changes only).
 - [ ] No red, no new colours, no em dashes in on-screen text.
+- [ ] Version history entry added, or not needed because nobody will notice the change.
+- [ ] Owner asked whether this update shows the banner on Home. Answer:
 
 ## What was tested, and what was not
 
