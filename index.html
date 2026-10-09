@@ -1648,6 +1648,68 @@ const PARADIGMS = [
       "DAT|Plural": {"article": "τοῖς", "form": "τέκνοις", "gloss": "to/for the children"},
       "ACC|Plural": {"article": "τὰ", "form": "τέκνα", "gloss": "the children"}
     } },
+  /* Personal pronouns, Merkle & Plummer p. 99 (section 9.4), not the
+     appendix. Read from a photograph like the rest: SPOT-CHECK the accents
+     and breathings of all three tables against the book. The third person
+     table has no glosses in the book, so none are given here. */
+  { id: "pronoun-personal-1st", category: "pronoun",
+    label: "First Person Personal Pronoun", example: "ἐγώ (I)",
+    rowLabels: ["NOM", "GEN", "DAT", "ACC"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "NOM|Singular": {"form": "ἐγώ", "gloss": "I"},
+      "GEN|Singular": {"form": "μου", "gloss": "of me, my"},
+      "DAT|Singular": {"form": "μοι", "gloss": "to/for me"},
+      "ACC|Singular": {"form": "με", "gloss": "me"},
+      "NOM|Plural": {"form": "ἡμεῖς", "gloss": "we"},
+      "GEN|Plural": {"form": "ἡμῶν", "gloss": "of us, our"},
+      "DAT|Plural": {"form": "ἡμῖν", "gloss": "to/for us"},
+      "ACC|Plural": {"form": "ἡμᾶς", "gloss": "us"}
+    } },
+  { id: "pronoun-personal-2nd", category: "pronoun",
+    label: "Second Person Personal Pronoun", example: "σύ (you)",
+    rowLabels: ["NOM", "GEN", "DAT", "ACC"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "NOM|Singular": {"form": "σύ", "gloss": "you"},
+      "GEN|Singular": {"form": "σου", "gloss": "of you, your"},
+      "DAT|Singular": {"form": "σοι", "gloss": "to/for you"},
+      "ACC|Singular": {"form": "σε", "gloss": "you"},
+      "NOM|Plural": {"form": "ὑμεῖς", "gloss": "you"},
+      "GEN|Plural": {"form": "ὑμῶν", "gloss": "of you, your"},
+      "DAT|Plural": {"form": "ὑμῖν", "gloss": "to/for you"},
+      "ACC|Plural": {"form": "ὑμᾶς", "gloss": "you"}
+    } },
+  { id: "pronoun-personal-3rd", category: "pronoun",
+    label: "Third Person Personal Pronoun", example: "αὐτός, -ή, -ό (he, she, it)",
+    rowLabels: ["NOM", "GEN", "DAT", "ACC"],
+    colLabels: ["Sg. MASC", "Sg. FEM", "Sg. NEUT", "Pl. MASC", "Pl. FEM", "Pl. NEUT"],
+    cells: {
+      "NOM|Sg. MASC": {"form": "αὐτός"},
+      "GEN|Sg. MASC": {"form": "αὐτοῦ"},
+      "DAT|Sg. MASC": {"form": "αὐτῷ"},
+      "ACC|Sg. MASC": {"form": "αὐτόν"},
+      "NOM|Sg. FEM": {"form": "αὐτή"},
+      "GEN|Sg. FEM": {"form": "αὐτῆς"},
+      "DAT|Sg. FEM": {"form": "αὐτῇ"},
+      "ACC|Sg. FEM": {"form": "αὐτήν"},
+      "NOM|Sg. NEUT": {"form": "αὐτό"},
+      "GEN|Sg. NEUT": {"form": "αὐτοῦ"},
+      "DAT|Sg. NEUT": {"form": "αὐτῷ"},
+      "ACC|Sg. NEUT": {"form": "αὐτό"},
+      "NOM|Pl. MASC": {"form": "αὐτοί"},
+      "GEN|Pl. MASC": {"form": "αὐτῶν"},
+      "DAT|Pl. MASC": {"form": "αὐτοῖς"},
+      "ACC|Pl. MASC": {"form": "αὐτούς"},
+      "NOM|Pl. FEM": {"form": "αὐταί"},
+      "GEN|Pl. FEM": {"form": "αὐτῶν"},
+      "DAT|Pl. FEM": {"form": "αὐταῖς"},
+      "ACC|Pl. FEM": {"form": "αὐτάς"},
+      "NOM|Pl. NEUT": {"form": "αὐτά"},
+      "GEN|Pl. NEUT": {"form": "αὐτῶν"},
+      "DAT|Pl. NEUT": {"form": "αὐτοῖς"},
+      "ACC|Pl. NEUT": {"form": "αὐτά"}
+    } },
   { id: "pronoun-demonstrative-near", category: "pronoun",
     label: "Near Demonstrative Pronoun", example: "οὗτος (this)",
     rowLabels: ["NOM", "GEN", "DAT", "ACC"],
@@ -2300,7 +2362,7 @@ const PARADIGM_REFERENCE = [
 /* GR131 covers through chapter 12 this term. Everything after that is in the
    data early, by request, so the picker de-emphasises it rather than hiding
    it -- it is there to look at, just not due for review yet. */
-const PARADIGMS_IN_SCOPE = new Set(["noun-1decl-eta", "noun-1decl-alpha", "noun-2decl-masc", "noun-2decl-neut", "verb-pres-act-ind", "verb-pres-midpass-ind", "verb-pres-ind-eimi", "verb-impf-act-ind", "verb-impf-midpass-ind", "verb-impf-ind-eimi", "verb-fut-act-ind", "verb-fut-mid-ind", "verb-fut-pass-ind", "verb-aor-act-ind", "verb-aor-mid-ind", "verb-aor-pass-ind", "verb-2aor-act-ind-lambano", "verb-2aor-mid-ind-ginomai"]);
+const PARADIGMS_IN_SCOPE = new Set(["noun-1decl-eta", "noun-1decl-alpha", "noun-2decl-masc", "noun-2decl-neut", "pronoun-personal-1st", "pronoun-personal-2nd", "pronoun-personal-3rd", "verb-pres-act-ind", "verb-pres-midpass-ind", "verb-pres-ind-eimi", "verb-impf-act-ind", "verb-impf-midpass-ind", "verb-impf-ind-eimi", "verb-fut-act-ind", "verb-fut-mid-ind", "verb-fut-pass-ind", "verb-aor-act-ind", "verb-aor-mid-ind", "verb-aor-pass-ind", "verb-2aor-act-ind-lambano", "verb-2aor-mid-ind-ginomai"]);
 
 /* ---------- storage: works inside Claude artifacts (window.storage) and on any
    normal web host / home-screen app (falls back to localStorage) ---------- */
@@ -5604,7 +5666,8 @@ function grammarGridHtml(g) {
 }
 
 /* the gloss only appears once the cell is right, and only where the data has
-   one -- the didomi grids, the subjunctives and the pronoun tables have none */
+   one -- the didomi grids, the subjunctives and most of the pronoun tables
+   have none */
 function grammarCellFilledHtml(cell) {
   return `<span class="pg-form">${escapeHtml(cellFace(cell))}</span>` +
     (cell.gloss ? `<span class="pg-gloss">${escapeHtml(cell.gloss)}</span>` : '');
