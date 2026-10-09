@@ -2362,7 +2362,57 @@ const PARADIGM_REFERENCE = [
 /* GR131 covers through chapter 12 this term. Everything after that is in the
    data early, by request, so the picker de-emphasises it rather than hiding
    it -- it is there to look at, just not due for review yet. */
-const PARADIGMS_IN_SCOPE = new Set(["noun-1decl-eta", "noun-1decl-alpha", "noun-2decl-masc", "noun-2decl-neut", "pronoun-personal-1st", "pronoun-personal-2nd", "pronoun-personal-3rd", "verb-pres-act-ind", "verb-pres-midpass-ind", "verb-pres-ind-eimi", "verb-impf-act-ind", "verb-impf-midpass-ind", "verb-impf-ind-eimi", "verb-fut-act-ind", "verb-fut-mid-ind", "verb-fut-pass-ind", "verb-aor-act-ind", "verb-aor-mid-ind", "verb-aor-pass-ind", "verb-2aor-act-ind-lambano", "verb-2aor-mid-ind-ginomai"]);
+const PARADIGMS_IN_SCOPE = new Set(["noun-1decl-eta", "noun-1decl-alpha", "noun-2decl-masc", "noun-2decl-neut", "pronoun-personal-1st", "pronoun-personal-2nd", "pronoun-personal-3rd", "verb-pres-act-ind", "verb-pres-midpass-ind", "verb-pres-ind-eimi", "verb-impf-act-ind", "verb-impf-midpass-ind", "verb-impf-ind-eimi", "verb-fut-act-ind", "verb-fut-mid-ind", "verb-fut-pass-ind", "verb-aor-act-ind", "verb-aor-mid-ind", "verb-aor-pass-ind", "verb-2aor-act-ind-lambano", "verb-2aor-mid-ind-ginomai", "prep-1case", "prep-2case", "prep-3case"]);
+
+/* ---------- prepositions ----------
+   Merkle & Plummer p. 81: each preposition with the cases it takes and the
+   book's one gloss for each. Only the book's glosses, deliberately: the
+   chapter 7 vocabulary gives fuller meanings, but these are the ones the
+   tables teach. Not a paradigm, so it is kept apart from PARADIGMS and from
+   the paradigm counts. */
+const PREPOSITIONS = [
+  { greek: "ἀπό", uses: { GEN: "from" } },
+  { greek: "ἐκ", uses: { GEN: "out of" } },
+  { greek: "ἐν", uses: { DAT: "in" } },
+  { greek: "σύν", uses: { DAT: "with" } },
+  { greek: "εἰς", uses: { ACC: "into" } },
+  { greek: "πρός", uses: { ACC: "toward" } },
+  { greek: "διά", uses: { GEN: "through", ACC: "because of" } },
+  { greek: "κατά", uses: { GEN: "against", ACC: "according to" } },
+  { greek: "μετά", uses: { GEN: "with", ACC: "after" } },
+  { greek: "περί", uses: { GEN: "concerning", ACC: "around" } },
+  { greek: "ὑπέρ", uses: { GEN: "on behalf of", ACC: "above" } },
+  { greek: "ὑπό", uses: { GEN: "by", ACC: "under" } },
+  { greek: "ἐπί", uses: { GEN: "on", DAT: "upon", ACC: "to" } },
+  { greek: "παρά", uses: { GEN: "from", DAT: "with", ACC: "beside" } }
+];
+
+const PREP_CASES = [["GEN", "Genitive"], ["DAT", "Dative"], ["ACC", "Accusative"]];
+
+/* the drills take tables, so each case group (1-case, 2-case, 3-case) is
+   turned into one: prepositions down the side, cases across, the gloss in
+   each cell the preposition takes and nothing where it does not. A case no
+   preposition in the group takes gets no column. The ids are what the stats
+   and the Form Quiz ticks are kept under. */
+const PREP_GRIDS = [1, 2, 3].map(n => {
+  const preps = PREPOSITIONS.filter(x => Object.keys(x.uses).length === n);
+  const cols = PREP_CASES.filter(([k]) => preps.some(x => x.uses[k]));
+  const cells = {};
+  preps.forEach(x => cols.forEach(([k, name]) => {
+    if (x.uses[k]) cells[x.greek + '|' + name] = { form: x.uses[k] };
+  }));
+  return {
+    id: `prep-${n}case`, category: 'preposition',
+    label: `${n}-Case Prepositions`, example: preps.map(x => x.greek).join(', '),
+    rowLabels: preps.map(x => x.greek),
+    colLabels: cols.map(([, name]) => name),
+    cells
+  };
+});
+
+/* everything the pickers can offer: the paradigms, then the preposition
+   tables. The paradigm totals and the map keep reading PARADIGMS alone. */
+function grammarTables() { return PARADIGMS.concat(PREP_GRIDS); }
 
 /* ---------- storage: works inside Claude artifacts (window.storage) and on any
    normal web host / home-screen app (falls back to localStorage) ---------- */
@@ -5535,12 +5585,13 @@ const GRAMMAR_CATEGORIES = [
   { key: 'subjunctive', label: 'Subjunctive', has: p => p.subcategory === 'subjunctive' },
   { key: 'imperative', label: 'Imperative', has: p => p.subcategory === 'imperative' },
   { key: 'participle', label: 'Participles', has: p => p.category === 'participle' },
-  { key: 'infinitive', label: 'Infinitives', has: p => p.category === 'infinitive' }
+  { key: 'infinitive', label: 'Infinitives', has: p => p.category === 'infinitive' },
+  { key: 'preposition', label: 'Prepositions', has: p => p.category === 'preposition', quizOnly: true }
 ];
 
 function grammarCategoryByKey(key) { return GRAMMAR_CATEGORIES.find(c => c.key === key) || null; }
 
-function paradigmsInCategory(cat) { return PARADIGMS.filter(cat.has); }
+function paradigmsInCategory(cat) { return grammarTables().filter(cat.has); }
 
 function saveGrammarStats() { storageAdapter.set(GRAMMAR_STATS_KEY, JSON.stringify(state.grammarStats)); }
 
@@ -5565,7 +5616,7 @@ function grammarQuizAccuracy(id) {
    dropped in the wrong cell */
 function paradigmsMastered() { return PARADIGMS.filter(p => grammarStat(p.id).cleanRuns > 0).length; }
 
-function paradigmById(id) { return PARADIGMS.find(p => p.id === id) || null; }
+function paradigmById(id) { return grammarTables().find(p => p.id === id) || null; }
 
 function paradigmInScope(p) { return PARADIGMS_IN_SCOPE.has(p.id); }
 
@@ -5950,7 +6001,7 @@ function paradigmRowHtml(p) {
       data-paradigm="${p.id}" ${quizMode ? `aria-pressed="${picked}"` : ''}>
       <span class="pg-row-main">
         <span class="pg-row-label">${escapeHtml(p.label)}</span>
-        <span class="pg-row-example">${escapeHtml(p.example)} · ${p.rowLabels.length * p.colLabels.length} ${quizMode ? 'questions' : 'cells'}</span>
+        <span class="pg-row-example">${escapeHtml(p.example)} · ${paradigmCellKeys(p).length} ${quizMode ? 'questions' : 'cells'}</span>
       </span>
       <span class="pg-row-right">
         ${future ? '<span class="pg-tag">Not yet in class</span>' : ''}
@@ -6105,7 +6156,7 @@ function renderGrammarList() {
       </section>`
     : `<section class="pg-group">
         <span class="kicker">WHAT DO YOU WANT TO STUDY?</span>
-        <div class="pg-list">${GRAMMAR_CATEGORIES.map(grammarCategoryRowHtml).join('')}</div>
+        <div class="pg-list">${GRAMMAR_CATEGORIES.filter(c => quizMode || !c.quizOnly).map(grammarCategoryRowHtml).join('')}</div>
       </section>`;
 
   document.getElementById('screen').innerHTML = `
@@ -6217,6 +6268,11 @@ function paradigmLemma(p) {
    reading the same would make the question unanswerable. */
 function questionsForParadigm(p) {
   const lemma = paradigmLemma(p);
+  /* a preposition table runs the other way: the cell is the gloss, so the
+     card names the preposition and its case and asks for the meaning. The
+     option rules below still hold, so a gloss that reads the same as the
+     answer ("with", "from") is never offered as a wrong one. */
+  const prep = p.category === 'preposition';
   return paradigmCellKeys(p).map(key => {
     const [row, col] = key.split('|');
     const correct = cellFace(p.cells[key]);
@@ -6232,7 +6288,8 @@ function questionsForParadigm(p) {
     return {
       pid: p.id,
       label: p.label,
-      prompt: `What is the ${row} ${col} of ${lemma}?`,
+      kicker: prep ? 'GIVE THE GLOSS' : 'GIVE THE FORM',
+      prompt: prep ? `${row} + ${col.toLowerCase()}` : `What is the ${row} ${col} of ${lemma}?`,
       correct,
       options: shuffle(options)
     };
@@ -6249,7 +6306,7 @@ function buildGrammarQuiz(ids) {
 }
 
 function startGrammarQuiz() {
-  const ids = PARADIGMS.filter(p => state.grammarPick.has(p.id)).map(p => p.id);
+  const ids = grammarTables().filter(p => state.grammarPick.has(p.id)).map(p => p.id);
   if (!ids.length) return;
   const questions = buildGrammarQuiz(ids);
   if (!questions.length) return;
@@ -6333,7 +6390,7 @@ function renderGrammarQuiz() {
         <div class="prompt-panel glass">
           ${glassLayer()}
           <div class="glass-content">
-            <div class="kicker">GIVE THE FORM</div>
+            <div class="kicker">${current.kicker}</div>
             <div class="prompt-word is-english pg-quiz-prompt" style="margin-top:12px">${escapeHtml(current.prompt)}</div>
             <div class="prompt-meta">${escapeHtml(current.label)}</div>
           </div>
@@ -6441,7 +6498,7 @@ function clearGrammarPick() {
 }
 
 function grammarPickQuestionCount() {
-  return PARADIGMS.reduce((n, p) => n + (state.grammarPick.has(p.id) ? paradigmCellKeys(p).length : 0), 0);
+  return grammarTables().reduce((n, p) => n + (state.grammarPick.has(p.id) ? paradigmCellKeys(p).length : 0), 0);
 }
 
 /* ---------- grammar: Parse ----------
