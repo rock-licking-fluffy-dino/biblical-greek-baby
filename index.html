@@ -1100,6 +1100,10 @@
     gap: 2px; padding: 6px 5px; text-align: center; min-width: 92px;
     transition: background 150ms ease, border-color 150ms ease;
   }
+  /* a case the preposition does not take: no cell at all, so nothing invites a drop */
+  .pg-cell.is-blank { border-color: transparent; background: transparent; }
+  /* preposition rows are Greek words, and uppercasing them drops the accents */
+  .pg-grid.is-prep .pg-rowhead { text-transform: none; letter-spacing: 0; font-size: 14.5px; color: var(--ink); }
   .pg-cell.is-over { border-color: var(--sage-300); background: var(--green-tint); border-style: solid; }
   .pg-cell.is-filled {
     border-style: solid; border-color: var(--green-border); background: var(--green-tint);
@@ -1277,6 +1281,7 @@
   /* ---------- grammar: Form Quiz ---------- */
   .pg-pick-actions { display: flex; gap: 16px; justify-content: flex-end; margin: 0 0 14px; }
   .pg-pick-actions .link-btn:disabled { color: var(--faint); cursor: not-allowed; text-decoration: none; }
+  .pg-pick-actions .pg-back { margin-right: auto; }
   .pg-box {
     width: 22px; height: 22px; border-radius: var(--r-sm); flex-shrink: 0;
     border: 1.5px solid var(--hairline); background: var(--surface);
@@ -1646,6 +1651,68 @@ const PARADIGMS = [
       "GEN|Plural": {"article": "τῶν", "form": "τέκνων", "gloss": "of the children"},
       "DAT|Plural": {"article": "τοῖς", "form": "τέκνοις", "gloss": "to/for the children"},
       "ACC|Plural": {"article": "τὰ", "form": "τέκνα", "gloss": "the children"}
+    } },
+  /* Personal pronouns, Merkle & Plummer p. 99 (section 9.4), not the
+     appendix. Read from a photograph like the rest: SPOT-CHECK the accents
+     and breathings of all three tables against the book. The third person
+     table has no glosses in the book, so none are given here. */
+  { id: "pronoun-personal-1st", category: "pronoun",
+    label: "First Person Personal Pronoun", example: "ἐγώ (I)",
+    rowLabels: ["NOM", "GEN", "DAT", "ACC"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "NOM|Singular": {"form": "ἐγώ", "gloss": "I"},
+      "GEN|Singular": {"form": "μου", "gloss": "of me, my"},
+      "DAT|Singular": {"form": "μοι", "gloss": "to/for me"},
+      "ACC|Singular": {"form": "με", "gloss": "me"},
+      "NOM|Plural": {"form": "ἡμεῖς", "gloss": "we"},
+      "GEN|Plural": {"form": "ἡμῶν", "gloss": "of us, our"},
+      "DAT|Plural": {"form": "ἡμῖν", "gloss": "to/for us"},
+      "ACC|Plural": {"form": "ἡμᾶς", "gloss": "us"}
+    } },
+  { id: "pronoun-personal-2nd", category: "pronoun",
+    label: "Second Person Personal Pronoun", example: "σύ (you)",
+    rowLabels: ["NOM", "GEN", "DAT", "ACC"],
+    colLabels: ["Singular", "Plural"],
+    cells: {
+      "NOM|Singular": {"form": "σύ", "gloss": "you"},
+      "GEN|Singular": {"form": "σου", "gloss": "of you, your"},
+      "DAT|Singular": {"form": "σοι", "gloss": "to/for you"},
+      "ACC|Singular": {"form": "σε", "gloss": "you"},
+      "NOM|Plural": {"form": "ὑμεῖς", "gloss": "you"},
+      "GEN|Plural": {"form": "ὑμῶν", "gloss": "of you, your"},
+      "DAT|Plural": {"form": "ὑμῖν", "gloss": "to/for you"},
+      "ACC|Plural": {"form": "ὑμᾶς", "gloss": "you"}
+    } },
+  { id: "pronoun-personal-3rd", category: "pronoun",
+    label: "Third Person Personal Pronoun", example: "αὐτός, -ή, -ό (he, she, it)",
+    rowLabels: ["NOM", "GEN", "DAT", "ACC"],
+    colLabels: ["Sg. MASC", "Sg. FEM", "Sg. NEUT", "Pl. MASC", "Pl. FEM", "Pl. NEUT"],
+    cells: {
+      "NOM|Sg. MASC": {"form": "αὐτός"},
+      "GEN|Sg. MASC": {"form": "αὐτοῦ"},
+      "DAT|Sg. MASC": {"form": "αὐτῷ"},
+      "ACC|Sg. MASC": {"form": "αὐτόν"},
+      "NOM|Sg. FEM": {"form": "αὐτή"},
+      "GEN|Sg. FEM": {"form": "αὐτῆς"},
+      "DAT|Sg. FEM": {"form": "αὐτῇ"},
+      "ACC|Sg. FEM": {"form": "αὐτήν"},
+      "NOM|Sg. NEUT": {"form": "αὐτό"},
+      "GEN|Sg. NEUT": {"form": "αὐτοῦ"},
+      "DAT|Sg. NEUT": {"form": "αὐτῷ"},
+      "ACC|Sg. NEUT": {"form": "αὐτό"},
+      "NOM|Pl. MASC": {"form": "αὐτοί"},
+      "GEN|Pl. MASC": {"form": "αὐτῶν"},
+      "DAT|Pl. MASC": {"form": "αὐτοῖς"},
+      "ACC|Pl. MASC": {"form": "αὐτούς"},
+      "NOM|Pl. FEM": {"form": "αὐταί"},
+      "GEN|Pl. FEM": {"form": "αὐτῶν"},
+      "DAT|Pl. FEM": {"form": "αὐταῖς"},
+      "ACC|Pl. FEM": {"form": "αὐτάς"},
+      "NOM|Pl. NEUT": {"form": "αὐτά"},
+      "GEN|Pl. NEUT": {"form": "αὐτῶν"},
+      "DAT|Pl. NEUT": {"form": "αὐτοῖς"},
+      "ACC|Pl. NEUT": {"form": "αὐτά"}
     } },
   { id: "pronoun-demonstrative-near", category: "pronoun",
     label: "Near Demonstrative Pronoun", example: "οὗτος (this)",
@@ -2299,7 +2366,57 @@ const PARADIGM_REFERENCE = [
 /* GR131 covers through chapter 12 this term. Everything after that is in the
    data early, by request, so the picker de-emphasises it rather than hiding
    it -- it is there to look at, just not due for review yet. */
-const PARADIGMS_IN_SCOPE = new Set(["noun-1decl-eta", "noun-1decl-alpha", "noun-2decl-masc", "noun-2decl-neut", "verb-pres-act-ind", "verb-pres-midpass-ind", "verb-pres-ind-eimi", "verb-impf-act-ind", "verb-impf-midpass-ind", "verb-impf-ind-eimi", "verb-fut-act-ind", "verb-fut-mid-ind", "verb-fut-pass-ind", "verb-aor-act-ind", "verb-aor-mid-ind", "verb-aor-pass-ind", "verb-2aor-act-ind-lambano", "verb-2aor-mid-ind-ginomai"]);
+const PARADIGMS_IN_SCOPE = new Set(["noun-1decl-eta", "noun-1decl-alpha", "noun-2decl-masc", "noun-2decl-neut", "pronoun-personal-1st", "pronoun-personal-2nd", "pronoun-personal-3rd", "verb-pres-act-ind", "verb-pres-midpass-ind", "verb-pres-ind-eimi", "verb-impf-act-ind", "verb-impf-midpass-ind", "verb-impf-ind-eimi", "verb-fut-act-ind", "verb-fut-mid-ind", "verb-fut-pass-ind", "verb-aor-act-ind", "verb-aor-mid-ind", "verb-aor-pass-ind", "verb-2aor-act-ind-lambano", "verb-2aor-mid-ind-ginomai", "prep-1case", "prep-2case", "prep-3case"]);
+
+/* ---------- prepositions ----------
+   Merkle & Plummer p. 81: each preposition with the cases it takes and the
+   book's one gloss for each. Only the book's glosses, deliberately: the
+   chapter 7 vocabulary gives fuller meanings, but these are the ones the
+   tables teach. Not a paradigm, so it is kept apart from PARADIGMS and from
+   the paradigm counts. */
+const PREPOSITIONS = [
+  { greek: "ἀπό", uses: { GEN: "from" } },
+  { greek: "ἐκ", uses: { GEN: "out of" } },
+  { greek: "ἐν", uses: { DAT: "in" } },
+  { greek: "σύν", uses: { DAT: "with" } },
+  { greek: "εἰς", uses: { ACC: "into" } },
+  { greek: "πρός", uses: { ACC: "toward" } },
+  { greek: "διά", uses: { GEN: "through", ACC: "because of" } },
+  { greek: "κατά", uses: { GEN: "against", ACC: "according to" } },
+  { greek: "μετά", uses: { GEN: "with", ACC: "after" } },
+  { greek: "περί", uses: { GEN: "concerning", ACC: "around" } },
+  { greek: "ὑπέρ", uses: { GEN: "on behalf of", ACC: "above" } },
+  { greek: "ὑπό", uses: { GEN: "by", ACC: "under" } },
+  { greek: "ἐπί", uses: { GEN: "on", DAT: "upon", ACC: "to" } },
+  { greek: "παρά", uses: { GEN: "from", DAT: "with", ACC: "beside" } }
+];
+
+const PREP_CASES = [["GEN", "Genitive"], ["DAT", "Dative"], ["ACC", "Accusative"]];
+
+/* the drills take tables, so each case group (1-case, 2-case, 3-case) is
+   turned into one: prepositions down the side, cases across, the gloss in
+   each cell the preposition takes and nothing where it does not. A case no
+   preposition in the group takes gets no column. The ids are what the stats
+   and the Form Quiz ticks are kept under. */
+const PREP_GRIDS = [1, 2, 3].map(n => {
+  const preps = PREPOSITIONS.filter(x => Object.keys(x.uses).length === n);
+  const cols = PREP_CASES.filter(([k]) => preps.some(x => x.uses[k]));
+  const cells = {};
+  preps.forEach(x => cols.forEach(([k, name]) => {
+    if (x.uses[k]) cells[x.greek + '|' + name] = { form: x.uses[k] };
+  }));
+  return {
+    id: `prep-${n}case`, category: 'preposition',
+    label: `${n}-Case Prepositions`, example: preps.map(x => x.greek).join(', '),
+    rowLabels: preps.map(x => x.greek),
+    colLabels: cols.map(([, name]) => name),
+    cells
+  };
+});
+
+/* everything the pickers can offer: the paradigms, then the preposition
+   tables. The paradigm totals and the map keep reading PARADIGMS alone. */
+function grammarTables() { return PARADIGMS.concat(PREP_GRIDS); }
 
 /* ---------- storage: works inside Claude artifacts (window.storage) and on any
    normal web host / home-screen app (falls back to localStorage) ---------- */
@@ -2337,6 +2454,7 @@ let state = {
   grammarStats: {},          // paradigm id -> { attempts, cleanRuns } -- no FSRS here, see the grammar block
   grammar: null,             // Sort the Table session: { id, paradigm, keys, cards, placed, misses, done }
   grammarMode: 'sort',       // 'sort' | 'quiz' -- which drill the hub opened the paradigm list for
+  grammarCategory: null,     // GRAMMAR_CATEGORIES key the picker is showing, or null for the category step
   grammarPick: new Set(),    // paradigm ids ticked for a Form Quiz
   grammarQuiz: null,         // Form Quiz session: { ids, questions, index, score, answered, selectedOpt, done }
   parseSetup: {              // the Parse drill's own setup, kept between sessions like state.setup
@@ -5458,6 +5576,27 @@ const GRAMMAR_GROUPS = [
   { category: 'infinitive', label: 'Infinitives' }
 ];
 
+/* the first step of both pickers: what to study. Read off the category and
+   subcategory fields the paradigms already carry, so a table added to the data
+   lands in the right place without touching this list. Verbs is the indicative
+   tables plus the δίδωμι non-indicative grid; the subjunctive and imperative
+   tables have a step of their own. */
+const GRAMMAR_CATEGORIES = [
+  { key: 'noun', label: 'Nouns', has: p => p.category === 'noun' },
+  { key: 'pronoun', label: 'Pronouns', has: p => p.category === 'pronoun' },
+  { key: 'verb', label: 'Verbs',
+    has: p => p.category === 'verb' && (p.subcategory === 'indicative' || p.id === 'verb-didomi-nonind') },
+  { key: 'subjunctive', label: 'Subjunctive', has: p => p.subcategory === 'subjunctive' },
+  { key: 'imperative', label: 'Imperative', has: p => p.subcategory === 'imperative' },
+  { key: 'participle', label: 'Participles', has: p => p.category === 'participle' },
+  { key: 'infinitive', label: 'Infinitives', has: p => p.category === 'infinitive' },
+  { key: 'preposition', label: 'Prepositions', has: p => p.category === 'preposition' }
+];
+
+function grammarCategoryByKey(key) { return GRAMMAR_CATEGORIES.find(c => c.key === key) || null; }
+
+function paradigmsInCategory(cat) { return grammarTables().filter(cat.has); }
+
 function saveGrammarStats() { storageAdapter.set(GRAMMAR_STATS_KEY, JSON.stringify(state.grammarStats)); }
 
 /* two drills, two records: Sort the Table's { attempts, cleanRuns } and the
@@ -5481,7 +5620,7 @@ function grammarQuizAccuracy(id) {
    dropped in the wrong cell */
 function paradigmsMastered() { return PARADIGMS.filter(p => grammarStat(p.id).cleanRuns > 0).length; }
 
-function paradigmById(id) { return PARADIGMS.find(p => p.id === id) || null; }
+function paradigmById(id) { return grammarTables().find(p => p.id === id) || null; }
 
 function paradigmInScope(p) { return PARADIGMS_IN_SCOPE.has(p.id); }
 
@@ -5562,7 +5701,7 @@ function grammarGridHtml(g) {
       <div class="pg-rowhead">${escapeHtml(row)}</div>
       ${p.colLabels.map(col => {
         const key = row + '|' + col;
-        if (!p.cells[key]) return `<div class="pg-cell" aria-hidden="true"></div>`;
+        if (!p.cells[key]) return `<div class="pg-cell is-blank" aria-hidden="true"></div>`;
         const placed = g.placed[key];
         return `<div class="pg-cell ${placed ? 'is-filled' : ''}" data-cell="${escapeHtml(key)}"
               role="button" tabindex="0" aria-label="${escapeHtml(row)} ${escapeHtml(col)}">
@@ -5572,7 +5711,7 @@ function grammarGridHtml(g) {
     `).join('');
   return `
     <div class="pg-scroll">
-      <div class="pg-grid" style="grid-template-columns: auto repeat(${cols}, minmax(92px, 1fr))">
+      <div class="pg-grid ${p.category === 'preposition' ? 'is-prep' : ''}" style="grid-template-columns: auto repeat(${cols}, minmax(92px, 1fr))">
         <div class="pg-corner"></div>
         ${p.colLabels.map(c => `<div class="pg-colhead">${escapeHtml(c)}</div>`).join('')}
         ${cells}
@@ -5582,7 +5721,8 @@ function grammarGridHtml(g) {
 }
 
 /* the gloss only appears once the cell is right, and only where the data has
-   one -- the didomi grids, the subjunctives and the pronoun tables have none */
+   one -- the didomi grids, the subjunctives and most of the pronoun tables
+   have none */
 function grammarCellFilledHtml(cell) {
   return `<span class="pg-form">${escapeHtml(cellFace(cell))}</span>` +
     (cell.gloss ? `<span class="pg-gloss">${escapeHtml(cell.gloss)}</span>` : '');
@@ -5615,14 +5755,16 @@ function renderGrammarDrill() {
       ${grammarGridHtml(g)}
 
       <div class="pg-stack-label">
-        <span class="kicker">FORMS</span>
+        <span class="kicker">${p.category === 'preposition' ? 'GLOSSES' : 'FORMS'}</span>
         <span class="pg-stack-count" id="pg-remaining">${g.cards.length} left</span>
       </div>
       <div class="pg-stack" id="pg-stack">
         ${g.cards.map(c => `<button class="pg-card" data-cid="${c.cid}">${escapeHtml(c.face)}</button>`).join('')}
       </div>
 
-      <p class="pg-hint text-muted">Drag a form into its cell — or tap the form, then tap the cell.${p.colLabels.length > 3 ? ' This table is wider than the screen: it scrolls sideways with the row labels pinned, and tapping is easier than dragging across it.' : ''}</p>
+      <p class="pg-hint text-muted">${p.category === 'preposition'
+        ? 'Drag a gloss into its cell, or tap the gloss, then tap the cell. A blank space is a case that preposition does not take.'
+        : 'Drag a form into its cell — or tap the form, then tap the cell.'}${p.colLabels.length > 3 ? ' This table is wider than the screen: it scrolls sideways with the row labels pinned, and tapping is easier than dragging across it.' : ''}</p>
     </div>
   `;
 
@@ -5865,7 +6007,7 @@ function paradigmRowHtml(p) {
       data-paradigm="${p.id}" ${quizMode ? `aria-pressed="${picked}"` : ''}>
       <span class="pg-row-main">
         <span class="pg-row-label">${escapeHtml(p.label)}</span>
-        <span class="pg-row-example">${escapeHtml(p.example)} · ${p.rowLabels.length * p.colLabels.length} ${quizMode ? 'questions' : 'cells'}</span>
+        <span class="pg-row-example">${escapeHtml(p.example)} · ${paradigmCellKeys(p).length} ${quizMode ? 'questions' : 'cells'}</span>
       </span>
       <span class="pg-row-right">
         ${future ? '<span class="pg-tag">Not yet in class</span>' : ''}
@@ -5880,23 +6022,32 @@ function sortedParadigms(list) {
   return list.slice().sort((a, b) => (paradigmInScope(b) ? 1 : 0) - (paradigmInScope(a) ? 1 : 0));
 }
 
-function grammarGroupsHtml() {
-  return GRAMMAR_GROUPS.map(group => {
-    const inGroup = PARADIGMS.filter(p => p.category === group.category);
-    if (!inGroup.length) return '';
-    let body;
-    if (group.subs) {
-      body = group.subs.map(sub => {
-        const rows = sortedParadigms(inGroup.filter(p => p.subcategory === sub.key));
-        if (!rows.length) return '';
-        return `<div class="pg-sub">${escapeHtml(sub.label)}</div>
-          <div class="pg-list">${rows.map(paradigmRowHtml).join('')}</div>`;
-      }).join('');
-    } else {
-      body = `<div class="pg-list">${sortedParadigms(inGroup).map(paradigmRowHtml).join('')}</div>`;
-    }
-    return `<section class="pg-group"><span class="kicker">${escapeHtml(group.label.toUpperCase())}</span>${body}</section>`;
-  }).join('');
+/* one row per category on the first step. The tag says what is already
+   there: clean runs in Sort the Table, ticked tables in Form Quiz, since the
+   quiz ticks carry across categories. A category with nothing from this term
+   is greyed and tagged the way a single future table is. */
+function grammarCategoryRowHtml(cat) {
+  const list = paradigmsInCategory(cat);
+  const now = list.filter(paradigmInScope).length;
+  const quizMode = state.grammarMode === 'quiz';
+  const ticked = list.filter(p => state.grammarPick.has(p.id)).length;
+  const clean = list.filter(p => grammarStat(p.id).cleanRuns > 0).length;
+  const tag = quizMode
+    ? (ticked ? `<span class="pg-tag is-clean">${ticked} ticked</span>` : '')
+    : (clean ? `<span class="pg-tag is-clean">${clean} clean</span>` : '');
+  return `
+    <button class="pg-row ${now ? '' : 'is-future'}" data-gcat="${cat.key}">
+      <span class="pg-row-main">
+        <span class="pg-row-label">${escapeHtml(cat.label)}</span>
+        <span class="pg-row-example">${list.length} table${list.length === 1 ? '' : 's'}${now ? ` · ${now} this term` : ''}</span>
+      </span>
+      <span class="pg-row-right">
+        ${now ? '' : '<span class="pg-tag">Not yet in class</span>'}
+        ${tag}
+        <span class="pg-chevron"><svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1.5 1.5 6.5 6.5l-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </span>
+    </button>
+  `;
 }
 
 /* one square per paradigm in course order, so the shape of the term is
@@ -5996,11 +6147,23 @@ function renderGrammarPicker() {
   document.getElementById('btn-pg-ref').addEventListener('click', goGrammarReference);
 }
 
-/* the second level: the forty paradigms, for whichever drill was chosen */
+/* the second level, in two steps: first what to study, then the paradigms
+   for that choice, for whichever drill was chosen */
 function renderGrammarList() {
   const quizMode = state.grammarMode === 'quiz';
+  const cat = grammarCategoryByKey(state.grammarCategory);
   const picked = state.grammarPick.size;
+  const clearable = cat ? paradigmsInCategory(cat).some(p => state.grammarPick.has(p.id)) : picked > 0;
   const questions = quizMode ? grammarPickQuestionCount() : 0;
+  const body = cat
+    ? `<section class="pg-group">
+        <span class="kicker">${escapeHtml(cat.label.toUpperCase())}</span>
+        <div class="pg-list">${sortedParadigms(paradigmsInCategory(cat)).map(paradigmRowHtml).join('')}</div>
+      </section>`
+    : `<section class="pg-group">
+        <span class="kicker">WHAT DO YOU WANT TO STUDY?</span>
+        <div class="pg-list">${GRAMMAR_CATEGORIES.map(grammarCategoryRowHtml).join('')}</div>
+      </section>`;
 
   document.getElementById('screen').innerHTML = `
     <div class="fade-in">
@@ -6008,17 +6171,18 @@ function renderGrammarList() {
 
       <h1 class="greeting" style="font-size:clamp(26px,8vw,34px)">${quizMode ? 'Form Quiz' : 'Sort the Table'}</h1>
 
-      <p class="pg-intro text-muted">${quizMode
+      ${cat ? '' : `<p class="pg-intro text-muted">${quizMode
         ? 'You are given an address — the case, the number, the person — and pick the form that belongs there. Choose what it should cover.'
-        : 'Every paradigm comes up empty, and you drag the forms back into place. No typing — the forms are cards.'}</p>
+        : 'Every paradigm comes up empty, and you drag the forms back into place. No typing — the forms are cards.'}</p>`}
 
-      ${quizMode ? `
-      <div class="pg-pick-actions">
-        <button class="link-btn" id="btn-pick-term">This term's paradigms</button>
-        <button class="link-btn" id="btn-pick-none" ${picked ? '' : 'disabled'}>Clear</button>
+      ${cat || quizMode ? `
+      <div class="pg-pick-actions" ${cat ? 'style="margin-top:10px"' : ''}>
+        ${cat ? '<button class="link-btn pg-back" id="btn-pick-back">All categories</button>' : ''}
+        ${cat && quizMode ? `<button class="link-btn" id="btn-pick-term">This term's paradigms</button>` : ''}
+        ${quizMode ? `<button class="link-btn" id="btn-pick-none" ${clearable ? '' : 'disabled'}>Clear</button>` : ''}
       </div>` : ''}
 
-      ${grammarGroupsHtml()}
+      ${body}
 
       ${quizMode ? `
       <div class="pg-quiz-bar">
@@ -6036,9 +6200,13 @@ function renderGrammarList() {
       ? toggleGrammarPick(el.dataset.paradigm)
       : startParadigm(el.dataset.paradigm));
   });
-  document.getElementById('btn-exit-quiz').addEventListener('click', goGrammar);
+  document.querySelectorAll('[data-gcat]').forEach(el => {
+    el.addEventListener('click', () => openGrammarCategory(el.dataset.gcat));
+  });
+  document.getElementById('btn-exit-quiz').addEventListener('click', grammarListBack);
+  if (cat) document.getElementById('btn-pick-back').addEventListener('click', grammarListBack);
   if (quizMode) {
-    document.getElementById('btn-pick-term').addEventListener('click', pickTermParadigms);
+    if (cat) document.getElementById('btn-pick-term').addEventListener('click', pickTermParadigms);
     const clear = document.getElementById('btn-pick-none');
     if (!clear.disabled) clear.addEventListener('click', clearGrammarPick);
     const start = document.getElementById('btn-start-gquiz');
@@ -6106,6 +6274,11 @@ function paradigmLemma(p) {
    reading the same would make the question unanswerable. */
 function questionsForParadigm(p) {
   const lemma = paradigmLemma(p);
+  /* a preposition table runs the other way: the cell is the gloss, so the
+     card names the preposition and its case and asks for the meaning. The
+     option rules below still hold, so a gloss that reads the same as the
+     answer ("with", "from") is never offered as a wrong one. */
+  const prep = p.category === 'preposition';
   return paradigmCellKeys(p).map(key => {
     const [row, col] = key.split('|');
     const correct = cellFace(p.cells[key]);
@@ -6121,7 +6294,8 @@ function questionsForParadigm(p) {
     return {
       pid: p.id,
       label: p.label,
-      prompt: `What is the ${row} ${col} of ${lemma}?`,
+      kicker: prep ? 'GIVE THE GLOSS' : 'GIVE THE FORM',
+      prompt: prep ? `${row} + ${col.toLowerCase()}` : `What is the ${row} ${col} of ${lemma}?`,
       correct,
       options: shuffle(options)
     };
@@ -6138,7 +6312,7 @@ function buildGrammarQuiz(ids) {
 }
 
 function startGrammarQuiz() {
-  const ids = PARADIGMS.filter(p => state.grammarPick.has(p.id)).map(p => p.id);
+  const ids = grammarTables().filter(p => state.grammarPick.has(p.id)).map(p => p.id);
   if (!ids.length) return;
   const questions = buildGrammarQuiz(ids);
   if (!questions.length) return;
@@ -6222,7 +6396,7 @@ function renderGrammarQuiz() {
         <div class="prompt-panel glass">
           ${glassLayer()}
           <div class="glass-content">
-            <div class="kicker">GIVE THE FORM</div>
+            <div class="kicker">${current.kicker}</div>
             <div class="prompt-word is-english pg-quiz-prompt" style="margin-top:12px">${escapeHtml(current.prompt)}</div>
             <div class="prompt-meta">${escapeHtml(current.label)}</div>
           </div>
@@ -6283,8 +6457,22 @@ function renderGrammarQuizDone() {
 /* ---------- picker: choosing what the quiz covers ---------- */
 function goGrammarMode(mode) {
   state.grammarMode = mode;
+  state.grammarCategory = null;
   state.screen = 'grammarList';
   render();
+}
+
+function openGrammarCategory(key) {
+  state.grammarCategory = key;
+  render();
+  window.scrollTo(0, 0);
+}
+
+/* back is one step at a time: a category's list goes to the category step,
+   and the category step goes to the hub */
+function grammarListBack() {
+  if (state.grammarCategory) { state.grammarCategory = null; render(); window.scrollTo(0, 0); }
+  else goGrammar();
 }
 
 function toggleGrammarPick(id) {
@@ -6294,16 +6482,29 @@ function toggleGrammarPick(id) {
 }
 
 /* the default offer: this term's material, and only this term's -- the
-   future-term tables stay unchecked unless they are asked for by hand */
+   future-term tables stay unchecked unless they are asked for by hand. It
+   works on the open category only, so ticks made in another category stay. */
 function pickTermParadigms() {
-  state.grammarPick = new Set(PARADIGMS.filter(paradigmInScope).map(p => p.id));
+  const cat = grammarCategoryByKey(state.grammarCategory);
+  if (!cat) return;
+  paradigmsInCategory(cat).forEach(p => {
+    if (paradigmInScope(p)) state.grammarPick.add(p.id);
+    else state.grammarPick.delete(p.id);
+  });
   render();
 }
 
-function clearGrammarPick() { state.grammarPick = new Set(); render(); }
+/* inside a category, Clear clears that category; on the category step it
+   clears the whole selection */
+function clearGrammarPick() {
+  const cat = grammarCategoryByKey(state.grammarCategory);
+  if (cat) paradigmsInCategory(cat).forEach(p => state.grammarPick.delete(p.id));
+  else state.grammarPick = new Set();
+  render();
+}
 
 function grammarPickQuestionCount() {
-  return PARADIGMS.reduce((n, p) => n + (state.grammarPick.has(p.id) ? paradigmCellKeys(p).length : 0), 0);
+  return grammarTables().reduce((n, p) => n + (state.grammarPick.has(p.id) ? paradigmCellKeys(p).length : 0), 0);
 }
 
 /* ---------- grammar: Parse ----------
@@ -7152,7 +7353,8 @@ function escapeAction(kind) {
   if (kind === 'review' || kind === 'review-done') return exitReview;
   if (kind === 'chapter-done') return closeCelebration;
   if (kind === 'collection') return exitCollection;
-  if (kind === 'grammar-list' || kind === 'grammar-ref') return goGrammar;
+  if (kind === 'grammar-list') return grammarListBack;
+  if (kind === 'grammar-ref') return goGrammar;
   if (kind === 'grammar-drill' || kind === 'grammar-done') return goGrammarList;
   if (kind === 'grammar-quiz' || kind === 'grammar-quiz-done') return exitGrammarQuiz;
   if (kind === 'parse-setup') return goGrammar;
